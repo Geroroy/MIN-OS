@@ -34,11 +34,12 @@ ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\r")
 
 
 class Qemu:
-    def __init__(self, iso, out, boot_timeout, res="1280x720"):
+    def __init__(self, iso, out, boot_timeout, res="1280x720", uefi=False):
         self.iso = iso
         self.out = out
         self.boot_timeout = boot_timeout
         self.res = res
+        self.uefi = uefi
         self.disk_mode = os.path.isdir(iso) or iso.endswith(".qcow2")
         self.monitor = os.path.join(tempfile.mkdtemp(prefix="minos-qemu-"), "monitor.sock")
         self.vars = os.path.join(os.path.dirname(self.monitor), "ovmf-vars.fd")
@@ -47,7 +48,10 @@ class Qemu:
 
     def start(self):
         env = dict(os.environ, MINOS_OVMF_VARS=self.vars)
-        cmd = [os.path.join(REPO, "image/qemu/run.sh"), "--serial", "--monitor", self.monitor, "--res", self.res, self.iso]
+        cmd = [os.path.join(REPO, "image/qemu/run.sh"), "--serial", "--monitor", self.monitor, "--res", self.res]
+        if self.uefi:
+            cmd.append("--uefi")
+        cmd.append(self.iso)
         self.child = pexpect.spawn(cmd[0], cmd[1:], env=env, timeout=self.boot_timeout, logfile=self.log,
                                    encoding=None, dimensions=(50, 200))
 
@@ -131,12 +135,13 @@ def main():
     ap.add_argument("--timeout", type=int, default=900, help="부팅 대기 한도 (초). TCG 에서는 수 분 걸린다")
     ap.add_argument("--skip-reboot", action="store_true")
     ap.add_argument("--res", default="1280x720")
+    ap.add_argument("--uefi", action="store_true", help="디스크 번들을 UEFI 펌웨어(AAVMF/OVMF)+GRUB 으로 부팅")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     import check_screenshot  # tests/shell
-    metrics = {"target": args.iso, "res": args.res}
+    metrics = {"target": args.iso, "res": args.res, "uefi": args.uefi}
 
-    q = Qemu(args.iso, args.out, args.timeout, args.res)
+    q = Qemu(args.iso, args.out, args.timeout, args.res, args.uefi)
     try:
         step("QEMU 시작" + ("" if q.disk_mode else ", GRUB 메뉴에서 serial 항목 선택"))
         t0 = time.time()

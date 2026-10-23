@@ -81,7 +81,8 @@ if [ "$ARCH" = arm64 ]; then
   CONSOLE="console=tty1 console=ttyAMA0,115200"
 else
   QEMU=qemu-system-x86_64; CPU=${CPU:-max}
-  ARGS=(-machine q35 -accel "$ACCEL" -cpu "$CPU" -smp "$SMP" -m "$MEM")
+  # -vga none: q35 의 기본 VGA 를 끄고 virtio-gpu 하나만 둔다 (두 출력이 생기면 screendump 가 빈 화면을 찍는다)
+  ARGS=(-machine q35 -accel "$ACCEL" -cpu "$CPU" -smp "$SMP" -m "$MEM" -vga none)
   CONSOLE="console=tty1 console=ttyS0,115200"
 fi
 command -v "$QEMU" >/dev/null || { echo "$QEMU not installed (qemu-system-arm / qemu-system-x86)" >&2; exit 2; }
