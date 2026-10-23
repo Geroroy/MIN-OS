@@ -1,0 +1,17 @@
+{
+  "target": "out/minos-arm64",
+  "res": "1280x720",
+  "boot_to_shell_s": 97.9,
+  "boot_to_shell_process_s": 105.2,
+  "mem_total_mb": 1960,
+  "mem_used_mb": 164,
+  "top_rss": [
+    "51200 minos-shell",
+    "27264 labwc",
+    "17024 NetworkManager",
+    "11736 systemd",
+    "10368 systemd"
+  ],
+  "idle_top_cpu_line": "%Cpu(s): 12.5 us, 22.2 sy,  0.0 ni, 65.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
+  "result": "PASS"
+}

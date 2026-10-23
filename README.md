@@ -9,6 +9,7 @@ MIN OS는 Debian Stable 위에 자체 사용자 인터페이스, 시스템 애�
 | 항목 | 선택 |
 |---|---|
 | Base | Debian Stable (현재 Debian 13 "trixie") |
+| Architectures | x86-64 (PC, live ISO) · ARM64 (Android/Termux QEMU, qcow2 번들) |
 | Kernel | Linux (Debian 커널 패키지) |
 | Display | Wayland |
 | Compositor | Labwc (wlroots 기반, 초기 단계) |
@@ -29,11 +30,15 @@ MIN-OS/
 │   ├── ARCHITECTURE.md       시스템 아키텍처
 │   ├── DESIGN_LANGUAGE.md    MIN 디자인 언어 (색상·치수·타이포·상호작용)
 │   ├── MILESTONE_1.md        첫 번째 마일스톤 구현 계획 및 검증 방법
-│   └── BUILD_ENVIRONMENT.md  빌드 환경 요구사항과 제약
+│   ├── BUILD_ENVIRONMENT.md  빌드 환경 요구사항과 제약
+│   ├── ARM64_ARCHITECTURE.md ARM64/x86-64 공통 구조와 차이
+│   ├── ANDROID_EMULATION.md  Android(Termux) 에서 QEMU 로 MIN OS 실행
+│   └── ANDROID_PERFORMANCE.md 모바일 성능 측정·튜닝
 ├── scripts/
 │   └── install-deps.sh       호스트 개발 의존성 설치 (Debian/Ubuntu)
-├── image/                    부팅 이미지 빌드 파이프라인
-│   ├── build.sh              rootfs → MIN 컴포넌트 빌드 → squashfs → hybrid ISO
+├── android/                  Termux 실행/설치 스크립트 (start-minos.sh, install-termux.sh)
+├── image/                    부팅 이미지 빌드 파이프라인 (x86-64 ISO · ARM64 디스크 번들)
+│   ├── build.sh              rootfs → MIN 컴포넌트 빌드 → squashfs+ISO 또는 GPT/ext4+qcow2
 │   ├── config/
 │   │   ├── suites/           대상 배포판 프로필 (debian-trixie, ubuntu-noble)
 │   │   ├── packages.*        패키지 목록 (base / desktop / dev)
@@ -54,11 +59,16 @@ MIN-OS/
     └── image/                QEMU 부팅·종료·재부팅 자동 검증
 ```
 
-## 현재 상태 (M1)
+## 현재 상태 (M1 + ARM64)
 
 ![MIN OS M1 desktop](docs/screenshots/m1-launcher.png)
 
-QEMU(UEFI)에서 부팅한 개발 이미지: labwc 세션 위의 MIN Shell 패널과 실행 메뉴. `DEVELOPMENT_PLAN.md` 참고.
+x86-64 QEMU(UEFI)에서 부팅한 개발 이미지: labwc 세션 위의 MIN Shell 패널과 실행 메뉴.
+
+![MIN OS ARM64](docs/screenshots/arm64-terminal.png)
+
+ARM64 디스크 번들을 QEMU `virt` 머신(TCG, virtio-gpu 1280×720)으로 부팅한 화면. 같은 셸·세션 코드가 두 아키텍처에서 동작한다.
+Galaxy S25 Ultra 실기기 검증은 아직 수행되지 않았다. `DEVELOPMENT_PLAN.md` 참고.
 
 ## 빠른 시작
 
@@ -80,7 +90,13 @@ make run-serial              # 시리얼 콘솔만 (헤드리스 서버)
 
 # 5. 자동 부팅 테스트 (부팅 → 로그인 → 세션 확인 → 종료 → 재부팅)
 sudo make test-image
+
+# 6. ARM64 (Android/Termux 용) 번들: out/minos-arm64/ → make bundle-android → 휴대폰으로 복사
+sudo make image-arm64 SUITE=ubuntu-noble
+sudo make test-image-arm64          # PC QEMU(TCG)에서 ARM64 부팅·세션·재부팅·종료 검증
+make bundle-android                 # out/minos-android-arm64.tar.zst
 ```
+Android 에서의 실행 방법은 `docs/ANDROID_EMULATION.md` 를 참고하십시오.
 
 자세한 내용은 `docs/MILESTONE_1.md`와 `docs/BUILD_ENVIRONMENT.md`를 참고하십시오.
 

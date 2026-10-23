@@ -50,6 +50,28 @@
 - [ ] 이미지 APT 소스에 updates/security 포켓 추가 (현재 release 포켓만: Ubuntu 커널 6.8.0-31)
 - [ ] 실행 메뉴/전원 메뉴 한국어 번역 (Qt Linguist, M2 i18n과 함께)
 
+## M1-A — Android(ARM64) 에뮬레이션 트랙  ◐
+
+목표: Galaxy S25 Ultra 의 Termux QEMU(ARM64, TCG, 루트 없음)에서 MIN OS 전체를 부팅한다. 문서: `docs/ANDROID_EMULATION.md`,
+`docs/ARM64_ARCHITECTURE.md`, `docs/ANDROID_PERFORMANCE.md`.
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| A | 기존 빌드 시스템 분석, 아키텍처 의존 부분 분리 | ☑ |
+| B | ARM64 이미지 빌드: 교차 rootfs(qemu-user binfmt), 디스크 이미지(GPT/ESP/ext4 → qcow2), in-target GRUB arm64-efi, mobile 프로필 | ☑ `sudo make image-arm64` |
+| C | PC QEMU 에서 ARM64 부팅 검증 (직접 커널 부팅) | ☑ root 셸 98 s, systemd running |
+| C' | UEFI(AAVMF) 경로 | ◐ GRUB 메뉴 도달 확인, 전체 부팅은 §검증 로그 참고 |
+| D | ARM64 그래픽 세션 검증: greetd → labwc → MIN Shell → 터미널 → 재부팅 → 종료, 스크린샷 | ☑ `docs/screenshots/arm64-*.png` |
+| E | Termux 실행 스크립트 `android/start-minos.sh`, 설치 스크립트 `android/install-termux.sh`, VNC 127.0.0.1 | ☑ (스크립트 문법·PC 장치 모델 동일성 확인, Termux 실행은 미검증) |
+| F | 실기기 테스트 절차 (`docs/ANDROID_EMULATION.md` §8 체크리스트) | ☑ 절차 제공 / ☐ 실기기 수행 |
+| G | 성능 최적화(mobile 프로필)·회귀 테스트(x86-64 M1 재실행) | ◐ |
+
+### M1-A 잔여 작업
+- [ ] **Galaxy S25 Ultra 실기기 검증** (Termux 패키지 설치 → 부팅 → VNC 조작 → 측정값 기록)
+- [ ] Debian trixie ARM64 빌드 (Debian 미러 접근 가능한 PC)
+- [ ] 실기기 측정 후 기본 vCPU/해상도 재조정
+- [ ] 터치 UX 개선: 패널 높이/버튼 크기 모바일 프로필 옵션 (디자인 언어 유지 범위 안에서)
+
 ## M2 — MIN Shell 완성  ☐
 
 - 창 목록/전환: `wlr-foreign-toplevel-management-unstable-v1` (labwc 지원) — Alt+Tab 오버레이 포함
@@ -96,3 +118,5 @@
 | 5 | M1 터미널은 foot 재사용 | 원칙 4(초기에는 안정 컴포넌트 재사용). MIN Terminal은 M5. |
 | 6 | MIN 컴포넌트는 대상 chroot 안에서 빌드 | 호스트 Qt 버전과 대상 이미지 Qt 버전 불일치를 피하고, 결과 바이너리가 실제 설치 환경과 동일하다. |
 | 7 | Rust는 시스템 데몬·설치기 백엔드, C++는 Qt UI | Qt/QML 바인딩 성숙도와 메모리 안전성의 균형. |
+| 8 | ARM64 는 디스크 이미지(qcow2) + 직접 커널 부팅을 기본으로 | Termux QEMU 에 펌웨어 의존 없음, 영속 저장, 커널 명령행 제어. UEFI/GRUB 은 같은 이미지의 ESP 로 병행 지원. |
+| 9 | 교차 빌드 대신 qemu-user binfmt 로 대상 chroot 안에서 네이티브 빌드 | 교차 컴파일 툴체인·sysroot 관리 불필요, 결과물이 대상과 동일. 빌드 시간(≈ 20분)은 허용 범위. |

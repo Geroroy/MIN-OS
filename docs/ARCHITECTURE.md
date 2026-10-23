@@ -109,6 +109,11 @@ systemd → (plymouth 없음, 조용한 콘솔) → greetd.service → minos-ses
 - 부팅 중 커널 메시지는 `quiet loglevel=3`, 콘솔 로고 없음. 부팅 애니메이션은 넣지 않는다(최소 애니메이션 원칙).
 - 종료/재부팅: 셸 → logind D-Bus. logind가 세션을 종료하고 systemd가 전원 상태를 바꾼다.
 
+## 3.1 아키텍처
+
+x86-64(PC)와 ARM64(Android/Termux QEMU)를 같은 코드로 지원한다. 차이는 이미지 빌드와 QEMU 실행 옵션에만 있다.
+`docs/ARM64_ARCHITECTURE.md` 참고.
+
 ## 4. 이미지 빌드 파이프라인 (`image/`)
 
 ```
