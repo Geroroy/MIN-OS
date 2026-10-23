@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MIN OS
+Comment=MIN OS desktop session (labwc + MIN Shell)
+Exec=minos-session
+Type=Application
+DesktopNames=MIN

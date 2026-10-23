@@ -1,0 +1,41 @@
+# MIN 테마 (Graphite) — labwc themerc. docs/DESIGN_LANGUAGE.md 토큰과 일치.
+border.width: 1
+padding.height: 4
+padding.width: 8
+
+window.active.border.color: #5c5c5c
+window.inactive.border.color: #3a3a3a
+window.active.title.bg.color: #242424
+window.inactive.title.bg.color: #1e1e1e
+window.active.label.text.color: #e4e4e4
+window.inactive.label.text.color: #9a9a9a
+window.label.text.justify: left
+
+window.active.button.unpressed.image.color: #e4e4e4
+window.inactive.button.unpressed.image.color: #9a9a9a
+window.active.button.hover.bg.color: #2e2e2e
+window.inactive.button.hover.bg.color: #2e2e2e
+
+menu.border.width: 1
+menu.border.color: #5c5c5c
+menu.items.bg.color: #242424
+menu.items.text.color: #e4e4e4
+menu.items.active.bg.color: #3d7bd9
+menu.items.active.text.color: #ffffff
+menu.separator.color: #3a3a3a
+menu.separator.width: 1
+menu.items.padding.x: 8
+menu.items.padding.y: 3
+
+osd.bg.color: #242424
+osd.border.color: #5c5c5c
+osd.border.width: 1
+osd.label.text.color: #e4e4e4
+osd.window-switcher.width: 480
+osd.window-switcher.padding: 4
+osd.window-switcher.item.padding.x: 8
+osd.window-switcher.item.padding.y: 2
+osd.window-switcher.item.active.border.width: 1
+
+snapping.overlay.region.bg.color: #3d7bd980
+snapping.overlay.edge.bg.color: #3d7bd980

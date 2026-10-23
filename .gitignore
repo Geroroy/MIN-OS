@@ -1,0 +1,10 @@
+build/
+build-*/
+out/
+image/work/
+*.iso
+*.qcow2
+*.img
+__pycache__/
+.cache/
+compile_commands.json

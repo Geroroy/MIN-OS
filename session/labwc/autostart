@@ -1,0 +1,15 @@
+# MIN OS 세션 자동 시작 (labwc가 /bin/sh 로 실행)
+# 배경
+WALL=${MINOS_WALLPAPER:-/usr/share/minos/wallpaper/min-graphite.png}
+if [ -f "$WALL" ]; then
+  swaybg -i "$WALL" -m fill -c '#1a1a1a' >/dev/null 2>&1 &
+else
+  swaybg -c '#1a1a1a' >/dev/null 2>&1 &
+fi
+
+# systemd --user / D-Bus 활성화 환경에 Wayland 디스플레이 전달 (포털, 알림 등)
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP QT_QPA_PLATFORM 2>/dev/null
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP QT_QPA_PLATFORM 2>/dev/null
+
+# MIN Shell (로그: $XDG_RUNTIME_DIR/minos-shell.log)
+[ "${MINOS_SHELL:-minos-shell}" = none ] || "${MINOS_SHELL:-minos-shell}" >"${XDG_RUNTIME_DIR:-/tmp}/minos-shell.log" 2>&1 &

@@ -1,0 +1,7 @@
+module MinUI
+singleton Theme 1.0 Theme.qml
+MButton 1.0 MButton.qml
+MLabel 1.0 MLabel.qml
+MSeparator 1.0 MSeparator.qml
+MTextField 1.0 MTextField.qml
+MListRow 1.0 MListRow.qml

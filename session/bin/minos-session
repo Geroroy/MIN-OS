@@ -1,0 +1,33 @@
+#!/bin/sh
+# MIN OS 세션 진입점 — greetd 또는 wayland-sessions 항목에서 실행된다.
+# 환경을 준비하고 labwc(컴포지터)를 실행한다. labwc 종료 = 세션 종료.
+set -u
+
+export XDG_CURRENT_DESKTOP=MIN
+export XDG_SESSION_DESKTOP=minos
+export XDG_SESSION_TYPE=wayland
+export QT_QPA_PLATFORM=wayland
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+export MOZ_ENABLE_WAYLAND=1
+
+# 세션 로그
+STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/minos
+mkdir -p "$STATE_DIR" 2>/dev/null && exec >>"$STATE_DIR/session.log" 2>&1
+echo "== minos-session start $(date -Is) user=$(id -un) tty=$(tty 2>/dev/null)"
+
+# GPU가 없거나(QEMU TCG) 커널 명령행에 minos.render=software 가 있으면 소프트웨어 렌더링
+if grep -qw 'minos.render=software' /proc/cmdline 2>/dev/null || ! ls /dev/dri/renderD* >/dev/null 2>&1; then
+  export WLR_RENDERER=pixman
+  export QT_QUICK_BACKEND=software
+  echo "software rendering enabled"
+fi
+
+# 설정 디렉터리: 사용자 재정의 > 시스템 기본
+CONF=/etc/minos/labwc
+[ -d "$HOME/.config/minos/labwc" ] && CONF="$HOME/.config/minos/labwc"
+
+# 세션 D-Bus (systemd --user + dbus-user-session 이 있으면 이미 설정되어 있다)
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && command -v dbus-run-session >/dev/null 2>&1; then
+  exec dbus-run-session -- labwc -C "$CONF" "$@"
+fi
+exec labwc -C "$CONF" "$@"

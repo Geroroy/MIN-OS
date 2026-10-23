@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!-- MIN OS labwc 설정. 시스템: /etc/minos/labwc/rc.xml, 사용자 재정의: ~/.config/minos/labwc/rc.xml -->
+<labwc_config>
+  <core>
+    <decoration>server</decoration>
+    <gap>0</gap>
+    <adaptiveSync>no</adaptiveSync>
+    <reuseOutputMode>yes</reuseOutputMode>
+  </core>
+
+  <placement>
+    <policy>center</policy>
+  </placement>
+
+  <!-- 각진 창, 1px 테두리. 색상은 themerc-override 참고 -->
+  <theme>
+    <cornerRadius>0</cornerRadius>
+    <keepBorder>yes</keepBorder>
+    <font place="ActiveWindow" name="Inter" size="9" />
+    <font place="InactiveWindow" name="Inter" size="9" />
+    <font place="MenuItem" name="Inter" size="9" />
+    <font place="OnScreenDisplay" name="Inter" size="9" />
+  </theme>
+
+  <focus>
+    <followMouse>no</followMouse>
+    <raiseOnFocus>no</raiseOnFocus>
+  </focus>
+
+  <!-- Alt+Tab 창 전환: 윈도우 2000식 목록형 OSD, 미리보기 없음 (최소 애니메이션 원칙) -->
+  <windowSwitcher show="yes" preview="no" outlines="yes" allWorkspaces="no">
+    <fields>
+      <field content="type" width="20%" />
+      <field content="title" width="80%" />
+    </fields>
+  </windowSwitcher>
+
+  <desktops number="1" />
+
+  <keyboard>
+    <default />
+    <!-- MIN 단축키 (docs/DESIGN_LANGUAGE.md §6) -->
+    <keybind key="W-Return"><action name="Execute" command="foot" /></keybind>
+    <keybind key="W-space"><action name="Execute" command="minos-shell --toggle-launcher" /></keybind>
+    <keybind key="W-e"><action name="Execute" command="minos-shell --show-launcher" /></keybind>
+    <keybind key="W-Escape"><action name="Execute" command="minos-shell --power" /></keybind>
+    <keybind key="A-F4"><action name="Close" /></keybind>
+    <keybind key="W-q"><action name="Close" /></keybind>
+    <keybind key="W-Up"><action name="ToggleMaximize" /></keybind>
+    <keybind key="W-Down"><action name="Iconify" /></keybind>
+    <keybind key="W-Left"><action name="SnapToEdge" direction="left" /></keybind>
+    <keybind key="W-Right"><action name="SnapToEdge" direction="right" /></keybind>
+    <keybind key="A-Tab"><action name="NextWindow" /></keybind>
+    <keybind key="A-S-Tab"><action name="PreviousWindow" /></keybind>
+    <keybind key="W-S-r"><action name="Reconfigure" /></keybind>
+  </keyboard>
+
+  <mouse>
+    <default />
+    <context name="Root">
+      <mousebind button="Right" action="Press"><action name="ShowMenu" menu="root-menu" /></mousebind>
+      <mousebind button="Middle" action="Press"><action name="Execute" command="minos-shell --toggle-launcher" /></mousebind>
+    </context>
+    <context name="TitleBar">
+      <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize" /></mousebind>
+    </context>
+  </mouse>
+
+  <libinput>
+    <device category="default">
+      <naturalScroll>no</naturalScroll>
+      <tap>yes</tap>
+    </device>
+  </libinput>
+</labwc_config>

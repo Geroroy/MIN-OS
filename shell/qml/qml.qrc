@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/qml">
+    <file>Main.qml</file>
+    <file>Panel.qml</file>
+    <file>Launcher.qml</file>
+    <file>PowerMenu.qml</file>
+    <file>TaskButton.qml</file>
+    <file>PowerIcon.qml</file>
+  </qresource>
+</RCC>
