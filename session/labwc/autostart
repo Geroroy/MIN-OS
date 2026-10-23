@@ -2,7 +2,7 @@
 # 배경
 WALL=${MINOS_WALLPAPER:-/usr/share/minos/wallpaper/min-graphite.png}
 if [ -f "$WALL" ]; then
-  swaybg -i "$WALL" -m fill -c '#1a1a1a' >/dev/null 2>&1 &
+  swaybg -i "$WALL" -m fit -c '#1a1a1a' >/dev/null 2>&1 &
 else
   swaybg -c '#1a1a1a' >/dev/null 2>&1 &
 fi
