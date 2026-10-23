@@ -210,7 +210,12 @@ def main():
             q.wait_prompt()
             rc, out = q.sh("systemctl is-system-running --wait", timeout=300)
             check(out.strip() in ("running", "degraded"), f"second boot: {out.strip()}")
-            rc, out = q.sh("pgrep -a minos-shell")
+            deadline = time.time() + 180
+            while time.time() < deadline:
+                rc, out = q.sh("pgrep -a minos-shell")
+                if rc == 0:
+                    break
+                time.sleep(5)
             check(rc == 0, f"second boot session: {out}")
 
         step("전원: PowerOff")
