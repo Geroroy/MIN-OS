@@ -1,17 +1,18 @@
 {
   "target": "out/minos-arm64",
   "res": "1280x720",
-  "boot_to_shell_s": 97.9,
-  "boot_to_shell_process_s": 105.2,
+  "uefi": false,
+  "boot_to_shell_s": 86.1,
+  "boot_to_shell_process_s": 93.1,
   "mem_total_mb": 1960,
-  "mem_used_mb": 164,
+  "mem_used_mb": 166,
   "top_rss": [
-    "51200 minos-shell",
-    "27264 labwc",
-    "17024 NetworkManager",
-    "11736 systemd",
+    "50176 minos-shell",
+    "27008 labwc",
+    "16768 NetworkManager",
+    "11588 systemd",
     "10368 systemd"
   ],
-  "idle_top_cpu_line": "%Cpu(s): 12.5 us, 22.2 sy,  0.0 ni, 65.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
+  "idle_top_cpu_line": "%Cpu(s): 10.8 us, 23.1 sy,  0.0 ni, 66.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
   "result": "PASS"
 }

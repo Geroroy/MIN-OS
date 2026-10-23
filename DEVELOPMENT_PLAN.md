@@ -64,7 +64,7 @@
 | D | ARM64 그래픽 세션 검증: greetd → labwc → MIN Shell → 터미널 → 재부팅 → 종료, 스크린샷 | ☑ `docs/screenshots/arm64-*.png` |
 | E | Termux 실행 스크립트 `android/start-minos.sh`, 설치 스크립트 `android/install-termux.sh`, VNC 127.0.0.1 | ☑ (스크립트 문법·PC 장치 모델 동일성 확인, Termux 실행은 미검증) |
 | F | 실기기 테스트 절차 (`docs/ANDROID_EMULATION.md` §8 체크리스트) | ☑ 절차 제공 / ☐ 실기기 수행 |
-| G | 성능 최적화(mobile 프로필)·회귀 테스트(x86-64 M1 재실행) | ◐ |
+| G | 성능 최적화(mobile 프로필)·회귀 테스트(x86-64 M1 재실행) | ☑ x86-64 ISO 재빌드 후 M1 테스트 PASS, ARM64 직접/UEFI 부팅 PASS |
 
 ### M1-A 잔여 작업
 - [ ] **Galaxy S25 Ultra 실기기 검증** (Termux 패키지 설치 → 부팅 → VNC 조작 → 측정값 기록)

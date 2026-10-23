@@ -23,8 +23,8 @@ Termux 에서는 `start-minos.sh` 가 남기는 `logs/serial-*.log` 의 타임�
 
 | 지표 | 값 |
 |---|---|
-| QEMU 시작 → root 셸 | 97.9 s |
-| QEMU 시작 → minos-shell 프로세스 | 105.2 s |
+| QEMU 시작 → root 셸 | 86 ~ 98 s (두 번 측정) |
+| QEMU 시작 → minos-shell 프로세스 | 93 ~ 105 s |
 | systemd-analyze | 19.5 s (kernel) + 64.0 s (userspace) = 83.5 s |
 | 게스트 메모리 사용 (세션 포함) | 164 MB / 1960 MB |
 | RSS 상위 | minos-shell 51 MB, labwc 27 MB, NetworkManager 17 MB, systemd 12 MB |
