@@ -164,7 +164,12 @@ def main():
         check(rc == 0, f"wayland socket: {out}")
         rc, out = q.sh("loginctl list-sessions --no-legend")
         print(f"   sessions: {out}")
-        rc, out = q.sh("cat /run/user/1000/minos-shell.log")
+        deadline = time.time() + 180
+        while time.time() < deadline:
+            rc, out = q.sh("cat /run/user/1000/minos-shell.log")
+            if "minos-panel\" configured" in out or "ready" in out:
+                break
+            time.sleep(5)
         print("   shell log:\n      " + out.replace("\n", "\n      "))
         check("configured" in out, "panel layer surface configured")
         rc, out = q.sh("tail -5 /home/min/.local/state/minos/session.log")
