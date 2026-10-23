@@ -90,7 +90,7 @@ command -v "$QEMU" >/dev/null || { echo "$QEMU not installed (qemu-system-arm / 
 # ---- 장치 모델 (Android 실행 스크립트와 동일) ----
 ARGS+=(-device "virtio-gpu-pci,xres=$XRES,yres=$YRES"
        -device virtio-keyboard-pci -device virtio-tablet-pci
-       -device virtio-net-pci,netdev=n0 -netdev user,id=n0
+       -device virtio-net-pci,netdev=n0,romfile= -netdev user,id=n0
        -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0
        -rtc base=utc)
 

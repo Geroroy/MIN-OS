@@ -107,7 +107,7 @@ ARGS=(-M virt -accel tcg,thread=multi -cpu "$CPU" -smp "$SMP" -m "$MEM"
       -drive "file=$DISK,if=virtio,format=qcow2,cache=writeback,discard=unmap"
       -device "virtio-gpu-pci,xres=$XRES,yres=$YRES"
       -device virtio-keyboard-pci -device virtio-tablet-pci
-      -device virtio-net-pci,netdev=n0 -netdev user,id=n0
+      -device virtio-net-pci,netdev=n0,romfile= -netdev user,id=n0
       -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0
       -rtc base=utc
       -display none -vnc "127.0.0.1:$VNC"
