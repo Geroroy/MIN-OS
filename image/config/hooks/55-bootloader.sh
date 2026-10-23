@@ -26,6 +26,6 @@ configfile ($root)/boot/grub/grub.cfg
 E
 mkdir -p /boot/efi-staging
 grub-mkstandalone -O "$TARGET" -o "/boot/efi-staging/$EFI" --locales="" --fonts="" \
-  --modules="part_gpt part_msdos ext2 fat search search_label search_fs_uuid normal configfile linux echo ls cat serial terminal all_video gfxterm font reboot halt" \
+  --modules="part_gpt part_msdos ext2 fat gzio search search_label search_fs_uuid normal configfile linux echo ls cat serial terminal all_video gfxterm font reboot halt" \
   "boot/grub/grub.cfg=/tmp/early.cfg" >/tmp/minos-grub-mk.log 2>&1 || { tail -20 /tmp/minos-grub-mk.log; exit 1; }
 ls -la "/boot/efi-staging/$EFI"

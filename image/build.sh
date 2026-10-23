@@ -2,7 +2,7 @@
 # MIN OS 부팅 이미지 빌드
 #   sudo image/build.sh [--suite debian-trixie|ubuntu-noble] [--arch amd64|arm64] [--format iso|disk]
 #                       [--profile default|mobile] [--output PATH] [--work DIR]
-#                       [--reuse-rootfs] [--iso-only|--image-only] [--no-iso] [--release]
+#                       [--reuse-rootfs] [--iso-only|--image-only] [--only-hook NN] [--no-iso] [--release]
 # 포맷
 #   iso  : squashfs + live-boot + GRUB hybrid ISO (BIOS+UEFI)            — 기본 (amd64)
 #   disk : GPT 디스크 이미지(ESP + ext4 루트) → qcow2 + vmlinuz/initrd 번들   — 기본 (arm64, Termux QEMU)
@@ -19,6 +19,7 @@ OUTPUT=""
 WORK=""
 REUSE_ROOTFS=0
 ISO_ONLY=0
+ONLY_HOOK=""
 NO_ISO=0
 DEV=1
 
@@ -32,6 +33,7 @@ while [ $# -gt 0 ]; do
     --work) WORK=$2; shift 2 ;;
     --reuse-rootfs) REUSE_ROOTFS=1; shift ;;
     --iso-only|--image-only) REUSE_ROOTFS=1; ISO_ONLY=1; shift ;;
+    --only-hook) REUSE_ROOTFS=1; ONLY_HOOK=$2; shift 2 ;;   # 기존 rootfs 에서 지정한 hook(접두 번호)만 다시 실행 후 이미지 조립
     --no-iso) NO_ISO=1; shift ;;
     --release) DEV=0; shift ;;
     -h|--help) sed -n 2,10p "$0"; exit 0 ;;
@@ -152,6 +154,7 @@ cp -a "$CONF/hooks" "$ROOTFS/tmp/minos-hooks"
 chroot_mount
 for hook in "$ROOTFS"/tmp/minos-hooks/*.sh; do
   name=$(basename "$hook")
+  [ -z "$ONLY_HOOK" ] || [[ "$name" == "$ONLY_HOOK"* ]] || continue
   log "   hook $name"
   run_in_chroot /bin/bash "/tmp/minos-hooks/$name"
 done
