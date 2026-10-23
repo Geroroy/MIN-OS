@@ -247,11 +247,12 @@ case "$ARCH" in
   arm64) ROOT_TYPE=B921B045-1DF0-41C3-AF44-4C6F280D3FAE ;;   # Linux root (ARM64)
   *)     ROOT_TYPE=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709 ;;   # Linux root (x86-64)
 esac
+# sfdisk 스크립트는 섹터 단위만 안정적으로 지원한다 (1 MiB = 2048 섹터)
 sfdisk -q "$RAW" <<P
 label: gpt
-unit: MiB
-start=1, size=${ESP_MB}, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="MINOS-ESP"
-start=$((1 + ESP_MB)), size=${ROOT_MB}, type=${ROOT_TYPE}, name="minos-root"
+unit: sectors
+start=2048, size=$((ESP_MB * 2048)), type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="MINOS-ESP"
+start=$(( (1 + ESP_MB) * 2048 )), size=$((ROOT_MB * 2048)), type=${ROOT_TYPE}, name="minos-root"
 P
 dd if="$ESP_IMG"  of="$RAW" bs=1M seek=1               conv=notrunc,sparse status=none
 dd if="$ROOT_IMG" of="$RAW" bs=1M seek=$((1 + ESP_MB)) conv=notrunc,sparse status=none
@@ -261,7 +262,7 @@ mkdir -p "$OUTPUT"
 QCOW=$OUTPUT/minos-$ARCH.qcow2
 qemu-img convert -f raw -O qcow2 "$RAW" "$QCOW"
 rm -f "$RAW"
-cp -L "$ROOTFS/boot/vmlinuz" "$OUTPUT/vmlinuz"
+cp -L "$ROOTFS/boot/vmlinuz" "$OUTPUT/vmlinuz"; chmod 644 "$OUTPUT/vmlinuz"
 cp -L "$ROOTFS/boot/initrd.img" "$OUTPUT/initrd.img"
 cp "$REPO/android/start-minos.sh" "$OUTPUT/start-minos.sh" 2>/dev/null || true
 chmod +x "$OUTPUT"/*.sh 2>/dev/null || true
