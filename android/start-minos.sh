@@ -9,6 +9,7 @@
 #   --cpu MODEL     QEMU CPU 모델 (기본 cortex-a76)
 #   --uefi          직접 커널 부팅 대신 UEFI 펌웨어(ovmf 패키지)로 부팅
 #   --serial        시리얼 콘솔을 이 터미널에 연결 (디버깅; 기본은 로그 파일)
+#   --no-open       VNC 앱을 자동으로 열지 않음 (기본: termux-open-url 로 vnc://127.0.0.1:5900 열기)
 #   --force         메모리 부족 경고를 무시하고 실행
 #   --status / --stop   실행 상태 확인 / 실행 중인 MIN OS 종료
 #
@@ -17,7 +18,7 @@
 set -euo pipefail
 
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-MEM=2048; SMP=2; RES=1280x720; VNC=0; CPU=cortex-a76; UEFI=0; SERIAL=0; FORCE=0; ACTION=run
+MEM=2048; SMP=2; RES=1280x720; VNC=0; CPU=cortex-a76; UEFI=0; SERIAL=0; FORCE=0; OPEN=1; ACTION=run
 while [ $# -gt 0 ]; do
   case "$1" in
     --mem) MEM=$2; shift 2 ;;
@@ -28,9 +29,10 @@ while [ $# -gt 0 ]; do
     --uefi) UEFI=1; shift ;;
     --serial) SERIAL=1; shift ;;
     --force) FORCE=1; shift ;;
+    --no-open) OPEN=0; shift ;;
     --status) ACTION=status; shift ;;
     --stop) ACTION=stop; shift ;;
-    -h|--help) sed -n 2,18p "$0"; exit 0 ;;
+    -h|--help) sed -n 2,19p "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -40,6 +42,8 @@ TMP=${TMPDIR:-$PREFIX/tmp}; mkdir -p "$TMP"
 LOGDIR=$DIR/logs; mkdir -p "$LOGDIR"
 PIDFILE=$TMP/minos-qemu.pid
 MONITOR=$TMP/minos-monitor.sock
+# Unix 소켓 경로는 108 바이트 미만이어야 한다. 너무 길면 모니터를 끈다 (--stop 은 SIGTERM 으로 대체).
+[ "${#MONITOR}" -lt 100 ] || MONITOR=""
 
 say() { printf '\033[1m[minos]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[minos] %s\033[0m\n' "$*" >&2; exit 1; }
@@ -52,7 +56,7 @@ fi
 if [ "$ACTION" = stop ]; then
   if pid=$(running_pid); then
     say "sending ACPI/PSCI power-down to guest (pid $pid)…"
-    if command -v socat >/dev/null && [ -S "$MONITOR" ]; then echo system_powerdown | socat - "UNIX-CONNECT:$MONITOR" >/dev/null 2>&1 || true; fi
+    if command -v socat >/dev/null && [ -n "$MONITOR" ] && [ -S "$MONITOR" ]; then echo system_powerdown | socat - "UNIX-CONNECT:$MONITOR" >/dev/null 2>&1 || true; fi
     for i in $(seq 1 30); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
     kill -0 "$pid" 2>/dev/null && { say "forcing stop"; kill "$pid"; }
     rm -f "$PIDFILE"; say "stopped"
@@ -107,8 +111,8 @@ ARGS=(-M virt -accel tcg,thread=multi -cpu "$CPU" -smp "$SMP" -m "$MEM"
       -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0
       -rtc base=utc
       -display none -vnc "127.0.0.1:$VNC"
-      -monitor "unix:$MONITOR,server,nowait"
       -pidfile "$PIDFILE")
+[ -n "$MONITOR" ] && ARGS+=(-monitor "unix:$MONITOR,server,nowait")
 if [ "$UEFI" = 1 ]; then
   VARS=$TMP/minos-efivars.fd; [ -f "$VARS" ] || truncate -s 64M "$VARS"
   CODE=$TMP/minos-eficode.fd; cp "$FW" "$CODE"; truncate -s 64M "$CODE"
@@ -120,7 +124,7 @@ if [ "$SERIAL" = 1 ]; then ARGS+=(-serial mon:stdio); else ARGS+=(-serial "file:
 
 command -v termux-wake-lock >/dev/null && termux-wake-lock 2>/dev/null || true
 cleanup() {
-  rm -f "$PIDFILE" "$MONITOR"
+  rm -f "$PIDFILE" ${MONITOR:+"$MONITOR"}
   command -v termux-wake-unlock >/dev/null && termux-wake-unlock 2>/dev/null || true
   say "종료됨. 로그: $SERIAL_LOG"
 }
@@ -132,5 +136,12 @@ say "VNC 접속: 127.0.0.1:$((5900 + VNC))   (Android VNC 클라이언트에서 
 say "시리얼 로그: $SERIAL_LOG   —   종료: 패널 전원 메뉴 → Shut down, 또는 bash $0 --stop"
 say "첫 부팅은 소프트웨어 에뮬레이션(TCG)이라 1~3분 걸릴 수 있습니다."
 START=$(date +%s)
+# VNC 앱 자동 열기: QEMU 가 VNC 포트를 연 뒤 vnc:// URL 을 Android 에 전달 (AVNC, bVNC 등이 처리)
+if [ "$OPEN" = 1 ] && command -v termux-open-url >/dev/null; then
+  ( for i in $(seq 1 30); do
+      sleep 1
+      if [ -s "$PIDFILE" ]; then sleep 1; termux-open-url "vnc://127.0.0.1:$((5900 + VNC))" >/dev/null 2>&1 || true; break; fi
+    done ) &
+fi
 "$QEMU" "${ARGS[@]}" 2>"$QEMU_LOG" || { say "QEMU 가 오류로 종료되었습니다. $QEMU_LOG:"; tail -20 "$QEMU_LOG"; exit 1; }
 say "가동 시간: $(( $(date +%s) - START ))초"

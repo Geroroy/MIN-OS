@@ -10,6 +10,29 @@ Android VNC 클라이언트로 조작한다. PRoot 나 웹 시뮬레이터가 �
 > - **Galaxy S25 Ultra 실기기에서는 아직 검증하지 않았다.** 아래 절차는 Termux 패키지 정의(qemu-system-aarch64-headless 11.x,
 >   `--enable-vnc`)를 근거로 작성했으며, 실기기 결과는 §8 체크리스트로 확인한 뒤 이 문서에 기록해야 한다.
 
+## 0. 가장 쉬운 방법 (PC 필요 없음)
+
+ARM64 이미지는 GitHub Actions 의 ARM64 러너가 자동으로 빌드하고, QEMU 부팅 테스트를 통과하면
+Release `android-latest` 에 올린다 (`.github/workflows/android-image.yml`). 휴대폰에서는 이것만 하면 된다.
+
+1. **앱 두 개 설치**: Termux(F-Droid 또는 GitHub 판), AVNC(F-Droid) 같은 VNC 앱.
+2. **Termux 에 한 줄 붙여넣기**:
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/Geroroy/MIN-OS/ccr-0dc4d66d-j60c3m/android/setup.sh | bash
+   ```
+   QEMU 설치 → 이미지(≈ 450 MB) 다운로드·체크섬 확인 → `~/minos-arm64` 에 설치 → 실행 → VNC 앱 자동 열기까지 한 번에 한다.
+   Wi-Fi 를 권장한다. 다운로드가 끊기면 같은 명령을 다시 실행하면 이어받는다.
+3. VNC 앱이 열리면 `127.0.0.1:5900` 에 연결한다(자동으로 주소가 채워지지 않으면 직접 입력). 1~3분 뒤 MIN OS 바탕화면이 나타난다.
+
+다음부터는 Termux 에서 `minos` 만 입력한다. 종료는 MIN OS 전원 메뉴 또는 `minos --stop`.
+새 이미지로 바꾸려면 같은 한 줄 명령의 `bash` 뒤에 `-s -- --update` 를 붙인다:
+```sh
+curl -fsSL https://raw.githubusercontent.com/Geroroy/MIN-OS/ccr-0dc4d66d-j60c3m/android/setup.sh | bash -s -- --update
+```
+(`--update` 는 가상 디스크를 새로 받으므로 MIN OS 안에서 만든 파일이 사라진다.)
+
+아래 §1~§7 은 이미지를 직접 빌드하거나 각 단계를 수동으로 하려는 경우의 상세 절차다.
+
 ## 1. 준비물
 
 | 항목 | 내용 |

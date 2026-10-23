@@ -98,6 +98,12 @@ make bundle-android                 # out/minos-android-arm64.tar.zst
 ```
 Android 에서의 실행 방법은 `docs/ANDROID_EMULATION.md` 를 참고하십시오.
 
+### Android 에서 바로 실행 (PC 불필요)
+Termux 와 VNC 앱(AVNC)을 설치한 뒤 Termux 에 붙여넣습니다. GitHub Actions 가 빌드·테스트한 이미지를 내려받아 실행합니다.
+```sh
+curl -fsSL https://raw.githubusercontent.com/Geroroy/MIN-OS/ccr-0dc4d66d-j60c3m/android/setup.sh | bash
+```
+
 자세한 내용은 `docs/MILESTONE_1.md`와 `docs/BUILD_ENVIRONMENT.md`를 참고하십시오.
 
 ## 개발 원칙
