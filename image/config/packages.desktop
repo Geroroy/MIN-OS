@@ -1,0 +1,33 @@
+# MIN OS 데스크톱 세션 런타임
+labwc
+foot
+swaybg
+greetd
+xwayland
+# 그래픽 스택
+libgl1-mesa-dri
+libegl1
+libgles2
+libgbm1
+# Qt 6 런타임 (MIN Shell / MinUI)
+qt6-wayland
+libqt6svg6
+libqt6dbus6
+libqt6network6
+libqt6quickcontrols2-6
+qml6-module-qtquick
+qml6-module-qtquick-controls
+qml6-module-qtquick-layouts
+qml6-module-qtquick-window
+qml6-module-qtquick-templates
+qml6-module-qtquick-shapes
+qml6-module-qtqml
+qml6-module-qtqml-workerscript
+# 글꼴
+fonts-dejavu
+fonts-inter
+fonts-noto-cjk
+# 디버깅 도구 (개발 이미지)
+grim
+wlr-randr
+wl-clipboard

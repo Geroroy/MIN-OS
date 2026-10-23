@@ -1,0 +1,29 @@
+# MIN OS 기본 시스템 (Debian trixie / Ubuntu noble 공통 패키지 이름)
+# '#' 주석과 빈 줄은 무시된다.
+systemd
+systemd-sysv
+udev
+kmod
+dbus
+dbus-user-session
+libpam-systemd
+polkitd
+locales
+tzdata
+sudo
+bash-completion
+less
+nano
+procps
+psmisc
+iproute2
+iputils-ping
+ca-certificates
+kbd
+zstd
+# live ISO 부팅
+initramfs-tools
+live-boot
+live-boot-initramfs-tools
+# 네트워크 (DHCP 자동 연결)
+network-manager

@@ -79,5 +79,6 @@ void ShellIpc::dispatch(const QString &command)
     else if (command == QLatin1String("hide-launcher")) emit hideLauncher();
     else if (command == QLatin1String("power")) emit togglePowerMenu();
     else if (command == QLatin1String("quit")) emit quitRequested();
+    else if (command == QLatin1String("terminal")) emit launchTerminal();
     else emit unknownCommand(command);
 }

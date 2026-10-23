@@ -34,7 +34,8 @@ int main(int argc, char *argv[])
     QCommandLineOption showLauncher(QStringLiteral("show-launcher"), QStringLiteral("Show the application launcher"));
     QCommandLineOption power(QStringLiteral("power"), QStringLiteral("Toggle the power menu"));
     QCommandLineOption quit(QStringLiteral("quit"), QStringLiteral("Ask the running shell to quit"));
-    parser.addOptions({ toggleLauncher, showLauncher, power, quit });
+    QCommandLineOption terminal(QStringLiteral("terminal"), QStringLiteral("Launch the default terminal"));
+    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal });
     parser.process(app);
 
     QString command;
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
     else if (parser.isSet(showLauncher)) command = QStringLiteral("show-launcher");
     else if (parser.isSet(power)) command = QStringLiteral("power");
     else if (parser.isSet(quit)) command = QStringLiteral("quit");
+    else if (parser.isSet(terminal)) command = QStringLiteral("terminal");
 
     // 이미 실행 중이면 명령만 전달하고 끝낸다.
     if (ShellIpc::sendToRunningInstance(command.isEmpty() ? QStringLiteral("ping") : command))
@@ -72,6 +74,7 @@ int main(int argc, char *argv[])
         return 1;
 
     QObject::connect(&ipc, &ShellIpc::quitRequested, &app, &QGuiApplication::quit, Qt::QueuedConnection);
+    QObject::connect(&ipc, &ShellIpc::launchTerminal, &apps, [&apps] { apps.launchCommand(apps.terminalProgram()); });
     if (!command.isEmpty())
         ipc.dispatch(command);
 

@@ -31,7 +31,7 @@ PKGS="$PKGS labwc foot swaybg grim wlr-randr wl-clipboard fonts-dejavu fonts-int
 
 # 이미지 빌드
 PKGS="$PKGS mmdebstrap debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin
-      grub-common mtools dosfstools e2fsprogs parted"
+      grub-common mtools dosfstools e2fsprogs parted rsync debian-archive-keyring ubuntu-keyring"
 
 # 테스트
 PKGS="$PKGS expect socat python3-pexpect python3-pil"

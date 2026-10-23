@@ -1,0 +1,7 @@
+# MIN Installer (설치기)
+
+**상태: 미착수 — M6 에서 구현** (DEVELOPMENT_PLAN.md 참고)
+
+이 디렉터리는 MIN Installer 컴포넌트의 자리입니다. 아키텍처와 설계 요구사항은 `docs/ARCHITECTURE.md` §2.5,
+디자인 규칙은 `docs/DESIGN_LANGUAGE.md` 를 따릅니다. 구현 시 최상위 `CMakeLists.txt` 에 `add_subdirectory(installer)` 로 추가하고,
+`libs/minui` (MinUI) 컨트롤만 사용합니다.
