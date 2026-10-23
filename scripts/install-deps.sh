@@ -40,8 +40,19 @@ if [ "$WITH_QEMU" = 1 ]; then
   PKGS="$PKGS qemu-system-x86 qemu-utils ovmf"
 fi
 
+# ARM64 이미지(Android/Termux 대상) 교차 빌드 및 PC 에뮬레이션
+PKGS="$PKGS qemu-system-arm qemu-efi-aarch64 qemu-user-static binfmt-support arch-test fdisk"
+
 # shellcheck disable=SC2086
 apt-get install -y --no-install-recommends $PKGS
+
+# 교차 아키텍처 chroot 를 위한 binfmt_misc 등록 (컨테이너에서는 update-binfmts 가 실패할 수 있어 직접 등록)
+if ! [ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ]; then
+  mountpoint -q /proc/sys/fs/binfmt_misc || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null || true
+  update-binfmts --import qemu-aarch64 2>/dev/null || update-binfmts --enable qemu-aarch64 2>/dev/null || \
+  printf ':qemu-aarch64:M::\\x7fELF\\x02\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\xb7\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfe\\xff\\xff\\xff:/usr/bin/qemu-aarch64-static:POCF\n' > /proc/sys/fs/binfmt_misc/register 2>/dev/null || true
+fi
+[ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] && echo "== binfmt: qemu-aarch64 등록됨 (ARM64 chroot 가능)" || echo "== 경고: qemu-aarch64 binfmt 미등록 — ARM64 이미지 빌드 불가"
 
 if [ -e /dev/kvm ]; then
   echo "== KVM 사용 가능 (/dev/kvm)"

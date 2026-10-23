@@ -1,14 +1,20 @@
 #!/bin/bash
 # MIN OS 부팅 이미지 빌드
-#   sudo image/build.sh [--suite debian-trixie|ubuntu-noble] [--arch amd64] [--output out/x.iso]
-#                       [--work DIR] [--reuse-rootfs] [--iso-only] [--no-iso] [--release]
-# 단계: 1 rootfs(mmdebstrap) → 2 hooks(chroot) → 3 squashfs → 4 GRUB hybrid ISO
+#   sudo image/build.sh [--suite debian-trixie|ubuntu-noble] [--arch amd64|arm64] [--format iso|disk]
+#                       [--profile default|mobile] [--output PATH] [--work DIR]
+#                       [--reuse-rootfs] [--iso-only|--image-only] [--no-iso] [--release]
+# 포맷
+#   iso  : squashfs + live-boot + GRUB hybrid ISO (BIOS+UEFI)            — 기본 (amd64)
+#   disk : GPT 디스크 이미지(ESP + ext4 루트) → qcow2 + vmlinuz/initrd 번들   — 기본 (arm64, Termux QEMU)
+# 단계: 1 rootfs(mmdebstrap, 교차 아키텍처는 qemu-user binfmt) → 2 hooks(chroot) → 3 squashfs|파티션 → 4 ISO|qcow2
 # 호스트의 디스크·부트로더는 건드리지 않는다 (loop 장치도 사용하지 않음).
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 SUITE=debian-trixie
 ARCH=amd64
+FORMAT=""
+PROFILE=""
 OUTPUT=""
 WORK=""
 REUSE_ROOTFS=0
@@ -20,13 +26,15 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --suite) SUITE=$2; shift 2 ;;
     --arch) ARCH=$2; shift 2 ;;
+    --format) FORMAT=$2; shift 2 ;;
+    --profile) PROFILE=$2; shift 2 ;;
     --output) OUTPUT=$2; shift 2 ;;
     --work) WORK=$2; shift 2 ;;
     --reuse-rootfs) REUSE_ROOTFS=1; shift ;;
-    --iso-only) REUSE_ROOTFS=1; ISO_ONLY=1; shift ;;
+    --iso-only|--image-only) REUSE_ROOTFS=1; ISO_ONLY=1; shift ;;
     --no-iso) NO_ISO=1; shift ;;
     --release) DEV=0; shift ;;
-    -h|--help) sed -n 2,7p "$0"; exit 0 ;;
+    -h|--help) sed -n 2,10p "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done
@@ -37,16 +45,46 @@ CONF=$REPO/image/config
 # shellcheck disable=SC1090
 . "$CONF/suites/$SUITE.conf"
 
-WORK=${WORK:-$REPO/image/work/$SUITE}
-OUTPUT=${OUTPUT:-$REPO/out/minos-dev-$SUITE-$ARCH.iso}
+case "$ARCH" in
+  amd64) FORMAT=${FORMAT:-iso}; PROFILE=${PROFILE:-default} ;;
+  arm64) FORMAT=${FORMAT:-disk}; PROFILE=${PROFILE:-mobile} ;;
+  *) echo "unsupported arch: $ARCH (amd64|arm64)" >&2; exit 2 ;;
+esac
+case "$FORMAT" in iso|disk) ;; *) echo "unknown format: $FORMAT (iso|disk)" >&2; exit 2 ;; esac
+# 아키텍처별 미러/커널 (suite conf 의 *_arm64 변수)
+if [ "$ARCH" != amd64 ]; then
+  v="MIRROR_$ARCH"; [ -n "${!v:-}" ] && MIRROR=${!v}
+fi
+v="KERNEL_PKGS_$ARCH"; KERNEL_PKGS=${!v:-${KERNEL_PKGS:-}}
+[ -n "$KERNEL_PKGS" ] || { echo "suite $SUITE has no KERNEL_PKGS for $ARCH" >&2; exit 2; }
+
+WORK=${WORK:-$REPO/image/work/$SUITE-$ARCH}
+[ "$SUITE-$ARCH" = "ubuntu-noble-amd64" ] && [ -d "$REPO/image/work/ubuntu-noble/rootfs" ] && [ ! -d "$WORK" ] && WORK=$REPO/image/work/ubuntu-noble
+if [ -z "$OUTPUT" ]; then
+  if [ "$FORMAT" = iso ]; then OUTPUT=$REPO/out/minos-dev-$SUITE-$ARCH.iso
+  else OUTPUT=$REPO/out/minos-$ARCH; fi   # 디렉터리 번들: minos-$ARCH.qcow2 + vmlinuz + initrd.img
+fi
 ROOTFS=$WORK/rootfs
 ISOROOT=$WORK/iso
 VERSION=$(sed -n 's/^project(minos VERSION \([0-9.]*\).*/\1/p' "$REPO/CMakeLists.txt")
 mkdir -p "$WORK" "$(dirname "$OUTPUT")"
 
-for t in mmdebstrap mksquashfs xorriso grub-mkstandalone mformat mcopy rsync; do
+for t in mmdebstrap rsync; do
   command -v "$t" >/dev/null || { echo "missing tool: $t (run scripts/install-deps.sh)" >&2; exit 2; }
 done
+if [ "$FORMAT" = iso ]; then TOOLS="mksquashfs xorriso grub-mkstandalone mformat mcopy"; else TOOLS="mke2fs sfdisk mformat mcopy qemu-img"; fi
+for t in $TOOLS; do
+  command -v "$t" >/dev/null || { echo "missing tool: $t (run scripts/install-deps.sh)" >&2; exit 2; }
+done
+HOST_ARCH=$(dpkg --print-architecture)
+if [ "$ARCH" != "$HOST_ARCH" ]; then
+  # 교차 아키텍처: qemu-user-static + binfmt_misc 필요
+  if [ ! -e "/proc/sys/fs/binfmt_misc/qemu-$( [ "$ARCH" = arm64 ] && echo aarch64 || echo "$ARCH")" ]; then
+    echo "binfmt_misc에 qemu-$ARCH 가 등록되어 있지 않습니다. scripts/install-deps.sh 를 실행하거나 qemu-user-static/binfmt-support 를 설치하십시오." >&2
+    exit 2
+  fi
+fi
+echo "== MIN OS image build: suite=$SUITE arch=$ARCH format=$FORMAT profile=$PROFILE kernel='$KERNEL_PKGS'"
 
 log() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
 pkglist() { grep -hvE '^\s*(#|$)' "$@" | tr '\n' ',' | sed 's/,$//'; }
@@ -78,6 +116,7 @@ run_in_chroot() {
     PATH=/usr/sbin:/usr/bin:/sbin:/bin HOME=/root LC_ALL=C.UTF-8 TERM=dumb \
     DEBIAN_FRONTEND=noninteractive \
     MINOS_SUITE="$SUITE_NAME" MINOS_VERSION="$VERSION" MINOS_DEV="$DEV" MINOS_KERNEL_PKGS="$KERNEL_PKGS" \
+    MINOS_ARCH="$ARCH" MINOS_FORMAT="$FORMAT" MINOS_PROFILE="$PROFILE" \
     "$@"
 }
 
@@ -87,7 +126,7 @@ if [ "$REUSE_ROOTFS" = 1 ] && [ -d "$ROOTFS/usr" ]; then
 else
   log "1/4 rootfs 생성: $SUITE_NAME ($ARCH) from $MIRROR"
   rm -rf "$ROOTFS"
-  INCLUDE=$(pkglist "$CONF/packages.base" "$CONF/packages.desktop")
+  INCLUDE=$(pkglist "$CONF/packages.base" "$CONF/packages.desktop" "$CONF/packages.$FORMAT")
   [ -n "${EXTRA_PKGS:-}" ] && INCLUDE="$INCLUDE,$(echo "$EXTRA_PKGS" | tr ' ' ',')"
   KEYRING_OPT=""
   [ -n "${KEYRING:-}" ] && [ -f "$KEYRING" ] && KEYRING_OPT="--keyring=$KEYRING"
@@ -122,6 +161,7 @@ fi
 
 [ "$NO_ISO" = 1 ] && { log "rootfs 준비 완료 (--no-iso): $ROOTFS"; exit 0; }
 
+if [ "$FORMAT" = iso ]; then
 # ---------- 3. squashfs ----------
 log "3/4 squashfs"
 rm -rf "$ISOROOT"
@@ -170,3 +210,77 @@ xorriso -as mkisofs -iso-level 3 -full-iso9660-filenames -joliet -rational-rock 
 
 log "완료: $OUTPUT ($(du -h "$OUTPUT" | cut -f1))"
 echo "   실행: image/qemu/run.sh $OUTPUT    또는    make run ISO=$OUTPUT"
+
+else
+# ---------- 3. 파티션 이미지 (loop 장치 없이) ----------
+log "3/4 디스크 파티션: ESP(FAT) + 루트(ext4, mke2fs -d)"
+DISKWORK=$WORK/disk
+rm -rf "$DISKWORK"; mkdir -p "$DISKWORK"
+for d in proc sys dev/pts run tmp; do mkdir -p "$ROOTFS/$d"; done
+case "$ARCH" in arm64) EFI=BOOTAA64.EFI ;; amd64) EFI=BOOTX64.EFI ;; esac
+[ -f "$ROOTFS/boot/efi-staging/$EFI" ] || { echo "bootloader missing: $ROOTFS/boot/efi-staging/$EFI (hook 55)" >&2; exit 1; }
+
+ESP_MB=128
+ESP_IMG=$DISKWORK/esp.img
+truncate -s ${ESP_MB}M "$ESP_IMG"
+mformat -i "$ESP_IMG" -F -v MINOS-ESP ::
+mmd -i "$ESP_IMG" ::/EFI ::/EFI/BOOT
+mcopy -i "$ESP_IMG" "$ROOTFS/boot/efi-staging/$EFI" "::/EFI/BOOT/$EFI"
+
+# 루트: 사용량 + 여유 (qcow2 는 희소 → 실제 크기는 사용량만큼)
+USED_MB=$(du -sm --exclude=proc --exclude=sys --exclude=dev --exclude=run --exclude=tmp "$ROOTFS" | cut -f1)
+ROOT_MB=${MINOS_ROOT_MB:-$(( USED_MB + 2048 > 6144 ? USED_MB + 2048 : 6144 ))}
+ROOT_IMG=$DISKWORK/root.img
+truncate -s ${ROOT_MB}M "$ROOT_IMG"
+# 이미지 안의 efi-staging 은 ESP 에 이미 복사됨 — 루트에서는 제외
+mv "$ROOTFS/boot/efi-staging" "$DISKWORK/efi-staging"
+mke2fs -q -F -t ext4 -L minos-root -d "$ROOTFS" -E lazy_itable_init=1,lazy_journal_init=1 -O ^huge_file "$ROOT_IMG"
+mv "$DISKWORK/efi-staging" "$ROOTFS/boot/efi-staging"
+echo "   rootfs ${USED_MB}MB → root.img ${ROOT_MB}MB (ext4, label minos-root)"
+
+# ---------- 4. GPT 디스크 → qcow2 + 직접 부팅용 커널/initrd 번들 ----------
+log "4/4 GPT 디스크 이미지 → qcow2 번들"
+RAW=$DISKWORK/disk.raw
+TOTAL_MB=$(( 1 + ESP_MB + ROOT_MB + 1 ))
+truncate -s ${TOTAL_MB}M "$RAW"
+case "$ARCH" in
+  arm64) ROOT_TYPE=B921B045-1DF0-41C3-AF44-4C6F280D3FAE ;;   # Linux root (ARM64)
+  *)     ROOT_TYPE=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709 ;;   # Linux root (x86-64)
+esac
+sfdisk -q "$RAW" <<P
+label: gpt
+unit: MiB
+start=1, size=${ESP_MB}, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="MINOS-ESP"
+start=$((1 + ESP_MB)), size=${ROOT_MB}, type=${ROOT_TYPE}, name="minos-root"
+P
+dd if="$ESP_IMG"  of="$RAW" bs=1M seek=1               conv=notrunc,sparse status=none
+dd if="$ROOT_IMG" of="$RAW" bs=1M seek=$((1 + ESP_MB)) conv=notrunc,sparse status=none
+rm -f "$ESP_IMG" "$ROOT_IMG"
+
+mkdir -p "$OUTPUT"
+QCOW=$OUTPUT/minos-$ARCH.qcow2
+qemu-img convert -f raw -O qcow2 "$RAW" "$QCOW"
+rm -f "$RAW"
+cp -L "$ROOTFS/boot/vmlinuz" "$OUTPUT/vmlinuz"
+cp -L "$ROOTFS/boot/initrd.img" "$OUTPUT/initrd.img"
+cp "$REPO/android/start-minos.sh" "$OUTPUT/start-minos.sh" 2>/dev/null || true
+chmod +x "$OUTPUT"/*.sh 2>/dev/null || true
+cat > "$OUTPUT/minos-image.conf" <<C
+# MIN OS 이미지 메타데이터 (start-minos.sh / image/qemu/run.sh 가 읽음)
+MINOS_VERSION=$VERSION
+MINOS_SUITE=$SUITE_NAME
+MINOS_ARCH=$ARCH
+MINOS_PROFILE=$PROFILE
+MINOS_DISK=minos-$ARCH.qcow2
+MINOS_KERNEL=vmlinuz
+MINOS_INITRD=initrd.img
+MINOS_CMDLINE="root=LABEL=minos-root rw rootwait quiet loglevel=3 systemd.show_status=0 minos.render=software"
+MINOS_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+C
+# 커널 버전 기록 (문서/디버깅)
+ls "$ROOTFS/lib/modules" | sort -V | tail -1 > "$OUTPUT/kernel-version.txt"
+qemu-img info "$QCOW" | grep -E "virtual size|disk size"
+log "완료: $OUTPUT/"
+ls -la "$OUTPUT"
+echo "   실행: image/qemu/run.sh $OUTPUT    (Android: android/start-minos.sh 참고)"
+fi

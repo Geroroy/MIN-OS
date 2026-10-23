@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """MIN OS 부팅 이미지 자동 테스트 (QEMU + 시리얼 콘솔 + pexpect)
 
+대상: x86-64 live ISO 또는 디스크 이미지 번들 디렉터리(ARM64 기본: qcow2 + vmlinuz + initrd, 직접 커널 부팅)
+
 시나리오
-  1. ISO 로 부팅 (UEFI/OVMF, GRUB 메뉴를 시리얼로 조작: 'serial console debug' 항목)
+  1. ISO 로 부팅 (UEFI/OVMF, GRUB 메뉴를 시리얼로 조작: 'serial console debug' 항목) / 번들은 직접 커널 부팅
   2. systemd 부팅 완료 → root 시리얼 셸 → greetd / labwc / minos-shell 동작 확인, Wayland 소켓 확인
   3. QEMU 모니터 screendump 로 화면 캡처 → 패널 픽셀 검사
   4. IPC 로 실행 메뉴·터미널 실행 → 프로세스/화면 확인
   5. reboot → 두 번째 부팅 확인
   6. poweroff → QEMU 종료 확인
 사용: sudo python3 -I tests/image/boot_test.py out/minos-dev-ubuntu-noble-amd64.iso [--out DIR] [--timeout SEC]
+      sudo python3 -I tests/image/boot_test.py out/minos-arm64 [--res 1280x720]
+결과: 스크린샷, serial.log, metrics.json (부팅 시간·메모리·CPU)
 """
 import argparse
+import json
 import os
 import re
 import socket
@@ -29,10 +34,12 @@ ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\r")
 
 
 class Qemu:
-    def __init__(self, iso, out, boot_timeout):
+    def __init__(self, iso, out, boot_timeout, res="1280x720"):
         self.iso = iso
         self.out = out
         self.boot_timeout = boot_timeout
+        self.res = res
+        self.disk_mode = os.path.isdir(iso) or iso.endswith(".qcow2")
         self.monitor = os.path.join(tempfile.mkdtemp(prefix="minos-qemu-"), "monitor.sock")
         self.vars = os.path.join(os.path.dirname(self.monitor), "ovmf-vars.fd")
         self.log = open(os.path.join(out, "serial.log"), "wb")
@@ -40,7 +47,7 @@ class Qemu:
 
     def start(self):
         env = dict(os.environ, MINOS_OVMF_VARS=self.vars)
-        cmd = [os.path.join(REPO, "image/qemu/run.sh"), "--serial", "--monitor", self.monitor, self.iso]
+        cmd = [os.path.join(REPO, "image/qemu/run.sh"), "--serial", "--monitor", self.monitor, "--res", self.res, self.iso]
         self.child = pexpect.spawn(cmd[0], cmd[1:], env=env, timeout=self.boot_timeout, logfile=self.log,
                                    encoding=None, dimensions=(50, 200))
 
@@ -48,7 +55,9 @@ class Qemu:
         return self.child.expect(pattern, timeout=timeout or self.boot_timeout)
 
     def select_serial_entry(self):
-        """GRUB 메뉴 → 's' 핫키 (serial console debug)"""
+        """GRUB 메뉴 → 's' 핫키 (serial console debug). 디스크 번들은 직접 커널 부팅이라 GRUB 이 없다."""
+        if self.disk_mode:
+            return
         self.expect(b"serial console debug")
         time.sleep(0.5)
         self.child.send("s")
@@ -121,20 +130,24 @@ def main():
     ap.add_argument("--out", default=os.path.join(REPO, "out", "boot-test"))
     ap.add_argument("--timeout", type=int, default=900, help="부팅 대기 한도 (초). TCG 에서는 수 분 걸린다")
     ap.add_argument("--skip-reboot", action="store_true")
+    ap.add_argument("--res", default="1280x720")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     import check_screenshot  # tests/shell
+    metrics = {"target": args.iso, "res": args.res}
 
-    q = Qemu(args.iso, args.out, args.timeout)
+    q = Qemu(args.iso, args.out, args.timeout, args.res)
     try:
-        step("QEMU 시작, GRUB 메뉴에서 serial 항목 선택")
+        step("QEMU 시작" + ("" if q.disk_mode else ", GRUB 메뉴에서 serial 항목 선택"))
+        t0 = time.time()
         q.start()
         q.select_serial_entry()
 
         step("커널/systemd 부팅 대기")
         q.expect(rb"systemd\[1\]|Welcome to|Ubuntu|Debian", timeout=args.timeout)
         q.wait_prompt()
-        print("ok: root serial shell")
+        metrics["boot_to_shell_s"] = round(time.time() - t0, 1)
+        print(f"ok: root serial shell ({metrics['boot_to_shell_s']}s after QEMU start)")
         q.child.sendline("stty cols 200; export TERM=dumb")
         q.wait_prompt()
 
@@ -154,6 +167,7 @@ def main():
             if rc == 0:
                 break
             time.sleep(5)
+        metrics["boot_to_shell_process_s"] = round(time.time() - t0, 1)
         rc, out = q.sh("systemctl is-active greetd")
         check(out.strip() == "active", "greetd active")
         rc, out = q.sh("pgrep -a labwc")
@@ -174,6 +188,21 @@ def main():
         check("configured" in out, "panel layer surface configured")
         rc, out = q.sh("tail -5 /home/min/.local/state/minos/session.log")
         print("   session log:\n      " + out.replace("\n", "\n      "))
+
+        rc, out = q.sh("uname -m; cat /etc/minos/profile 2>/dev/null; free -m | head -2; systemd-analyze 2>/dev/null | head -1")
+        print("   system:\n      " + out.replace("\n", "\n      "))
+        m = re.search(r"Mem:\s+(\d+)\s+(\d+)", out)
+        if m:
+            metrics["mem_total_mb"], metrics["mem_used_mb"] = int(m.group(1)), int(m.group(2))
+        m = re.search(r"Startup finished in .*?= ([0-9.]+)s", out)
+        if m:
+            metrics["systemd_startup_s"] = float(m.group(1))
+        rc, out = q.sh("ps -eo rss,comm --sort=-rss | head -6")
+        print("   top rss:\n      " + out.replace("\n", "\n      "))
+        metrics["top_rss"] = out.splitlines()[1:]
+        rc, out = q.sh("sleep 5; top -b -n1 | head -3 | tail -1")
+        print(f"   idle cpu: {out}")
+        metrics["idle_top_cpu_line"] = out
 
         step("화면 캡처: 패널")
         time.sleep(3)
@@ -224,8 +253,11 @@ def main():
         time.sleep(2)
         check(not q.child.isalive() or q.child.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=30) == 0,
               "QEMU exited after poweroff")
+        metrics["result"] = "PASS"
         print("\nPASS: MIN OS boot test (artifacts in %s)" % args.out)
     finally:
+        with open(os.path.join(args.out, "metrics.json"), "w") as f:
+            json.dump(metrics, f, indent=2, ensure_ascii=False)
         q.close()
 
 

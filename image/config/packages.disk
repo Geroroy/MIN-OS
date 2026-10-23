@@ -1,0 +1,2 @@
+# 디스크 이미지(--format disk)에서만 설치
+e2fsprogs

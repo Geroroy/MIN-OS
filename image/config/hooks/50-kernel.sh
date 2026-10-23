@@ -9,13 +9,16 @@ apt-get install -y --no-install-recommends $MINOS_KERNEL_PKGS >/tmp/minos-kernel
 KVER=$(ls /lib/modules | sort -V | tail -1)
 echo "   kernel $KVER"
 
-# Ubuntu: linux-image-virtual 에는 가상 GPU(virtio-gpu, bochs) DRM 모듈이 빠져 있을 수 있다 → modules-extra 보충
+# Ubuntu: linux-image-virtual 에는 가상 GPU(virtio-gpu, bochs)·virtio 입력 DRM/HID 모듈이 빠져 있을 수 있다 → modules-extra 보충
 if [ "${MINOS_SUITE:-}" = "noble" ]; then
-  if ! find /lib/modules/"$KVER" -name 'virtio-gpu.ko*' | grep -q .; then
-    echo "   adding linux-modules-extra-$KVER (virtio-gpu/bochs drm)"
+  if ! find /lib/modules/"$KVER" \( -name 'virtio-gpu.ko*' -o -name 'virtio_input.ko*' \) | wc -l | grep -q '^2$'; then
+    echo "   adding linux-modules-extra-$KVER (virtio-gpu/bochs drm, virtio-input)"
     apt-get install -y --no-install-recommends "linux-modules-extra-$KVER" >>/tmp/minos-kernel.log 2>&1 || { tail -20 /tmp/minos-kernel.log; exit 1; }
   fi
 fi
+for m in virtio-gpu virtio_input virtio_blk virtio_net; do
+  find /lib/modules/"$KVER" -name "$m.ko*" | grep -q . && echo "   module ok: $m" || echo "   module MISSING (may be built-in): $m"
+done
 
 # live-boot 이 initramfs 에 포함되도록 재생성
 update-initramfs -u -k "$KVER" >/tmp/minos-initramfs.log 2>&1 || { tail -30 /tmp/minos-initramfs.log; exit 1; }

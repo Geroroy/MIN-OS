@@ -22,9 +22,6 @@ iputils-ping
 ca-certificates
 kbd
 zstd
-# live ISO 부팅
 initramfs-tools
-live-boot
-live-boot-initramfs-tools
 # 네트워크 (DHCP 자동 연결)
 network-manager

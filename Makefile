@@ -5,6 +5,8 @@
 #   make image       부팅 ISO 빌드 (sudo). SUITE=debian-trixie(기본)|ubuntu-noble
 #   make run         QEMU GUI 실행 / make run-serial 시리얼 콘솔
 #   make test-image  QEMU 자동 부팅·종료·재부팅 테스트 (sudo)
+#   make image-arm64 / run-arm64 / test-image-arm64   ARM64 디스크 번들 (Android/Termux 용)
+#   make bundle-android   out/minos-arm64/ 를 tar.zst 로 묶음
 SHELL := /bin/bash
 BUILD ?= build
 SUITE ?= debian-trixie
@@ -12,7 +14,10 @@ ARCH  ?= amd64
 ISO   ?= out/minos-dev-$(SUITE)-$(ARCH).iso
 JOBS  ?= $(shell nproc)
 
-.PHONY: all deps shell test test-unit test-shell image run run-serial test-image clean distclean
+ARM64_BUNDLE ?= out/minos-arm64
+
+.PHONY: all deps shell test test-unit test-shell image run run-serial test-image clean distclean \
+        image-arm64 run-arm64 run-arm64-vnc test-image-arm64 bundle-android
 
 all: shell
 
@@ -42,6 +47,22 @@ run-serial:
 
 test-image:
 	sudo python3 -I tests/image/boot_test.py $(ISO)
+
+image-arm64:
+	sudo image/build.sh --suite $(SUITE) --arch arm64 --format disk --profile mobile --output $(ARM64_BUNDLE)
+
+run-arm64:
+	image/qemu/run.sh $(ARM64_BUNDLE)
+
+run-arm64-vnc:
+	image/qemu/run.sh --vnc 0 $(ARM64_BUNDLE)
+
+test-image-arm64:
+	sudo python3 -I tests/image/boot_test.py $(ARM64_BUNDLE) --out out/boot-test-arm64 --timeout 1800
+
+bundle-android:
+	tar -C out --zstd -cvf out/minos-android-arm64.tar.zst $(notdir $(ARM64_BUNDLE))
+	@ls -la out/minos-android-arm64.tar.zst
 
 clean:
 	rm -rf $(BUILD)
