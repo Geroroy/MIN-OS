@@ -128,8 +128,10 @@ rm -rf "$ISOROOT"
 mkdir -p "$ISOROOT/live" "$ISOROOT/boot/grub" "$ISOROOT/EFI/BOOT"
 cp -L "$ROOTFS/boot/vmlinuz" "$ISOROOT/live/vmlinuz"
 cp -L "$ROOTFS/boot/initrd.img" "$ISOROOT/live/initrd.img"
+# 주의: /proc /sys /dev /run /tmp 은 비어 있어야 하지만 디렉터리 자체는 반드시 포함되어야 한다 (init 마운트 지점).
+for d in proc sys dev/pts run tmp; do mkdir -p "$ROOTFS/$d"; done
 mksquashfs "$ROOTFS" "$ISOROOT/live/filesystem.squashfs" -comp zstd -Xcompression-level 15 -b 1M \
-  -noappend -no-progress -quiet -e proc sys dev run tmp 'var/cache/apt' 2>&1 | tail -3 || true
+  -noappend -no-progress -quiet 2>&1 | tail -3 || true
 ls -la "$ISOROOT/live/"
 
 # ---------- 4. ISO ----------
