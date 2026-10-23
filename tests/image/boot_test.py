@@ -12,6 +12,7 @@
 """
 import argparse
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -24,6 +25,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(REPO, "tests", "shell"))
 
 PROMPT = "minos# "
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\r")
 
 
 class Qemu:
@@ -60,9 +62,9 @@ class Qemu:
         self.child.sendline(f"{cmd}; echo {marker}$?")
         self.child.expect(marker.encode() + rb"(\d+)", timeout=timeout)
         rc = int(self.child.match.group(1))
-        out = self.child.before.decode("utf-8", "replace")
+        out = ANSI.sub("", self.child.before.decode("utf-8", "replace"))
         # 에코된 명령 줄 제거
-        lines = out.replace("\r", "").split("\n")
+        lines = out.split("\n")
         if lines and cmd.split(";")[0].strip() in lines[0]:
             lines = lines[1:]
         self.child.expect(PROMPT.encode(), timeout=timeout)
@@ -199,8 +201,12 @@ def main():
             print("ok: reboot reached GRUB again")
             q.expect(rb"systemd\[1\]|Welcome to|Ubuntu|Debian", timeout=args.timeout)
             q.wait_prompt()
+            q.child.sendline("stty cols 200; export TERM=dumb")
+            q.wait_prompt()
             rc, out = q.sh("systemctl is-system-running --wait", timeout=300)
             check(out.strip() in ("running", "degraded"), f"second boot: {out.strip()}")
+            rc, out = q.sh("pgrep -a minos-shell")
+            check(rc == 0, f"second boot session: {out}")
 
         step("전원: PowerOff")
         q.child.sendline("busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager PowerOff b false")
