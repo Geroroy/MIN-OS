@@ -15,8 +15,22 @@ STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/minos
 mkdir -p "$STATE_DIR" 2>/dev/null && exec >>"$STATE_DIR/session.log" 2>&1
 echo "== minos-session start $(date -Is) user=$(id -un) tty=$(tty 2>/dev/null)"
 
-# GPU가 없거나(QEMU TCG) 커널 명령행에 minos.render=software 가 있으면 소프트웨어 렌더링
-if grep -qw 'minos.render=software' /proc/cmdline 2>/dev/null || ! ls /dev/dri/renderD* >/dev/null 2>&1; then
+# 소프트웨어 렌더링 판단:
+#  - 커널 명령행 minos.render=software (강제) / minos.render=gl (강제 GL)
+#  - 렌더 노드가 없음
+#  - 가상 GPU(virtio-gpu, bochs, simpledrm, vmwgfx): 3D 가속이 없어 EGL 이 llvmpipe 로 떨어지면 TCG 에서 매우 느리다
+SW=0
+if grep -qw 'minos.render=software' /proc/cmdline 2>/dev/null; then SW=1
+elif grep -qw 'minos.render=gl' /proc/cmdline 2>/dev/null; then SW=0
+elif ! ls /dev/dri/renderD* >/dev/null 2>&1; then SW=1
+else
+  for d in /sys/class/drm/card[0-9]*/device/driver; do
+    case "$(basename "$(readlink -f "$d" 2>/dev/null)")" in
+      virtio-pci|virtio_gpu|bochs-drm|bochs|simple-framebuffer|simpledrm|cirrus|vmwgfx|qxl) SW=1 ;;
+    esac
+  done
+fi
+if [ "$SW" = 1 ]; then
   export WLR_RENDERER=pixman
   export QT_QUICK_BACKEND=software
   echo "software rendering enabled"

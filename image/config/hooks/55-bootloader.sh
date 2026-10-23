@@ -14,6 +14,8 @@ apt-get install -y --no-install-recommends "$PKG" grub-common >/tmp/minos-grub.l
 
 install -Dm644 /tmp/minos-src/image/grub/grub-disk.cfg /boot/grub/grub.cfg
 sed -i "s/@VERSION@/${MINOS_VERSION:-dev}/; s/@SUITE@/${MINOS_SUITE:-}/; s/@ARCH@/${MINOS_ARCH}/" /boot/grub/grub.cfg
+# mobile 프로필(TCG 전제)은 기본 항목부터 소프트웨어 렌더링
+if [ "${MINOS_PROFILE:-default}" = mobile ]; then sed -i 's/@RENDER@/minos.render=software/' /boot/grub/grub.cfg; else sed -i 's/ @RENDER@//' /boot/grub/grub.cfg; fi
 if [ "${MINOS_ARCH}" = arm64 ]; then
   sed -i 's/@CONSOLE@/console=tty1 console=ttyAMA0,115200/' /boot/grub/grub.cfg
 else
