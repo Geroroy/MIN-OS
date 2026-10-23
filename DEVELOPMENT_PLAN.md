@@ -16,34 +16,39 @@
 | M7 | 릴리스 품질 | 컴포넌트 .deb 패키징, APT 저장소, 재현 가능한 ISO, 실제 PC 검증 | 실기기 체크리스트 |
 | M8+ | 확장 | MIN Greeter(greetd 프런트엔드), 자체 컴포지터 평가, 전원 관리, 접근성 | — |
 
-## M0 — 프로젝트 기반  ◐
+## M0 — 프로젝트 기반  ☑
 
 - [x] 개발 환경 조사 (`docs/BUILD_ENVIRONMENT.md`)
 - [x] 아키텍처 설계 (`docs/ARCHITECTURE.md`)
 - [x] 디자인 언어 정의 (`docs/DESIGN_LANGUAGE.md`)
 - [x] 저장소 구조 생성
 - [x] 호스트 의존성 스크립트 (`scripts/install-deps.sh`)
-- [ ] 이미지 빌드 파이프라인 1차 동작
+- [x] 이미지 빌드 파이프라인 1차 동작 (ubuntu-noble 프로필, 431 MB ISO)
 
-## M1 — QEMU에서 부팅되는 MIN OS 개발용 이미지  ◐
+## M1 — QEMU에서 부팅되는 MIN OS 개발용 이미지  ◐ (ubuntu-noble 프로필로 전 항목 검증 완료, debian-trixie 빌드 검증 대기)
 
 요구사항과 구현 방법은 `docs/MILESTONE_1.md`에 상세히 기술한다.
 
 | 요구사항 | 구현 | 상태 |
 |---|---|---|
-| Debian 기반 부팅 | mmdebstrap rootfs → squashfs → live-boot initramfs → GRUB hybrid ISO | ☐ |
-| Wayland 세션 실행 | greetd 자동 로그인 → `minos-session` | ☐ |
-| Labwc 실행 | `/etc/minos/labwc/` 전용 rc.xml, MIN 테마 | ☐ |
-| MIN OS 전용 데스크톱 화면 | 배경(swaybg, 단색/MIN 로고) + MIN Shell 패널 | ☐ |
-| 기본 작업 표시줄 | `minos-shell` (Qt6/QML + wlr-layer-shell) 하단 패널: 시작 버튼, 시계, 전원 | ☐ |
-| 애플리케이션 실행 기능 | `.desktop` 파일 스캔 → 실행 메뉴 | ☐ |
-| 터미널 실행 | foot (MIN 테마 적용), 패널 버튼 및 Super+Enter | ☐ |
-| 정상적인 종료 및 재부팅 | 패널 전원 메뉴 → logind D-Bus(PowerOff/Reboot) | ☐ |
+| Debian 기반 부팅 | mmdebstrap rootfs → squashfs → live-boot initramfs → GRUB hybrid ISO | ◐ UEFI 부팅·live-boot 검증(ubuntu-noble). Debian trixie 빌드는 미러 접근 가능한 PC에서 수행 필요 |
+| Wayland 세션 실행 | greetd 자동 로그인 → `minos-session` | ☑ logind 세션 seat0/tty7, `wayland-0` 소켓 확인 |
+| Labwc 실행 | `/etc/minos/labwc/` 전용 rc.xml, MIN 테마 | ☑ |
+| MIN OS 전용 데스크톱 화면 | 배경(swaybg, 단색/MIN 로고) + MIN Shell 패널 | ☑ `docs/screenshots/m1-desktop.png` |
+| 기본 작업 표시줄 | `minos-shell` (Qt6/QML + wlr-layer-shell) 하단 패널: 시작 버튼, 창 목록, 시계, 전원 | ☑ 픽셀 검사 통과 |
+| 애플리케이션 실행 기능 | `.desktop` 파일 스캔 → 실행 메뉴 | ☑ `docs/screenshots/m1-launcher.png` |
+| 터미널 실행 | foot (MIN 테마 적용), 패널 버튼 및 Super+Enter | ☑ `docs/screenshots/m1-terminal.png` |
+| 정상적인 종료 및 재부팅 | 패널 전원 메뉴 → logind D-Bus(PowerOff/Reboot) | ☑ Reboot → 2차 부팅 세션 확인, PowerOff → QEMU 종료 |
 
 ### M1 완료 기준
-1. `sudo make image` 가 Debian trixie(또는 미러가 막힌 환경에서 ubuntu-noble)로 ISO를 생성한다.
-2. `make test-shell` 이 헤드리스 labwc에서 MIN Shell을 띄우고 스크린샷에서 패널을 확인한다.
-3. `sudo make test-image` 가 QEMU에서 부팅 → 세션 시작 로그 확인 → `poweroff` → 재부팅 시나리오를 통과한다.
+1. `sudo make image` 가 Debian trixie(또는 미러가 막힌 환경에서 ubuntu-noble)로 ISO를 생성한다. — ubuntu-noble ☑ / debian-trixie ☐
+2. `make test-shell` 이 헤드리스 labwc에서 MIN Shell을 띄우고 스크린샷에서 패널을 확인한다. — ☑
+3. `sudo make test-image` 가 QEMU에서 부팅 → 세션 시작 로그 확인 → `poweroff` → 재부팅 시나리오를 통과한다. — ☑ (2026-10-23, TCG 기준 1회 부팅 ≈ 3분)
+
+### M1 잔여 작업
+- [ ] Debian trixie 프로필로 `sudo make image` 및 `sudo make test-image` 실행 (Debian 미러 접근 가능한 PC)
+- [ ] 이미지 APT 소스에 updates/security 포켓 추가 (현재 release 포켓만: Ubuntu 커널 6.8.0-31)
+- [ ] 실행 메뉴/전원 메뉴 한국어 번역 (Qt Linguist, M2 i18n과 함께)
 
 ## M2 — MIN Shell 완성  ☐
 

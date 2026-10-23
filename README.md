@@ -54,6 +54,12 @@ MIN-OS/
     └── image/                QEMU 부팅·종료·재부팅 자동 검증
 ```
 
+## 현재 상태 (M1)
+
+![MIN OS M1 desktop](docs/screenshots/m1-launcher.png)
+
+QEMU(UEFI)에서 부팅한 개발 이미지: labwc 세션 위의 MIN Shell 패널과 실행 메뉴. `DEVELOPMENT_PLAN.md` 참고.
+
 ## 빠른 시작
 
 ```sh
