@@ -17,7 +17,7 @@ ISO=${1:?usage: run.sh [options] ISO}
 
 ACCEL="tcg,thread=multi"; CPU="max"
 if [ -w /dev/kvm ]; then ACCEL=kvm; CPU=host; fi
-ARGS=(-machine q35,accel=$ACCEL -cpu $CPU -smp "${MINOS_SMP:-2}" -m "${MINOS_MEM:-2048}"
+ARGS=(-machine q35 -accel "$ACCEL" -cpu $CPU -smp "${MINOS_SMP:-2}" -m "${MINOS_MEM:-2048}"
       -cdrom "$ISO" -boot d
       -device virtio-vga
       -device qemu-xhci -device usb-tablet -device usb-kbd

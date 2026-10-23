@@ -1,7 +1,7 @@
 #!/bin/bash
 # MIN OS 부팅 이미지 빌드
 #   sudo image/build.sh [--suite debian-trixie|ubuntu-noble] [--arch amd64] [--output out/x.iso]
-#                       [--work DIR] [--reuse-rootfs] [--no-iso] [--release]
+#                       [--work DIR] [--reuse-rootfs] [--iso-only] [--no-iso] [--release]
 # 단계: 1 rootfs(mmdebstrap) → 2 hooks(chroot) → 3 squashfs → 4 GRUB hybrid ISO
 # 호스트의 디스크·부트로더는 건드리지 않는다 (loop 장치도 사용하지 않음).
 set -euo pipefail
@@ -12,6 +12,7 @@ ARCH=amd64
 OUTPUT=""
 WORK=""
 REUSE_ROOTFS=0
+ISO_ONLY=0
 NO_ISO=0
 DEV=1
 
@@ -22,6 +23,7 @@ while [ $# -gt 0 ]; do
     --output) OUTPUT=$2; shift 2 ;;
     --work) WORK=$2; shift 2 ;;
     --reuse-rootfs) REUSE_ROOTFS=1; shift ;;
+    --iso-only) REUSE_ROOTFS=1; ISO_ONLY=1; shift ;;
     --no-iso) NO_ISO=1; shift ;;
     --release) DEV=0; shift ;;
     -h|--help) sed -n 2,7p "$0"; exit 0 ;;
@@ -99,6 +101,9 @@ else
 fi
 
 # ---------- 2. hooks ----------
+if [ "$ISO_ONLY" = 1 ]; then
+log "2/4 chroot 커스터마이즈 건너뜀 (--iso-only)"
+else
 log "2/4 chroot 커스터마이즈"
 rm -rf "$ROOTFS/tmp/minos-src" "$ROOTFS/tmp/minos-hooks"
 mkdir -p "$ROOTFS/tmp/minos-src"
@@ -113,6 +118,7 @@ for hook in "$ROOTFS"/tmp/minos-hooks/*.sh; do
 done
 chroot_umount
 rm -rf "$ROOTFS/tmp/minos-src" "$ROOTFS/tmp/minos-hooks"
+fi
 
 [ "$NO_ISO" = 1 ] && { log "rootfs 준비 완료 (--no-iso): $ROOTFS"; exit 0; }
 
@@ -141,7 +147,7 @@ cp "$WORK/BOOTX64.EFI" "$ISOROOT/EFI/BOOT/BOOTX64.EFI"
 EFIIMG=$ISOROOT/EFI/efiboot.img
 rm -f "$EFIIMG"
 truncate -s 8M "$EFIIMG"
-mformat -i "$EFIIMG" -F ::
+mformat -i "$EFIIMG" ::   # FAT12/16: 작은 이미지에 FAT32 를 강제하면 EDK2(OVMF)가 읽지 못한다
 mmd -i "$EFIIMG" ::/EFI ::/EFI/BOOT
 mcopy -i "$EFIIMG" "$WORK/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
 
