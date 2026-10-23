@@ -31,6 +31,7 @@ Termux 에서는 `start-minos.sh` 가 남기는 `logs/serial-*.log` 의 타임�
 | 유휴 CPU (게스트 top) | ≈ 35 % 사용 (12.5 us + 22.2 sy) — TCG 에서 타이머/인터럽트 비용 |
 | 디스크 번들 | qcow2 1.06 GB(가상 6.1 GiB), vmlinuz 17 MB, initrd 17 MB |
 | 재부팅 → 2차 세션 | 통과 |
+| UEFI(AAVMF+GRUB) 경로 QEMU 시작 → root 셸 | 118.7 s (직접 커널 부팅 대비 +21 s: 펌웨어 초기화 + GRUB 3 s 대기) |
 
 x86-64 호스트는 **다른 ISA 를 변환**하므로 가장 느린 경우다. ARM64 호스트(스마트폰)의 TCG 는 같은 ISA 를 변환하므로
 명령 변환 비용이 낮고, Snapdragon 8 Elite 의 코어 성능이 이 샌드박스 vCPU 보다 높다. 실기기에서 더 빠를 것으로 예상하지만

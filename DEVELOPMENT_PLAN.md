@@ -60,7 +60,7 @@
 | A | 기존 빌드 시스템 분석, 아키텍처 의존 부분 분리 | ☑ |
 | B | ARM64 이미지 빌드: 교차 rootfs(qemu-user binfmt), 디스크 이미지(GPT/ESP/ext4 → qcow2), in-target GRUB arm64-efi, mobile 프로필 | ☑ `sudo make image-arm64` |
 | C | PC QEMU 에서 ARM64 부팅 검증 (직접 커널 부팅) | ☑ root 셸 98 s, systemd running |
-| C' | UEFI(AAVMF) 경로 | ◐ GRUB 메뉴 도달 확인, 전체 부팅은 §검증 로그 참고 |
+| C' | UEFI(AAVMF/edk2 → GRUB arm64-efi) 경로 | ☑ 부팅·세션·패널·터미널·종료 통과 (`gzio` 모듈, 소프트웨어 렌더링 자동 감지 수정 후) |
 | D | ARM64 그래픽 세션 검증: greetd → labwc → MIN Shell → 터미널 → 재부팅 → 종료, 스크린샷 | ☑ `docs/screenshots/arm64-*.png` |
 | E | Termux 실행 스크립트 `android/start-minos.sh`, 설치 스크립트 `android/install-termux.sh`, VNC 127.0.0.1 | ☑ (스크립트 문법·PC 장치 모델 동일성 확인, Termux 실행은 미검증) |
 | F | 실기기 테스트 절차 (`docs/ANDROID_EMULATION.md` §8 체크리스트) | ☑ 절차 제공 / ☐ 실기기 수행 |

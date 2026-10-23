@@ -10,7 +10,7 @@ MIN OS는 x86-64(데스크톱 PC)와 ARM64(Android 스마트폰 위의 QEMU)를 
 |---|---|---|
 | 대상 머신 | 실제 PC, QEMU `q35` | QEMU `virt` (GICv3, PCIe) |
 | 이미지 포맷 | live ISO (squashfs + live-boot, BIOS+UEFI) | GPT 디스크 이미지 → `minos-arm64.qcow2` + `vmlinuz` + `initrd.img` 번들 |
-| 부팅 방식 | GRUB(BIOS/UEFI) → live-boot | **직접 커널 부팅**(`-kernel/-initrd`, 검증됨) 또는 UEFI(AAVMF/edk2) → GRUB arm64-efi |
+| 부팅 방식 | GRUB(BIOS/UEFI) → live-boot | **직접 커널 부팅**(`-kernel/-initrd`, 기본·검증됨) 또는 UEFI(AAVMF/edk2) → GRUB arm64-efi (검증됨, 약 20 s 느림) |
 | 커널 | Ubuntu `linux-image-virtual` / Debian `linux-image-amd64` | Ubuntu `linux-image-virtual`(+`linux-modules-extra`) / Debian `linux-image-arm64` |
 | 패키지 미러 | archive.ubuntu.com / deb.debian.org | ports.ubuntu.com / deb.debian.org |
 | 루트 식별 | squashfs (live) | `root=LABEL=minos-root` (ext4, `/dev/vda2`) |
@@ -65,6 +65,13 @@ qemu-system-aarch64 -M virt -kernel vmlinuz -initrd initrd.img -append "root=LAB
   → systemd → greetd(자동 로그인 min) → minos-session → labwc(pixman) → minos-shell(QT_QUICK_BACKEND=software)
   → virtio-gpu 스캔아웃 → QEMU VNC 서버 (127.0.0.1:5900) → Android VNC 클라이언트
 ```
+
+### 4.1 UEFI 경로에서 배운 점
+- Ubuntu arm64 `vmlinuz` 는 gzip 으로 압축된 Image(EFI stub 포함)다. standalone GRUB 에 `gzio` 모듈이 없으면
+  "plain image kernel not supported" 로 실패한다 → hook 55 의 모듈 목록에 `gzio` 포함.
+- virtio-gpu 는 렌더 노드(`renderD128`)를 제공하지만 3D 가속이 없다. "렌더 노드가 있으면 GL" 로 판단하면 EGL 이 llvmpipe 로
+  떨어져 TCG 에서 패널이 수십 초 동안 그려지지 않는다 → `minos-session` 이 가상 GPU 드라이버(virtio-pci, bochs, simpledrm 등)를
+  감지해 pixman/Qt software 로 전환하고, mobile 프로필의 GRUB 기본 항목은 `minos.render=software` 를 명시한다.
 
 ## 5. 결정 사항과 근거
 
