@@ -3,6 +3,7 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 echo "== installing kernel: $MINOS_KERNEL_PKGS"
+[ -n "$(ls /var/lib/apt/lists 2>/dev/null)" ] || apt-get update >/tmp/minos-apt-update.log 2>&1
 apt-get install -y --no-install-recommends $MINOS_KERNEL_PKGS >/tmp/minos-kernel.log 2>&1 || { tail -30 /tmp/minos-kernel.log; exit 1; }
 
 KVER=$(ls /lib/modules | sort -V | tail -1)

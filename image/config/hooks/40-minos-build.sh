@@ -5,6 +5,7 @@ export DEBIAN_FRONTEND=noninteractive
 BUILD_PKGS=$(grep -vE '^\s*(#|$)' /tmp/minos-src/image/config/packages.build | tr '\n' ' ')
 
 echo "== installing build dependencies"
+apt-get update >/tmp/minos-apt-update.log 2>&1 || { tail -20 /tmp/minos-apt-update.log; exit 1; }
 apt-get install -y --no-install-recommends $BUILD_PKGS >/tmp/minos-build-deps.log 2>&1 || { tail -30 /tmp/minos-build-deps.log; exit 1; }
 
 echo "== building MIN components"
