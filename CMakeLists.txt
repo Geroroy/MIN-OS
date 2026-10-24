@@ -24,6 +24,9 @@ message(STATUS "MIN OS: QML modules install to ${MINOS_QML_INSTALL_DIR}")
 
 option(MINOS_BUILD_SHELL "Build MIN Shell" ON)
 option(MINOS_BUILD_TESTS "Build unit tests" ON)
+if(MINOS_BUILD_TESTS)
+  enable_testing()   # add_test() 보다 먼저 호출되어야 ctest 가 테스트를 인식한다
+endif()
 
 add_subdirectory(libs/minlayershell)
 add_subdirectory(libs/minui)
@@ -32,7 +35,4 @@ add_subdirectory(tools/preview)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/design/assets/icons DESTINATION ${CMAKE_INSTALL_DATADIR}/hagra OPTIONAL)
 if(MINOS_BUILD_SHELL)
   add_subdirectory(shell)
-endif()
-if(MINOS_BUILD_TESTS)
-  enable_testing()
 endif()
