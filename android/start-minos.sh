@@ -87,14 +87,17 @@ fi
 
 # ---- 3. 메모리/공간 확인 ----
 if pid=$(running_pid); then die "이미 실행 중입니다 (pid $pid). --stop 으로 종료하십시오."; fi
-AVAIL_MB=$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || echo 0)
+AVAIL_MB=$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || true); AVAIL_MB=${AVAIL_MB:-0}
 NEED_MB=$(( MEM + 384 ))
 if [ "$AVAIL_MB" -gt 0 ] && [ "$AVAIL_MB" -lt "$NEED_MB" ]; then
   if [ "$FORCE" = 1 ]; then say "경고: 사용 가능한 메모리 ${AVAIL_MB}MB < 필요 ${NEED_MB}MB (계속)"; 
   else die "사용 가능한 메모리 ${AVAIL_MB}MB 가 부족합니다 (필요 ≈ ${NEED_MB}MB). 다른 앱을 종료하거나 --mem 1536 또는 --force 를 사용하십시오."; fi
 fi
-FREE_MB=$(df -Pm "$DIR" | awk 'NR==2 {print $4}')
-[ "$FREE_MB" -ge 1024 ] || say "경고: 저장 공간 여유 ${FREE_MB}MB — 디스크 이미지가 커질 공간이 부족할 수 있습니다"
+# Android 의 df(toybox)는 -m 을 지원하지 않으므로 -k 사용. 실패해도 실행은 계속한다.
+FREE_MB=$(df -Pk "$DIR" 2>/dev/null | awk 'NR==2 && $4 ~ /^[0-9]+$/ {print int($4/1024)}' || true)
+if [ -n "$FREE_MB" ] && [ "$FREE_MB" -lt 1024 ]; then
+  say "경고: 저장 공간 여유 ${FREE_MB}MB — 디스크 이미지가 커질 공간이 부족할 수 있습니다"
+fi
 
 # ---- 4. 실행 ----
 XRES=${RES%x*}; YRES=${RES#*x}

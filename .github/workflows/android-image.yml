@@ -12,7 +12,6 @@ on:
       - "session/**"
       - "shell/**"
       - "libs/**"
-      - "android/**"
       - "CMakeLists.txt"
       - "tests/image/**"
       - "tests/shell/check_screenshot.py"
