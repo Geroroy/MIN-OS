@@ -1,4 +1,6 @@
-// MIN Shell — 작업 표시줄 (화면 하단, layer-shell bottom, exclusive zone)
+// 하그라 셸 — 작업 표시줄 (화면 하단, layer-shell bottom, exclusive zone)
+// 높이 = Theme.panelHeight(52) = 장식 띠 8(compact MOrnamentBand) + 경계 1 + 콘텐츠 43 (컨트롤 36 을 세로 중앙에).
+// 장식 띠는 입력을 받지 않고 콘텐츠 영역을 침범하지 않는다 (DESIGN_SPEC "하단 패널: 얇은 반복 띠").
 import QtQuick
 import QtQuick.Layouts
 import MinLayerShell 1.0
@@ -8,88 +10,106 @@ import MinShell 1.0
 LayerWindow {
     id: panel
     property bool launcherOpen: false
+    property bool powerOpen: false
     signal launcherRequested()
     signal powerRequested()
+
+    readonly property int bandHeight: Theme.panelBandHeight
+    readonly property int contentY: bandHeight + Theme.borderWidth
+    readonly property int contentHeight: height - contentY
 
     scope: "minos-panel"
     layer: LayerWindow.Bottom
     anchors: LayerWindow.AnchorLeft | LayerWindow.AnchorRight | LayerWindow.AnchorBottom
     exclusiveZone: Theme.panelHeight
     keyboardInteractivity: LayerWindow.KeyboardNone
-    width: 1280
+    width: Screen.width > 0 ? Screen.width : 1280   // 좌우 앵커이므로 컴포지터 configure 가 최종 폭을 정한다
     height: Theme.panelHeight
     color: Theme.surface
     visible: true
 
-    // 상단 1px 테두리
-    Rectangle { anchors.top: parent.top; width: parent.width; height: Theme.borderWidth; color: Theme.border }
+    // 상단 장식 띠 (8px 축소형) + 경계선
+    MOrnamentBand { compact: true; anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right }
+    Rectangle { y: panel.bandHeight; width: parent.width; height: Theme.borderWidth; color: Theme.borderStrong }
 
     RowLayout {
-        anchors.fill: parent
-        anchors.topMargin: Theme.borderWidth
+        y: panel.contentY
+        width: parent.width
+        height: panel.contentHeight
         spacing: 0
 
-        // 시작 버튼
+        // 시작 버튼: 연꽃 + 표시 이름
         MButton {
             id: startButton
-            text: Theme.brandName   // 임시: 브랜드 표기는 디자인 확정 후 결정
+            text: Theme.brandName
+            icon: "lotus"
             bold: true
             flat: true
             highlighted: panel.launcherOpen
             hPad: 12
-            Layout.fillHeight: true
+            Layout.preferredHeight: Theme.controlHeight
+            Layout.leftMargin: Theme.padding
+            Layout.rightMargin: Theme.padding
+            Layout.alignment: Qt.AlignVCenter
             onClicked: panel.launcherRequested()
+            MToolTip { text: "실행 메뉴 (" + Theme.brandName + ")" }
         }
-        MSeparator { vertical: true; Layout.fillHeight: true }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
 
         // 창 목록
         ListView {
             id: tasks
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.leftMargin: Theme.padding
             orientation: ListView.Horizontal
+            spacing: Theme.padding
             clip: true
             interactive: false
             model: Toplevels
             delegate: TaskButton {
+                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
                 onClicked: Toplevels.toggle(index)
-                onMiddleClicked: Toplevels.close(index)
+                onCloseRequested: Toplevels.close(index)
             }
         }
 
-        MSeparator { vertical: true; Layout.fillHeight: true }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
 
-        // 시계
+        // 시계: 날짜·요일·시각은 런타임 로케일 시계에서 읽는다 (고정 문자열 없음)
         MLabel {
             id: clock
             Layout.fillHeight: true
             Layout.leftMargin: Theme.paddingLarge
             Layout.rightMargin: Theme.paddingLarge
             horizontalAlignment: Text.AlignHCenter
-            property bool showDate: false
-            text: showDate ? Qt.formatDateTime(new Date(), "yyyy-MM-dd ddd HH:mm") : Qt.formatTime(new Date(), "HH:mm")
-            Timer {
-                interval: 1000; running: true; repeat: true
-                onTriggered: clock.text = clock.showDate ? Qt.formatDateTime(new Date(), "yyyy-MM-dd ddd HH:mm")
-                                                        : Qt.formatTime(new Date(), "HH:mm")
+            property bool showFull: false
+            readonly property var ko: Qt.locale("ko_KR")
+            function refresh() {
+                var now = new Date()
+                text = showFull ? now.toLocaleString(ko, "yyyy년 M월 d일 (ddd) AP h:mm:ss")
+                                : now.toLocaleString(ko, "M월 d일 (ddd) AP h:mm")
             }
-            MouseArea { anchors.fill: parent; onClicked: clock.showDate = !clock.showDate }
+            Component.onCompleted: refresh()
+            onShowFullChanged: refresh()
+            Timer { interval: 1000; running: true; repeat: true; onTriggered: clock.refresh() }
+            MouseArea { anchors.fill: parent; onClicked: clock.showFull = !clock.showFull }
         }
-        MSeparator { vertical: true; Layout.fillHeight: true }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
 
         // 전원
-        Rectangle {
+        MButton {
             id: powerButton
-            Layout.fillHeight: true
-            implicitWidth: 32
-            color: powerMouse.containsMouse ? Theme.surfaceRaised : "transparent"
-            PowerIcon { anchors.centerIn: parent }
-            MouseArea {
-                id: powerMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: panel.powerRequested()
-            }
+            flat: true
+            icon: "power"
+            hPad: Theme.padding
+            highlighted: panel.powerOpen
+            Layout.preferredHeight: Theme.controlHeight
+            Layout.leftMargin: Theme.padding
+            Layout.rightMargin: Theme.padding
+            Layout.alignment: Qt.AlignVCenter
+            onClicked: panel.powerRequested()
+            MToolTip { text: "전원" }
         }
     }
 }

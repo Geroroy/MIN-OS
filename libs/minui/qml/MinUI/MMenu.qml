@@ -18,8 +18,8 @@ Item {
         if (!root) return
         if (!popup) popup = popupComponent.createObject(root)
         const p = targetItem.mapToItem(root, x, y)
-        popup.x = Math.max(0, Math.min(root.width - popup.width, p.x))
-        popup.y = Math.max(0, Math.min(root.height - popup.height, p.y))
+        popup.wantX = p.x; popup.wantY = p.y
+        popup.clamp()
         currentIndex = firstEnabled(0, 1)
         popup.visible = true
         popup.forceActiveFocus()
@@ -36,6 +36,17 @@ Item {
         Item {
             z: 9000; visible: false
             width: box.width; height: box.height
+            property real wantX: 0
+            property real wantY: 0
+            // 항목 너비(maxW)는 레이아웃 뒤에 커질 수 있으므로 크기가 바뀔 때마다 창 안으로 다시 고정한다
+            function clamp() {
+                const root = parent
+                if (!root) return
+                x = Math.max(0, Math.min(root.width - width, wantX))
+                y = Math.max(0, Math.min(root.height - height, wantY))
+            }
+            onWidthChanged: clamp()
+            onHeightChanged: clamp()
             MouseArea { // 바깥 클릭 → 닫기 (창 전체 덮음)
                 parent: menu.popup ? menu.popup.parent : null
                 anchors.fill: parent; z: 8999; visible: menu.opened
@@ -63,12 +74,13 @@ Item {
                             readonly property bool isSep: modelData.separator === true
                             readonly property bool isEnabled: modelData.enabled !== false
                             readonly property bool current: index === menu.currentIndex
-                            width: col.width; height: isSep ? Theme.padding * 2 + 1 : Theme.rowHeight + 4
+                            width: col.width; height: isSep ? Theme.padding + 1 : Theme.rowHeight - 4
                             readonly property int neededWidth: isSep ? 0 : t.implicitWidth + (s.visible ? s.implicitWidth + 24 : 0) + Theme.paddingLarge * 2 + 16
                             onNeededWidthChanged: if (neededWidth > box.maxW) box.maxW = neededWidth
                             Component.onCompleted: if (neededWidth > box.maxW) box.maxW = neededWidth
                             Rectangle { visible: isSep; anchors.centerIn: parent; width: parent.width - Theme.paddingLarge * 2; height: 1; color: Theme.border }
                             Rectangle { visible: !isSep && current && isEnabled; anchors.fill: parent; color: Theme.selection }
+                            Rectangle { visible: !isSep && current && isEnabled; anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: Theme.selectionMarkerWidth; color: Theme.accent }
                             Text { visible: !isSep && modelData.checked === true; x: Theme.padding; anchors.verticalCenter: parent.verticalCenter; text: "✓"
                                    color: current ? Theme.selectionText : Theme.text; font.pixelSize: Theme.fontSize; renderType: Text.NativeRendering }
                             Text { id: t; visible: !isSep; x: Theme.paddingLarge + 12; anchors.verticalCenter: parent.verticalCenter; text: modelData.text || ""

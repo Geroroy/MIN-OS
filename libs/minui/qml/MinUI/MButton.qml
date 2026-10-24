@@ -25,7 +25,9 @@ Rectangle {
     implicitHeight: Theme.controlHeight
     radius: Theme.radius
     color: !enabled ? "transparent"
-         : (mouse.pressed || highlighted || mouse.containsMouse) ? Theme.surfaceRaised
+         : mouse.pressed ? Theme.selection
+         : highlighted ? Theme.selection
+         : mouse.containsMouse ? Theme.surfaceRaised
          : (flat ? "transparent" : Theme.surface)
     border.width: flat ? 0 : (defaultButton ? 2 : Theme.borderWidth)
     border.color: !enabled ? Theme.border
@@ -44,17 +46,19 @@ Rectangle {
         height: Theme.selectionMarkerWidth
         color: Theme.selection
     }
-    Rectangle { // 포커스 링 (컨트롤 바깥)
+    Rectangle { // 포커스 링 (컨트롤 바깥, 장식 경계보다 앞)
         visible: control.activeFocus
+        z: 5
         anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 1)
-        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing
+        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing; radius: Theme.radius
     }
     Row {
         id: row
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: mouse.pressed ? 1 : 0   // 눌림: 1 논리 px 오프셋, 레이아웃 재배치 없음
         spacing: Theme.padding
         MIcon { visible: control.icon.length > 0; name: control.icon; anchors.verticalCenter: parent.verticalCenter
-                color: !control.enabled ? Theme.textDisabled : Theme.text }
+                enabled: control.enabled; color: !control.enabled ? Theme.textDisabled : Theme.text }
         Text {
             id: label
             anchors.verticalCenter: parent.verticalCenter

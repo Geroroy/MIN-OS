@@ -45,9 +45,11 @@ def theme_qml(t):
         if k.startswith("_"):
             continue
         lines.append(f"    readonly property color {k}: {q(v)}")
-    lines += ["", "    // 창 장식 (labwc 와 공유하는 값; QML 미리보기 모형에서 사용)"]
-    for k in ("activeBorder", "inactiveBorder", "activeTitleBg", "inactiveTitleBg", "activeTitleText", "inactiveTitleText"):
+    lines += ["", "    // 창 장식 (labwc 와 공유하는 값; QML 미리보기 모형·앱 내부 장식에서 사용)"]
+    for k in ("activeBorder", "inactiveBorder", "activeTitleBg", "inactiveTitleBg", "activeTitleText", "inactiveTitleText", "buttonHoverBg"):
         lines.append(f"    readonly property color window{k[0].upper()}{k[1:]}: {q(w[k])}")
+    lines.append(f"    readonly property int windowBorderWidth: {w['borderWidth']}")
+    lines.append(f"    readonly property int windowCornerRadius: {w.get('cornerRadius', 0)}")
     lines += ["", "    // 치수 (QML 논리 픽셀, 배율 1.0 기준)"]
     for k, v in s.items():
         if k.startswith("_"):
@@ -67,7 +69,9 @@ def theme_qml(t):
         "    // 움직임",
         f"    readonly property int motionDuration: {m['durationMs']}",
         "",
-        "    // 아이콘 자산: design/assets/icons/<name>.svg (설치: /usr/share/hagra/icons). 없으면 빈 문자열 → MIcon 이 자리 표시자를 그린다.",
+        "    // 모듈 자산: libs/minui/qml/MinUI/assets/<name>.svg (모듈과 함께 설치됨). 원본: design/hagra-dancheong-v1/assets/",
+        "    function asset(name) { return Qt.resolvedUrl(\"assets/\" + name + \".svg\") }",
+        "    // 외부 아이콘 디렉터리(선택): HAGRA_ICON_PATH / --icons. 없으면 빈 문자열 → MIcon 이 자리 표시자를 그린다.",
         "    property string iconBasePath: \"\"",
         "    function iconSource(name) { return iconBasePath.length ? iconBasePath + \"/\" + name + \".svg\" : \"\" }",
         "}",
@@ -95,7 +99,7 @@ window.label.text.justify: {w['titleJustify']}
 window.active.button.unpressed.image.color: {w['activeTitleText']}
 window.inactive.button.unpressed.image.color: {w['inactiveTitleText']}
 window.active.button.hover.bg.color: {w['buttonHoverBg']}
-window.inactive.button.hover.bg.color: {w['buttonHoverBg']}
+window.inactive.button.hover.bg.color: {w.get('inactiveButtonHoverBg', w['buttonHoverBg'])}
 
 menu.border.width: {m['borderWidth']}
 menu.border.color: {m['border']}

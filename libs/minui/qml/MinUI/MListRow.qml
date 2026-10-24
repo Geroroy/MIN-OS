@@ -23,12 +23,12 @@ Rectangle {
     Rectangle { // 선택 막대 (색 이외 단서)
         visible: row.selected
         anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
-        width: Theme.selectionMarkerWidth; color: Theme.accentText; opacity: 0.9
+        width: Theme.selectionMarkerWidth; color: Theme.accent
     }
     Rectangle { // 포커스 링 (안쪽 1px)
         visible: row.focusVisible
         anchors.fill: parent
-        color: "transparent"; border.width: Theme.focusRingWidth; border.color: row.selected ? Theme.selectionText : Theme.focusRing
+        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing; z: 5
     }
     Row {
         anchors.fill: parent

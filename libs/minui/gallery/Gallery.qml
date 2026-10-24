@@ -1,5 +1,5 @@
 // MinUI 공통 부품 갤러리 — 같은 실행 환경(labwc + Qt Wayland)에서 부품·상태·혼합 문자열·긴 문자열·키보드 포커스·배율을 확인한다.
-// 실행: build/tools/preview/minui-preview libs/minui/gallery/Gallery.qml --state buttons|inputs|selection|lists|feedback|text|frame [--scale 1.5]
+// 실행: build/tools/preview/minui-preview libs/minui/gallery/Gallery.qml --state buttons|inputs|selection|lists|feedback|text|ornament|icons|frame [--scale 1.5]
 // 캡처: tests/design/capture-gallery.sh
 import QtQuick
 import MinUI 1.0
@@ -10,7 +10,7 @@ Window {
     readonly property string mixed: "보고서_2026년3분기_v2 Final (김민수) 10월23일.pdf"
     readonly property string longText: "하그라는 한국의 미감과 생활에 대한 이해를 바탕으로, 누구나 자기 일을 편안하게 해낼 수 있도록 만드는 운영체제입니다. This sentence mixes Hangul, Latin letters and digits 1234567890 to verify line wrapping, baseline alignment and glyph fallback across fonts at 100 %, 150 % and 200 % scale."
     title: "MinUI 갤러리 — " + section + " · 배율 " + Math.round(previewScale * 100) + "%"
-    width: 600; height: 330
+    width: 760; height: 420
     color: Theme.bg
     visible: true
 
@@ -20,7 +20,7 @@ Window {
 
         Row { spacing: Theme.paddingLarge
             MLabel { text: "MinUI · " + win.section; font.bold: true; font.pixelSize: Theme.fontSizeTitle }
-            MLabel { text: "토큰 " + Theme.tokenSet + " (" + Theme.tokenStatus + ") · 배율 " + Math.round(previewScale * 100) + "% · 논리 600×330"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
+            MLabel { text: "토큰 " + Theme.tokenSet + " (" + Theme.tokenStatus + ") · 배율 " + Math.round(previewScale * 100) + "% · 논리 760×420"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
         }
         MSeparator { width: parent.width }
 
@@ -61,6 +61,7 @@ Window {
                 MTextField { text: "잘못된 값"; error: true; errorText: "파일 이름에 ‘/’ 를 쓸 수 없습니다" }
                 MTextField { text: "저장 중"; busy: true }
             }
+            Item { width: 1; height: Theme.padding }   // 오류 문구(입력란 아래) 자리
             Row { spacing: Theme.paddingLarge
                 MSearchField { width: 200 }
                 MSearchField { width: 220; text: "회의록 10월" }
@@ -147,6 +148,44 @@ Window {
             MLabel { text: win.longText; wrap: true; width: parent.width }
             MLabel { text: "말줄임: " + win.mixed + " " + win.mixed + " " + win.mixed; width: 300 }
             MLabel { text: "비활성 텍스트 disabled"; enabled: false }
+        }
+
+        // ---- 장식 부품과 자산 (누락 이미지 검사: 로드 실패 시 이름이 오류색으로 표시된다) ----
+        Column { visible: win.section === "ornament"; spacing: Theme.padding; width: parent.width
+            MOrnamentBand { width: parent.width }
+            MOrnamentBand { width: parent.width; compact: true }
+            Row { spacing: Theme.paddingLarge; width: parent.width
+                Item { width: 220; height: 90
+                    MOrnamentFrame { anchors.fill: parent }
+                    MLabel { anchors.centerIn: parent; text: "MOrnamentFrame (앱 내부)"; font.pixelSize: Theme.fontSizeSmall } }
+                Item { width: 220; height: 90
+                    MOrnamentFrame { anchors.fill: parent; active: false }
+                    MLabel { anchors.centerIn: parent; text: "비활성"; muted: true; font.pixelSize: Theme.fontSizeSmall } }
+                MOrnamentDivider { width: 100; anchors.verticalCenter: parent.verticalCenter }
+            }
+            Row { spacing: Theme.padding
+                Repeater { model: ["lotus", "corner-rosette", "cloud-tile", "lattice-tile", "bojagi-tile", "folder-writing", "folder-translation", "folder-reference", "folder-project", "document", "settings"]
+                    delegate: Column { required property string modelData; spacing: 2
+                        MIcon { id: ai; name: modelData; size: 36; anchors.horizontalCenter: parent.horizontalCenter }
+                        MLabel { text: ai.ready ? modelData : modelData + " ✗"; font.pixelSize: 9; color: ai.ready ? Theme.textMuted : Theme.danger; width: 43; horizontalAlignment: Text.AlignHCenter } } }
+            }
+            MLabel { text: "띠는 가로 반복, 프레임은 겹선 + 모서리 결구. 자산은 모듈 assets/ 에서 로드 (설치 경로와 동일)."; muted: true; font.pixelSize: Theme.fontSizeSmall }
+        }
+        // ---- 조작 아이콘 ----
+        Column { visible: win.section === "icons"; spacing: Theme.paddingLarge; width: parent.width
+            Grid { columns: 10; spacing: Theme.padding; width: parent.width
+                Repeater { model: ["home", "search", "download", "image", "trash", "file", "folder", "drive", "usb", "back", "forward", "up", "view-grid", "view-list", "terminal", "window", "power", "close", "apps", "error", "check"]
+                    delegate: Column { required property string modelData; spacing: 2; width: 48
+                        MIcon { id: fi; name: modelData; anchors.horizontalCenter: parent.horizontalCenter }
+                        MLabel { text: fi.ready ? modelData : modelData + " ✗"; font.pixelSize: 9; color: fi.ready ? Theme.textMuted : Theme.danger; width: 48; horizontalAlignment: Text.AlignHCenter } } }
+            }
+            Row { spacing: Theme.paddingLarge
+                MButton { text: "기본"; icon: "folder" }
+                MButton { text: "비활성"; icon: "folder"; enabled: false }
+                MButton { flat: true; icon: "search"; hPad: 6 }
+                MIcon { name: "missing-icon-name"; anchors.verticalCenter: parent.verticalCenter }
+                MLabel { text: "← 없는 이름은 자리 표시자(머리글자)로 표시"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
+            }
         }
 
         // ---- 창 프레임 모형 ----

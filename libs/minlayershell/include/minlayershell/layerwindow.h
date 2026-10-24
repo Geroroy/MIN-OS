@@ -113,6 +113,8 @@ private:
     bool m_completing = false;
     bool m_visiblePending = false;
     bool m_inSetVisible = false;
+    bool m_creating = false;       // createLayerSurface() 의 동기 대기 중 (configure 에 의한 resize 를 지연)
+    QSize m_pendingSize;           // 생성 중 받은 configure 크기 (대기 종료 후 적용)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(LayerWindow::Anchors)

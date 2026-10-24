@@ -4,7 +4,7 @@
 set -euo pipefail
 . "$(dirname "$0")/headless.sh"
 OUT=${1:-$REPO/out/design/gallery}; mkdir -p "$OUT"
-SECTIONS=${SECTIONS:-"buttons inputs selection lists feedback text frame"}
+SECTIONS=${SECTIONS:-"buttons inputs selection lists feedback text ornament icons frame"}
 SCALES=${SCALES:-"1 1.5 2"}
 trap hd_stop EXIT
 hd_start 1280x720 1

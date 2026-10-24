@@ -18,13 +18,13 @@ Item {
 
     Rectangle {
         id: mark
-        width: 14; height: 14; radius: 7
+        width: 18; height: 18; radius: 9
         anchors.verticalCenter: parent.verticalCenter
-        color: !control.enabled ? "transparent" : (mouse.containsMouse ? Theme.surfaceRaised : Theme.bg)
+        color: !control.enabled ? "transparent" : (mouse.containsMouse ? Theme.surfaceRaised : Theme.surface)
         border.width: Theme.borderWidth
         border.color: !control.enabled ? Theme.border : control.error ? Theme.danger : (control.checked || mouse.pressed) ? Theme.accent : Theme.borderStrong
         Rectangle { visible: control.activeFocus; anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 1); radius: width / 2; color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing }
-        Rectangle { visible: control.checked; anchors.centerIn: parent; width: 6; height: 6; radius: 3; color: control.enabled ? Theme.accent : Theme.textDisabled }
+        Rectangle { visible: control.checked; anchors.centerIn: parent; width: 8; height: 8; radius: 4; color: control.enabled ? Theme.accent : Theme.textDisabled }
     }
     Text {
         id: label

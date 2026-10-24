@@ -10,19 +10,21 @@ Rectangle {
     default property alias content: inner.data
     implicitWidth: 320; implicitHeight: 200
     color: Theme.bg
-    border.width: Theme.borderWidth
+    border.width: Theme.windowBorderWidth
     border.color: active ? Theme.windowActiveBorder : Theme.windowInactiveBorder
+    radius: Theme.windowCornerRadius
     Rectangle {
         id: titleBar
-        x: 1; y: 1; width: parent.width - 2; height: Theme.titleBarHeight
+        x: Theme.windowBorderWidth; y: Theme.windowBorderWidth; width: parent.width - Theme.windowBorderWidth * 2; height: Theme.titleBarHeight
         color: frame.active ? Theme.windowActiveTitleBg : Theme.windowInactiveTitleBg
         Text { anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge; anchors.verticalCenter: parent.verticalCenter
                text: frame.title; color: frame.active ? Theme.windowActiveTitleText : Theme.windowInactiveTitleText
-               font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; renderType: Text.NativeRendering
-               width: parent.width - 100; elide: Text.ElideRight }
+               font.family: Theme.fontFamily; font.pixelSize: Theme.fontSizeTitle; font.bold: frame.active; renderType: Text.NativeRendering
+               width: parent.width - 120; elide: Text.ElideRight }
         Row { anchors.right: parent.right; anchors.rightMargin: Theme.padding; anchors.verticalCenter: parent.verticalCenter; spacing: Theme.padding
             Repeater { model: ["–", "□", "×"]; delegate: Text { required property string modelData; text: modelData; width: 16; horizontalAlignment: Text.AlignHCenter
                        color: frame.active ? Theme.windowActiveTitleText : Theme.windowInactiveTitleText; font.pixelSize: Theme.fontSize; renderType: Text.NativeRendering } } }
     }
-    Item { id: inner; x: 1; y: titleBar.height + 1; width: parent.width - 2; height: parent.height - titleBar.height - 2 }
+    MOrnamentBand { x: Theme.windowBorderWidth; y: titleBar.y + titleBar.height; width: parent.width - Theme.windowBorderWidth * 2 }
+    Item { id: inner; x: Theme.windowBorderWidth; y: titleBar.y + titleBar.height + Theme.ornamentBandHeight; width: parent.width - Theme.windowBorderWidth * 2; height: parent.height - y - Theme.windowBorderWidth }
 }

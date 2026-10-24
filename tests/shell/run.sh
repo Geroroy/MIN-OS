@@ -94,4 +94,21 @@ sleep 0.5
 sleep 0.5
 kill -0 $SHELL_PID 2>/dev/null && { echo "FAIL: shell did not quit on --quit"; exit 1; }
 
+# 1920×1080 회귀: 첫 configure 가 QML 초기 폭과 다를 때 셸이 죽지 않고 패널이 전체 폭을 채워야 한다 (layerwindow 생성 중 resize 지연)
+if command -v wlr-randr >/dev/null; then
+  wlr-randr --output HEADLESS-1 --custom-mode 1920x1080@60 >/dev/null 2>&1 && sleep 0.5
+  "$SHELL_BIN" > "$OUT/shell-fhd.log" 2>&1 &
+  SHELL_PID=$!
+  for i in $(seq 1 40); do
+    grep -q 'layer surface "minos-panel" configured' "$OUT/shell-fhd.log" 2>/dev/null && break
+    kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: minos-shell exited at 1920x1080"; cat "$OUT/shell-fhd.log"; exit 1; }
+    sleep 0.5
+  done
+  sleep 1.5
+  kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: minos-shell crashed after configure at 1920x1080"; cat "$OUT/shell-fhd.log"; exit 1; }
+  grim -t png "$OUT/05-panel-fhd.png"
+  python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/05-panel-fhd.png" panel
+  "$SHELL_BIN" --quit; sleep 0.5
+fi
+
 echo "PASS: MIN Shell headless integration test (screenshots in $OUT)"

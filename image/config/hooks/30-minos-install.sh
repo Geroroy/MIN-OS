@@ -11,6 +11,7 @@ install -Dm644 "$SRC/labwc/themerc-override" /usr/share/themes/MIN/labwc/themerc
 install -Dm644 "$SRC/greetd/config.toml" /etc/greetd/config.toml
 install -Dm644 "$SRC/foot/foot.ini" /etc/xdg/foot/foot.ini
 install -Dm644 "$SRC/minos.desktop" /usr/share/wayland-sessions/minos.desktop
+install -Dm644 "$SRC/wallpaper/hagra-dancheong.png" /usr/share/minos/wallpaper/hagra-dancheong.png
 install -Dm644 "$SRC/wallpaper/min-graphite.png" /usr/share/minos/wallpaper/min-graphite.png
 
 # greetd: 로그인 화면 전환용 VT와 seat 접근

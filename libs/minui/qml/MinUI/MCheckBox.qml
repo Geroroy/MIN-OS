@@ -17,16 +17,16 @@ Item {
 
     Rectangle {
         id: box
-        width: 14; height: 14
+        width: 18; height: 18
         anchors.verticalCenter: parent.verticalCenter
         radius: Theme.radius
-        color: !control.enabled ? "transparent" : control.checked ? Theme.accent : (mouse.containsMouse ? Theme.surfaceRaised : Theme.bg)
+        color: !control.enabled ? "transparent" : control.checked ? Theme.accent : (mouse.containsMouse ? Theme.surfaceRaised : Theme.surface)
         border.width: Theme.borderWidth
         border.color: !control.enabled ? Theme.border : control.error ? Theme.danger : mouse.pressed ? Theme.accent : (control.checked ? Theme.accent : Theme.borderStrong)
         Rectangle { visible: control.activeFocus; anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 1); color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing }
         // 체크 표시: 두 선
-        Rectangle { visible: control.checked; x: 3; y: 7; width: 4; height: 1.5; rotation: 45; transformOrigin: Item.Left; color: control.enabled ? Theme.accentText : Theme.textDisabled }
-        Rectangle { visible: control.checked; x: 5.6; y: 9.6; width: 7; height: 1.5; rotation: -50; transformOrigin: Item.Left; color: control.enabled ? Theme.accentText : Theme.textDisabled }
+        Rectangle { visible: control.checked; x: 4; y: 9; width: 5; height: 2; rotation: 45; transformOrigin: Item.Left; color: control.enabled ? Theme.accentText : Theme.textDisabled }
+        Rectangle { visible: control.checked; x: 7.4; y: 12.4; width: 9; height: 2; rotation: -50; transformOrigin: Item.Left; color: control.enabled ? Theme.accentText : Theme.textDisabled }
     }
     Text {
         id: label

@@ -18,18 +18,20 @@ Rectangle {
     implicitHeight: Theme.controlHeight
     implicitWidth: 160
     radius: Theme.radius
-    color: enabled ? Theme.bg : "transparent"
+    color: enabled ? Theme.surface : Theme.surfaceRaised
     border.width: Theme.borderWidth
     border.color: !enabled ? Theme.border : error ? Theme.danger : input.activeFocus ? Theme.accent : (hover.hovered ? Theme.textMuted : Theme.borderStrong)
 
+    activeFocusOnTab: enabled   // Tab 체인에 포함 (포커스는 안쪽 TextInput 으로 전달)
     function forceActiveFocus() { input.forceActiveFocus() }
     onActiveFocusChanged: if (activeFocus && !input.activeFocus) input.forceActiveFocus()
 
     HoverHandler { id: hover; enabled: control.enabled }
-    Rectangle { // 포커스 링
+    Rectangle { // 포커스 링 (장식보다 앞)
         visible: input.activeFocus
+        z: 5
         anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 1)
-        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing
+        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing; radius: Theme.radius
     }
     TextInput {
         id: input

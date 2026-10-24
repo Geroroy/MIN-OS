@@ -1,16 +1,40 @@
 #!/usr/bin/env python3
-"""MIN Shell 스크린샷 픽셀 검사. 사용: check_screenshot.py <png> <panel|launcher|power|foot>
+"""하그라 셸 스크린샷 픽셀 검사. 사용: check_screenshot.py <png> <panel|launcher|power|foot>
 
-MinUI Theme 토큰(Graphite)과 docs/DESIGN_LANGUAGE.md 치수를 기준으로 검사한다.
+기준 색·치수는 design/tokens/hagra.tokens.json (단일 원본) 에서 읽는다. 토큰이 바뀌면 검사 기준도 함께 바뀐다.
+배치 기준: shell/qml/Panel.qml (띠 8 + 경계 1 + 콘텐츠), Launcher.qml (360×440), PowerMenu.qml (240 너비).
 """
+import json
+import os
 import sys
+
 from PIL import Image
 
-SURFACE = (0x24, 0x24, 0x24)
-BORDER = (0x3A, 0x3A, 0x3A)
-BORDER_STRONG = (0x5C, 0x5C, 0x5C)
-ACCENT = (0x3D, 0x7B, 0xD9)
-PANEL_H = 28
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+with open(os.path.join(REPO, "design", "tokens", "hagra.tokens.json"), encoding="utf-8") as f:
+    TOK = json.load(f)
+
+
+def rgb(hexstr):
+    h = hexstr.lstrip("#")
+    if len(h) == 8:  # AARRGGBB
+        h = h[2:]
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+C = TOK["color"]
+SURFACE = rgb(C["surface"])
+BG = rgb(C["bg"])
+BORDER = rgb(C["border"])
+BORDER_STRONG = rgb(C["borderStrong"])
+ACCENT = rgb(C["accent"])
+SELECTION = rgb(C["selection"])
+S = TOK["size"]
+PANEL_H = S["panelHeight"]
+BAND_H = S["panelBandHeight"]
+BORDER_W = S["borderWidth"]
+LAUNCHER_W, LAUNCHER_H = 360, 440
+POWER_W = 240
 
 
 def close(a, b, tol=6):
@@ -24,23 +48,12 @@ def row_mostly(img, y, color, x0=0, x1=None, frac=0.6):
     return hits / max(1, x1 - x0) >= frac
 
 
-def fail(msg):
-    print("FAIL:", msg)
-    sys.exit(1)
-
-
-def check_panel(img):
-    w, h = img.size
-    # 패널 상단 테두리 1px
-    if not row_mostly(img, h - PANEL_H, BORDER):
-        fail(f"panel top border not found at y={h-PANEL_H}")
-    # 패널 바탕 (중앙 행, 창 목록 영역은 비어 있으므로 surface)
-    if not row_mostly(img, h - PANEL_H // 2, SURFACE, frac=0.5):
-        fail("panel background not surface colour")
-    # 패널 위는 패널 색이 아니어야 함 (labwc 배경)
-    if row_mostly(img, h - PANEL_H - 10, SURFACE, frac=0.5):
-        fail("area above panel has panel colour: exclusive zone/anchoring wrong?")
-    print(f"ok: panel {w}x{PANEL_H} at bottom")
+def row_frac_not(img, y, colors, x0=0, x1=None):
+    """행에서 colors 중 어느 것과도 가깝지 않은 픽셀 비율 (문양 존재 검사)."""
+    w = img.width
+    x1 = w if x1 is None else x1
+    miss = sum(1 for x in range(x0, x1) if not any(close(img.getpixel((x, y)), c, 10) for c in colors))
+    return miss / max(1, x1 - x0)
 
 
 def region_mostly(img, x0, y0, x1, y1, color, frac=0.5):
@@ -53,49 +66,85 @@ def region_mostly(img, x0, y0, x1, y1, color, frac=0.5):
     return hits / max(1, tot) >= frac
 
 
+def fail(msg):
+    print("FAIL:", msg)
+    sys.exit(1)
+
+
+def check_panel_frame(img):
+    w, h = img.size
+    top = h - PANEL_H
+    # 장식 띠: 패널 맨 위 8px 는 surface 도 bg 도 아닌 문양 색이 상당 부분 있어야 한다 (띠가 로드됐는지)
+    band_rows = [top + BAND_H // 2]
+    if not any(row_frac_not(img, y, [SURFACE, BG]) >= 0.3 for y in band_rows):
+        fail(f"panel ornament band not visible at y={band_rows}")
+    # 띠 아래 경계선 (borderStrong)
+    if not row_mostly(img, top + BAND_H, BORDER_STRONG, frac=0.6):
+        fail(f"panel band/content border not found at y={top + BAND_H}")
+    # 콘텐츠 영역 바탕 (창 목록 영역은 비어 있으므로 surface 가 과반)
+    body_y = top + BAND_H + BORDER_W + (PANEL_H - BAND_H - BORDER_W) // 2
+    if not row_mostly(img, body_y, SURFACE, frac=0.4):
+        fail(f"panel content background not surface colour at y={body_y}")
+
+
+def check_panel(img):
+    w, h = img.size
+    check_panel_frame(img)
+    # 패널 위는 패널 색이 아니어야 함 (배경)
+    if row_mostly(img, h - PANEL_H - 10, SURFACE, frac=0.5):
+        fail("area above panel has panel colour: exclusive zone/anchoring wrong?")
+    print(f"ok: panel {w}x{PANEL_H} at bottom (band {BAND_H}px + content)")
+
+
 def check_launcher(img):
     w, h = img.size
-    # 360x440, 왼쪽 아래, 패널 위
-    x0, y0, x1, y1 = 0, h - PANEL_H - 440, 360, h - PANEL_H
-    if not region_mostly(img, x0 + 2, y0 + 2, x1 - 2, y1 - 2, SURFACE, frac=0.35):
+    x0, y0, x1, y1 = 0, h - PANEL_H - LAUNCHER_H, LAUNCHER_W, h - PANEL_H
+    if not region_mostly(img, x0 + 4, y0 + 4, x1 - 4, y1 - 4, SURFACE, frac=0.3):
         fail("launcher body not found at bottom-left above panel")
-    # 테두리(borderStrong) 왼쪽/위
+    # 2px 청록 경계: 왼쪽 세로선, 위쪽 가로선 (정확한 y → 패널과 틈이 없어야 한다)
     if not any(close(img.getpixel((x0, y)), BORDER_STRONG) for y in range(y0 + 5, y1 - 5, 7)):
         fail("launcher left border missing")
+    if not row_mostly(img, y0, BORDER_STRONG, x0, x1, frac=0.8):
+        fail(f"launcher top border not at y={y0}: popup not flush with panel?")
     # 오른쪽 바깥은 launcher 색이 아니어야 함
     if region_mostly(img, x1 + 5, y0 + 5, x1 + 100, y1 - 5, SURFACE, frac=0.5):
-        fail("launcher wider than 360px?")
-    # 선택된 첫 항목(accent) 존재
-    if not any(close(img.getpixel((x, y)), ACCENT) for y in range(y0, y1, 2) for x in range(x0 + 4, x1 - 4, 8)):
-        fail("no accent-coloured selected row in launcher")
-    print("ok: launcher 360x440 at bottom-left, selection visible")
+        fail(f"launcher wider than {LAUNCHER_W}px?")
+    # 상단 장식 띠
+    if row_frac_not(img, y0 + 2 + S["ornamentBandHeight"] // 2, [SURFACE, BG], x0 + 4, x1 - 4) < 0.3:
+        fail("launcher ornament band missing")
+    # 선택된 첫 항목: 선택 배경 + accent 막대
+    sel = any(close(img.getpixel((x, y)), SELECTION) for y in range(y0, y1, 2) for x in range(x0 + 8, x1 - 8, 8))
+    mark = any(close(img.getpixel((x, y)), ACCENT) for y in range(y0, y1, 2) for x in range(x0 + 2, x0 + 8))
+    if not (sel and mark):
+        fail(f"selected row not visible in launcher (selection bg={sel}, accent marker={mark})")
+    print(f"ok: launcher {LAUNCHER_W}x{LAUNCHER_H} at bottom-left, band + selection visible")
 
 
 def check_power(img):
     w, h = img.size
-    x0, x1 = w - 200, w
+    x0, x1 = w - POWER_W, w
     y1 = h - PANEL_H
-    # 높이는 콘텐츠에 따라 결정되지만 4행 * 28 ≈ 112 + 테두리
-    y0 = y1 - 110
-    if not region_mostly(img, x0 + 2, y0 + 2, x1 - 2, y1 - 2, SURFACE, frac=0.35):
+    y0 = y1 - 120  # 아래쪽 일부만 (높이는 콘텐츠에 따라)
+    if not region_mostly(img, x0 + 4, y0 + 4, x1 - 4, y1 - 4, SURFACE, frac=0.3):
         fail("power menu body not found at bottom-right above panel")
     if not any(close(img.getpixel((x0, y)), BORDER_STRONG) for y in range(y0 + 5, y1 - 5, 5)):
         fail("power menu left border missing")
+    if not row_mostly(img, y1 - 1, BORDER_STRONG, x0, x1, frac=0.8):
+        fail(f"power menu bottom border not at y={y1 - 1}: popup not flush with panel?")
+    if region_mostly(img, x0 - 100, y0 + 5, x0 - 5, y1 - 5, SURFACE, frac=0.5):
+        fail(f"power menu wider than {POWER_W}px?")
     print("ok: power menu at bottom-right")
 
 
 def check_foot(img):
     w, h = img.size
-    # 패널은 여전히 보여야 함 (exclusive zone)
-    if not row_mostly(img, h - PANEL_H, BORDER):
-        fail("panel hidden by terminal window: exclusive zone not honoured")
-    if not row_mostly(img, h - PANEL_H // 2, SURFACE, frac=0.3):
-        fail("panel background covered")
-    # 작업 표시줄에 창 항목(활성 accent 2px 선)이 있어야 함: 시작 버튼(≈56px) 오른쪽
-    found = any(close(img.getpixel((x, h - 2)), ACCENT) for x in range(60, 60 + 160, 2))
+    # 패널은 여전히 보여야 함 (exclusive zone) — 띠·경계·바탕
+    check_panel_frame(img)
+    # 작업 표시줄에 활성 창 항목(accent 3px 막대)이 있어야 함: 시작 버튼(≈120px) 오른쪽, 콘텐츠 영역 아래쪽
+    ys = range(h - 12, h - 1)
+    found = any(close(img.getpixel((x, y)), ACCENT) for y in ys for x in range(100, 460, 2))
     if not found:
         fail("no active task indicator in panel (foreign-toplevel)")
-    # 터미널 창이 패널 위에 그려졌는지 (foot 기본 배경은 어둡고 labwc 배경과 다름) — 제목 표시줄(SSD) 존재 확인은 테마 색으로
     print("ok: panel visible with terminal running, task indicator present")
 
 

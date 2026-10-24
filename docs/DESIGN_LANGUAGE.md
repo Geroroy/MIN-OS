@@ -1,6 +1,6 @@
 # (이전) MIN 디자인 언어 — Graphite 임시 기준
 
-> **상태 (2026-10-24):** 이 문서는 하그라 전환 이전의 디자인 언어다. 색·치수·글꼴 값은 `design/tokens/hagra.tokens.json` 에 임시값으로 옮겨져 동작 기준으로만 유지되며, **하그라의 확정 디자인이 아니다.** 새 철학은 `docs/HAGRA_PHILOSOPHY.md`, 구현 기반은 `docs/UI_FOUNDATION.md`, 디자인 전달 명세는 `docs/DESIGN_HANDOFF.md` 를 본다. 2000~2005년 레트로 콘셉트·특정 배색·입체 효과·픽셀 아이콘은 확정 요구사항에서 해제되었다.
+> **상태 (2026-10-24):** 이 문서는 하그라 전환 이전의 디자인 언어다. 색·치수·글꼴 값은 `design/tokens/hagra.tokens.json` 에 임시값으로 옮겨져 동작 기준으로만 유지되며, **하그라의 확정 디자인이 아니다.** 새 철학은 `docs/HAGRA_PHILOSOPHY.md`, 구현 기반은 `docs/UI_FOUNDATION.md`, 디자인 전달 명세는 `docs/DESIGN_HANDOFF.md` 를 본다. 2000~2005년 레트로 콘셉트·특정 배색·입체 효과·픽셀 아이콘과 미니멀리즘 제한은 폐기되었다. H1(2026-10-24)부터 토큰은 연한 단청 v1(`design/hagra-dancheong-v1/`) 값이다.
 
 
 > "Minimal. Independent. Native." — 기능이 형태를 결정한다. 장식은 정보가 아니면 넣지 않는다.

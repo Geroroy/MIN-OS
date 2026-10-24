@@ -8,7 +8,7 @@ Rectangle {
     readonly property real ratio: flickable && flickable.contentHeight > 0 ? flickable.height / flickable.contentHeight : 1
     visible: flickable && ratio < 1
     width: Theme.scrollBarWidth
-    color: Theme.surface
+    color: Theme.surfaceRaised
     border.width: 0
     Rectangle { anchors.left: parent.left; width: Theme.borderWidth; height: parent.height; color: Theme.border }
     Rectangle {

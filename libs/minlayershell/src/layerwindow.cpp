@@ -148,12 +148,23 @@ void LayerWindow::createLayerSurface()
         wl_display_flush(display);
 
     // Qt가 첫 버퍼를 붙이기 전에 configure/ack가 끝나야 한다 (프로토콜 요구). 짧게 동기 대기한다.
+    // 주의: 이 대기 중에는 QWindow::resize() 를 호출하지 않는다. 창은 아직 create() 안에 있어 showEvent 전이고,
+    // resize → QWaylandWindow::setGeometry → Expose 이벤트가 중첩 루프에서 전달되면 QQuickWindow 가 backing store 없이
+    // 렌더링을 시도해 segfault 한다 (출력 폭이 QML 의 초기 width 와 다른 1920×1080 에서 재현). 크기는 대기가 끝난 뒤 적용한다.
     QElapsedTimer timer;
     timer.start();
+    m_creating = true;
+    m_pendingSize = QSize();
     while (!m_configured && timer.elapsed() < 2000)
         QCoreApplication::processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents, 20);
+    m_creating = false;
     if (!m_configured)
         qCWarning(lcLayerShell) << "layer surface" << m_scope << "was not configured within 2s";
+    if (m_pendingSize.isValid() && m_pendingSize != size()) {
+        m_inConfigure = true;
+        resize(m_pendingSize);   // Expose 는 큐에 쌓여 showEvent 이후 메인 루프에서 처리된다
+        m_inConfigure = false;
+    }
 }
 
 void LayerWindow::destroyLayerSurface()
@@ -194,10 +205,14 @@ void LayerWindow::pushSize()
 void LayerWindow::handleConfigure(quint32 width, quint32 height)
 {
     QSize size(width > 0 ? int(width) : this->width(), height > 0 ? int(height) : this->height());
-    m_inConfigure = true;
-    if (size != this->size())
-        resize(size);
-    m_inConfigure = false;
+    if (m_creating) {
+        m_pendingSize = size;    // createLayerSurface() 가 대기 종료 후 적용
+    } else {
+        m_inConfigure = true;
+        if (size != this->size())
+            resize(size);
+        m_inConfigure = false;
+    }
     if (!m_configured) {
         m_configured = true;
         qCDebug(lcLayerShell) << "layer surface" << m_scope << "configured" << size;

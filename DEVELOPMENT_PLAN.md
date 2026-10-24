@@ -86,9 +86,39 @@
 | 이름 변경 | 사용자 노출 문자열(GRUB, issue, 세션 항목, 패널 라벨, Android 안내) → 하그라/HAGRA. 내부 식별자 유지 | ☑ |
 | 디자인 문서 | `docs/HAGRA_PHILOSOPHY.md`, `docs/UI_FOUNDATION.md`, `docs/DESIGN_HANDOFF.md` | ☑ |
 | 회귀 검증 | 단위 테스트, 헤드리스 셸 테스트, x86-64 ISO·ARM64 번들 부팅 테스트 재실행 | ☑ 2026-10-24: 단위 12/12, 셸 통합 PASS, x86-64 ISO 부팅→세션→실행 메뉴→터미널→재부팅→종료 PASS(셸 121 s), ARM64 번들 동일 시나리오 PASS |
-| 디자인 자산 적용 | 디자인 담당의 토큰·아이콘·기준 이미지 수신 후 적용·비교 | ☐ (자료 미수신) |
+| 디자인 자산 적용 | 디자인 담당의 토큰·아이콘·기준 이미지 수신 후 적용·비교 | ☑ H1 에서 수행 (`design/hagra-dancheong-v1/`) |
 | 한글 입력 | fcitx5-hangul 통합 | ☐ (M2) |
 | 접근성 역할 | MinUI 부품에 `Accessible.*` 부여 | ☐ |
+
+## H1 — 하그라 연한 단청 UI 적용  ◐  (2026-10-24)
+
+입력: 디자인 패키지 `design/hagra-dancheong-v1/` (CLAUDE_TASK.md, DESIGN_SPEC.md, tokens.json, SVG 12종, wallpaper.png, 기준 PNG 1672×941).
+원칙: 기존 M0/M1·Android 트랙 보존, MinUI API 유지, 내부 식별자(`minos-*`) 유지, 비표준 labwc 키 금지, 매 프레임 재그리기·블러·셰이더 금지.
+
+| 항목 | 내용 | 상태 |
+|---|---|---|
+| 토큰 | `hagra.tokens.json` 을 dancheong-v1 값으로 교체(status `design-v1`), 생성기에 window/asset 토큰 추가, Theme/themerc/foot.ini 재생성 (`make tokens-check` OK) | ☑ |
+| 패널 52px | 8px 축소 연화 띠 + 1px 경계 + 43px 콘텐츠(컨트롤 36). exclusiveZone=52. 실행·전원 팝업은 exclusive zone 위에 바로 붙음(이전엔 패널 높이를 두 번 더하던 버그 수정) | ☑ 셸 테스트 PASS |
+| 셸 | 시작 버튼 "하그라"+연꽃, 창 항목(아이콘·제목·닫기, 활성=선택 배경+굵게+3px 막대), 로케일 시계(`M월 d일 (ddd) AP h:mm`), 전원 버튼; 실행 메뉴·전원 메뉴 밝은 테마+띠, 한국어 라벨 | ☑ |
+| MinUI 밝은 테마 | 버튼·입력·목록행·체크·라디오·메뉴·탭·스크롤바·대화상자 8상태 재조정, 포커스 링 z:5(장식보다 앞), 눌림 1px 오프셋, 비활성 아이콘 흐림 | ☑ 갤러리 + QML 동작 테스트 11/11 |
+| 장식 부품 | `MOrnamentBand`(가로 타일, compact), `MOrnamentFrame`(겹선+모서리 결구, 앱 내부), `MOrnamentDivider`; 자산은 모듈 `assets/` 에서 로드(설치 경로 동일) | ☑ 갤러리 ornament 섹션 |
+| 아이콘 | 장식·폴더·문서 12종(패키지 사본) + 조작 기호 21종(단색, 저장소 작성). 누락 시 자리 표시자, 갤러리 icons 섹션에서 로드 여부 표시 | ☑ 누락 0 |
+| labwc 장식 | 지원 키만 사용: 밝은 청자 제목(활성 #D2E2D5 굵게 / 비활성 #E5EBE0 보통), 2px 경계(활성 #4F756D / 비활성 #90A99E), cornerRadius 2, Noto Sans CJK KR 12pt. 전역 문양 제목줄은 불가 → 앱 내부 띠로 구현 (범위는 UI_FOUNDATION §2.2) | ☑ labwc 로그에서 themerc 읽힘 확인 |
+| 대표 장면 | `FilesScene.qml` 재작성(띠·도구막대·사이드바 창살·폴더 격자·선택/포커스·상태줄, 예제 데이터), `SettingsScene.qml` 추가(비활성 창), 1280×720 기본/메뉴/대화상자 + 1920×1080 + 200% 캡처 | ☑ 5장 |
+| 배경 | `session/wallpaper/hagra-dancheong.png`(사전 렌더링 PNG, swaybg 고정 텍스처), `MINOS_WALLPAPER` 로 교체 가능 | ☑ |
+| 1920×1080 | 셸이 첫 configure 크기 ≠ QML 초기 폭일 때 segfault(생성 중 resize→Expose) → `LayerWindow` 가 생성 대기 후 크기 적용. 셸 테스트에 FHD 회귀 추가 | ☑ |
+| 키보드·접근성 | `libs/minui/tests/tst_minui.qml` (qmltestrunner, ctest `minui.qml`): Tab/Shift+Tab 체인, Enter/Space, 비활성 차단, 포커스 링, 오류 표시, 입력란 Tab(수정), 메뉴 키 탐색·창 내 고정, 자산 로드 | ☑ |
+| 한글 조합·긴 경로 | 갤러리 inputs/text, 장면의 긴 파일명 말줄임(ElideMiddle) 확인. IME 자체는 미통합(M2) | ◐ |
+| Qt SVG | `libqt6svg6` 가 `packages.desktop` 에 포함, 호스트 테스트에서 SVG 로드 확인. 이미지 안 확인은 부팅 회귀로 | ◐ |
+| 회귀 검증 | 단위(ctest 2/2), 셸 통합(5 장면), 토큰 검사; x86-64 ISO(hook 30,40,90 재실행)·ARM64 번들(hook 30,40,55,90) 부팅 테스트 | ◐ 부팅 테스트 결과는 아래 "H1 검증 기록" |
+| 좌측 레일 | 실제 실행·키보드 탐색·화면 예약 영역을 아직 구현하지 않음 → 추가하지 않음(기준 시안과의 차이로 기록) | ☐ |
+| 트레이(네트워크·볼륨·배터리) | M2 범위. 패널에 자리만 비워 둠 | ☐ (M2) |
+| 파일 관리자 | M3. 장면은 예제 데이터이며 복사·삭제·마운트 없음 | ☐ (M3) |
+
+### H1 검증 기록
+
+- 2026-10-24 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK · ctest 2/2 (`shell.appindex`, `minui.qml` 11 케이스) · `tests/shell/run.sh` PASS (패널·실행 메뉴·전원 메뉴·foot exclusive zone·1920×1080) · 갤러리 9섹션×3배율 27장 · 장면 5장.
+- 부팅 회귀: (아래 갱신)
 
 ## M2 — MIN Shell 완성  ☐
 

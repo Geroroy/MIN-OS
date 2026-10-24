@@ -71,7 +71,12 @@ MIN-OS/
     └── image/                QEMU 부팅·종료·재부팅 자동 검증
 ```
 
-## 현재 상태 (M1 + ARM64)
+## 현재 상태 (M1 + ARM64 + H1 연한 단청 UI)
+
+![하그라 연한 단청 — 파일 장면](docs/screenshots/h1/scene-files-100.png)
+
+H1(2026-10-24): 디자인 패키지 `design/hagra-dancheong-v1/` 를 적용한 실제 세션 캡처(헤드리스 labwc + 셸 + 예제 파일 창). 패널 52px·연화 띠·모서리 결구·밝은 labwc 장식.
+기준 시안과의 차이 목록은 `docs/UI_FOUNDATION.md` §4.2.
 
 ![MIN OS M1 desktop](docs/screenshots/m1-launcher.png)
 
@@ -88,11 +93,12 @@ Galaxy S25 Ultra 실기기 검증은 아직 수행되지 않았다. `DEVELOPMENT
 # 1. 호스트 의존성 (Debian 13 / Ubuntu 24.04)
 sudo scripts/install-deps.sh
 
-# 2. MIN Shell 호스트 빌드 + 헤드리스 테스트 + 토큰 검증
+# 2. MIN Shell 호스트 빌드 + 단위/QML 동작 테스트 + 헤드리스 테스트 + 토큰 검증
 make shell
+make test-unit        # ctest: shell.appindex, minui.qml (qmltestrunner)
 make test-shell
 make tokens-check
-# 2b. 디자인 검증 캡처 (부품 갤러리 3배율, 대표 장면)
+# 2b. 디자인 검증 캡처 (부품 갤러리 9섹션×3배율, 대표 장면 720p/1080p/200%)
 make design-captures
 
 # 3. 부팅 이미지 빌드 (기본: Debian trixie. Debian 미러가 막힌 환경에서는 SUITE=ubuntu-noble)

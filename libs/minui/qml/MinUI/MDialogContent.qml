@@ -16,6 +16,7 @@ Rectangle {
         anchors.fill: parent; anchors.margins: Theme.paddingLarge
         spacing: Theme.paddingLarge
         MLabel { text: content.title; font.pixelSize: Theme.fontSizeTitle; font.bold: true; width: parent.width; visible: text.length > 0 }
+        MOrnamentDivider { width: parent.width; visible: content.title.length > 0 }
         MLabel { id: body; text: content.message; wrap: true; width: parent.width; visible: text.length > 0 }
         Row {
             anchors.right: parent.right; spacing: Theme.padding

@@ -1,42 +1,42 @@
 # 생성된 파일 — 직접 수정하지 말 것. 원본: design/tokens/hagra.tokens.json, 생성기: design/tools/gen_tokens.py
-# labwc themerc — 하그라 창 장식 (토큰 세트: hagra-provisional)
-border.width: 1
-padding.height: 4
-padding.width: 8
+# labwc themerc — 하그라 창 장식 (토큰 세트: hagra-dancheong-v1)
+border.width: 2
+padding.height: 8
+padding.width: 10
 
-window.active.border.color: #5c5c5c
-window.inactive.border.color: #3a3a3a
-window.active.title.bg.color: #242424
-window.inactive.title.bg.color: #1e1e1e
-window.active.label.text.color: #e4e4e4
-window.inactive.label.text.color: #9a9a9a
+window.active.border.color: #4F756D
+window.inactive.border.color: #90A99E
+window.active.title.bg.color: #D2E2D5
+window.inactive.title.bg.color: #E5EBE0
+window.active.label.text.color: #203F42
+window.inactive.label.text.color: #536963
 window.label.text.justify: left
 
-window.active.button.unpressed.image.color: #e4e4e4
-window.inactive.button.unpressed.image.color: #9a9a9a
-window.active.button.hover.bg.color: #2e2e2e
-window.inactive.button.hover.bg.color: #2e2e2e
+window.active.button.unpressed.image.color: #203F42
+window.inactive.button.unpressed.image.color: #536963
+window.active.button.hover.bg.color: #E89B89
+window.inactive.button.hover.bg.color: #F0EBDD
 
 menu.border.width: 1
-menu.border.color: #5c5c5c
-menu.items.bg.color: #242424
-menu.items.text.color: #e4e4e4
-menu.items.active.bg.color: #3d7bd9
-menu.items.active.text.color: #ffffff
-menu.separator.color: #3a3a3a
+menu.border.color: #4F756D
+menu.items.bg.color: #FAF6EA
+menu.items.text.color: #203F42
+menu.items.active.bg.color: #F8E7B8
+menu.items.active.text.color: #203F42
+menu.separator.color: #90A99E
 menu.separator.width: 1
-menu.items.padding.x: 8
-menu.items.padding.y: 3
+menu.items.padding.x: 12
+menu.items.padding.y: 6
 
-osd.bg.color: #242424
-osd.border.color: #5c5c5c
-osd.border.width: 1
-osd.label.text.color: #e4e4e4
+osd.bg.color: #FAF6EA
+osd.border.color: #4F756D
+osd.border.width: 2
+osd.label.text.color: #203F42
 osd.window-switcher.width: 480
-osd.window-switcher.padding: 4
-osd.window-switcher.item.padding.x: 8
-osd.window-switcher.item.padding.y: 2
-osd.window-switcher.item.active.border.width: 1
+osd.window-switcher.padding: 8
+osd.window-switcher.item.padding.x: 12
+osd.window-switcher.item.padding.y: 4
+osd.window-switcher.item.active.border.width: 2
 
-snapping.overlay.region.bg.color: #3d7bd980
-snapping.overlay.edge.bg.color: #3d7bd980
+snapping.overlay.region.bg.color: #28717B55
+snapping.overlay.edge.bg.color: #28717B55

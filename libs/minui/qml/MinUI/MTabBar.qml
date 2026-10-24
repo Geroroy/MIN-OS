@@ -7,7 +7,7 @@ Item {
     property var tabs: []            // 문자열 배열
     property int currentIndex: 0
     signal activated(int index)
-    implicitHeight: Theme.controlHeight + Theme.padding
+    implicitHeight: Theme.controlHeight + Theme.padding / 2
     implicitWidth: row.implicitWidth
     activeFocusOnTab: enabled
     Keys.onLeftPressed: if (currentIndex > 0) { currentIndex--; activated(currentIndex) }

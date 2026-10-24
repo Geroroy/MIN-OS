@@ -1,0 +1,37 @@
+# Hagra light dancheong: supported scalar settings only.
+# This does not implement illustrated lotus titlebars. See docs/INTEGRATION.md.
+border.width: 2
+padding.height: 8
+padding.width: 10
+window.active.border.color: #4F756D
+window.inactive.border.color: #90A99E
+window.active.title.bg.color: #D2E2D5
+window.inactive.title.bg.color: #E5EBE0
+window.active.label.text.color: #203F42
+window.inactive.label.text.color: #536963
+window.label.text.justify: left
+window.active.button.unpressed.image.color: #203F42
+window.inactive.button.unpressed.image.color: #536963
+window.active.button.hover.bg.color: #E89B89
+window.inactive.button.hover.bg.color: #F0EBDD
+menu.border.width: 1
+menu.border.color: #4F756D
+menu.items.bg.color: #FAF6EA
+menu.items.text.color: #203F42
+menu.items.active.bg.color: #F8E7B8
+menu.items.active.text.color: #203F42
+menu.separator.color: #90A99E
+menu.separator.width: 1
+menu.items.padding.x: 12
+menu.items.padding.y: 6
+osd.bg.color: #FAF6EA
+osd.border.color: #4F756D
+osd.border.width: 2
+osd.label.text.color: #203F42
+osd.window-switcher.width: 480
+osd.window-switcher.padding: 8
+osd.window-switcher.item.padding.x: 12
+osd.window-switcher.item.padding.y: 4
+osd.window-switcher.item.active.border.width: 2
+snapping.overlay.region.bg.color: #28717B55
+snapping.overlay.edge.bg.color: #28717B55
