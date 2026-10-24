@@ -90,7 +90,7 @@
 | 한글 입력 | fcitx5-hangul 통합 | ☐ (M2) |
 | 접근성 역할 | MinUI 부품에 `Accessible.*` 부여 | ☐ |
 
-## H1 — 하그라 연한 단청 UI 적용  ◐  (2026-10-24)
+## H1 — 하그라 연한 단청 UI 적용  ◐  (2026-10-24; 적용·검증 완료, 레일·트레이·실기기는 후속)
 
 입력: 디자인 패키지 `design/hagra-dancheong-v1/` (CLAUDE_TASK.md, DESIGN_SPEC.md, tokens.json, SVG 12종, wallpaper.png, 기준 PNG 1672×941).
 원칙: 기존 M0/M1·Android 트랙 보존, MinUI API 유지, 내부 식별자(`minos-*`) 유지, 비표준 labwc 키 금지, 매 프레임 재그리기·블러·셰이더 금지.
@@ -109,8 +109,8 @@
 | 1920×1080 | 셸이 첫 configure 크기 ≠ QML 초기 폭일 때 segfault(생성 중 resize→Expose) → `LayerWindow` 가 생성 대기 후 크기 적용. 셸 테스트에 FHD 회귀 추가 | ☑ |
 | 키보드·접근성 | `libs/minui/tests/tst_minui.qml` (qmltestrunner, ctest `minui.qml`): Tab/Shift+Tab 체인, Enter/Space, 비활성 차단, 포커스 링, 오류 표시, 입력란 Tab(수정), 메뉴 키 탐색·창 내 고정, 자산 로드 | ☑ |
 | 한글 조합·긴 경로 | 갤러리 inputs/text, 장면의 긴 파일명 말줄임(ElideMiddle) 확인. IME 자체는 미통합(M2) | ◐ |
-| Qt SVG | `libqt6svg6` 가 `packages.desktop` 에 포함, 호스트 테스트에서 SVG 로드 확인. 이미지 안 확인은 부팅 회귀로 | ◐ |
-| 회귀 검증 | 단위(ctest 2/2), 셸 통합(5 장면), 토큰 검사; x86-64 ISO(hook 30,40,90 재실행)·ARM64 번들(hook 30,40,55,90) 부팅 테스트 | ◐ 부팅 테스트 결과는 아래 "H1 검증 기록" |
+| Qt SVG | `libqt6svg6` 가 `packages.desktop` 에 포함; x86-64·ARM64 이미지 안에서 연꽃·띠 SVG 가 그려짐(부팅 테스트 스크린샷) | ☑ |
+| 회귀 검증 | 단위(ctest 2/2), 셸 통합(5 장면), 토큰 검사; x86-64 ISO(hook 30,40,90 재실행)·ARM64 번들(hook 30,40,55,90) 부팅 테스트 | ☑ 모두 PASS (아래 "H1 검증 기록") |
 | 좌측 레일 | 실제 실행·키보드 탐색·화면 예약 영역을 아직 구현하지 않음 → 추가하지 않음(기준 시안과의 차이로 기록) | ☐ |
 | 트레이(네트워크·볼륨·배터리) | M2 범위. 패널에 자리만 비워 둠 | ☐ (M2) |
 | 파일 관리자 | M3. 장면은 예제 데이터이며 복사·삭제·마운트 없음 | ☐ (M3) |
@@ -119,7 +119,8 @@
 
 - 2026-10-24 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK · ctest 2/2 (`shell.appindex`, `minui.qml` 11 케이스) · `tests/shell/run.sh` PASS (패널·실행 메뉴·전원 메뉴·foot exclusive zone·1920×1080) · 갤러리 9섹션×3배율 27장 · 장면 5장.
 - 부팅 회귀 x86-64 (2026-10-24, TCG 2 vCPU): hook 30,40,90 재실행 → ISO 431 MB → `tests/image/boot_test.py` PASS (부팅→로그인→세션→실행 메뉴→터미널→재부팅→종료; 셸까지 120.5 s). 이미지 안에서 단청 배경·52px 패널·밝은 실행 메뉴·밝은 foot·청자 제목줄 확인 (`docs/screenshots/h1/boot-x86-*.png`). libqt6svg6·MinUI assets 34개·배경 PNG 가 rootfs 에 설치됨.
-- 부팅 회귀 ARM64: (아래 갱신)
+- 부팅 회귀 ARM64 (2026-10-24, x86 호스트 TCG, qemu-user binfmt 로 chroot 빌드): hook 30,40,55,90 재실행 → 번들 1.2 GB → `boot_test.py out/minos-arm64` PASS (같은 시나리오; 셸까지 98.8 s). 이미지 안에서 단청 배경·패널·실행 메뉴 확인 (`docs/screenshots/h1/boot-arm64-*.png`). 게스트 시계는 RTC 기본값(4월 19일)이라 실제 날짜가 아니다. Galaxy S25 Ultra 실기기 검증은 수행하지 않았다.
+- 주의: binfmt 등록 시 매직의 NUL 바이트가 잘리면 모든 x86-64 ELF 가 qemu-aarch64 로 보내져 프로세스를 실행할 수 없게 된다(이번 작업에서 1회 발생, `-1` 쓰기로 복구). 등록은 `scripts/install-deps.sh` 의 리터럴 `\\x..` 문자열 방식만 사용한다.
 
 ## M2 — MIN Shell 완성  ☐
 
