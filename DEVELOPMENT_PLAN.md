@@ -118,7 +118,8 @@
 ### H1 검증 기록
 
 - 2026-10-24 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK · ctest 2/2 (`shell.appindex`, `minui.qml` 11 케이스) · `tests/shell/run.sh` PASS (패널·실행 메뉴·전원 메뉴·foot exclusive zone·1920×1080) · 갤러리 9섹션×3배율 27장 · 장면 5장.
-- 부팅 회귀: (아래 갱신)
+- 부팅 회귀 x86-64 (2026-10-24, TCG 2 vCPU): hook 30,40,90 재실행 → ISO 431 MB → `tests/image/boot_test.py` PASS (부팅→로그인→세션→실행 메뉴→터미널→재부팅→종료; 셸까지 120.5 s). 이미지 안에서 단청 배경·52px 패널·밝은 실행 메뉴·밝은 foot·청자 제목줄 확인 (`docs/screenshots/h1/boot-x86-*.png`). libqt6svg6·MinUI assets 34개·배경 PNG 가 rootfs 에 설치됨.
+- 부팅 회귀 ARM64: (아래 갱신)
 
 ## M2 — MIN Shell 완성  ☐
 
