@@ -33,6 +33,16 @@ Termux 에서는 `start-minos.sh` 가 남기는 `logs/serial-*.log` 의 타임�
 | 재부팅 → 2차 세션 | 통과 |
 | UEFI(AAVMF+GRUB) 경로 QEMU 시작 → root 셸 | 118.7 s (직접 커널 부팅 대비 +21 s: 펌웨어 초기화 + GRUB 3 s 대기) |
 
+같은 테스트를 GitHub Actions 의 ARM64 러너(`ubuntu-24.04-arm`, ARM 호스트에서 ARM 게스트를 TCG 로 실행 — 휴대폰과 같은 구조)에서도 매 빌드마다 실행한다.
+
+| 지표 (ARM64 러너, 2026-10-24) | 값 |
+|---|---|
+| QEMU 시작 → root 셸 | 96.7 s |
+| systemd-analyze | 19.4 s (kernel) + 67.5 s (userspace) = 86.9 s |
+| 게스트 메모리 사용 | 168 MB |
+| 유휴 CPU (게스트 top) | ≈ 33 % (8.6 us + 24.1 sy) |
+| 전체 시나리오 (부팅·세션·터미널·재부팅·종료) | 4 분 19 초 |
+
 x86-64 호스트는 **다른 ISA 를 변환**하므로 가장 느린 경우다. ARM64 호스트(스마트폰)의 TCG 는 같은 ISA 를 변환하므로
 명령 변환 비용이 낮고, Snapdragon 8 Elite 의 코어 성능이 이 샌드박스 vCPU 보다 높다. 실기기에서 더 빠를 것으로 예상하지만
 **측정 전까지는 예상일 뿐이다.**

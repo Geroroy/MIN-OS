@@ -43,7 +43,11 @@ jobs:
         run: sudo image/build.sh --suite ubuntu-noble --arch arm64 --format disk --profile mobile --output out/minos-arm64
 
       - name: Boot test (QEMU TCG — boot, session, MIN Shell, terminal, reboot, poweroff)
-        run: sudo python3 -I tests/image/boot_test.py out/minos-arm64 --out out/boot-test-arm64 --timeout 2400
+        # 사본으로 테스트한다: 배포 이미지는 한 번도 부팅되지 않은 상태(첫 부팅에서 machine-id 생성)로 유지
+        run: |
+          sudo cp -a out/minos-arm64 out/minos-arm64-test
+          sudo python3 -I tests/image/boot_test.py out/minos-arm64-test --out out/boot-test-arm64 --timeout 2400
+          sudo rm -rf out/minos-arm64-test
 
       - name: Package
         run: |
