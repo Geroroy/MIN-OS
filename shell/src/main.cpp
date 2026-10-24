@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     app.setQuitOnLastWindowClosed(false);
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral("MIN OS desktop shell (panel, launcher, power menu)"));
+    parser.setApplicationDescription(QStringLiteral("HAGRA desktop shell (panel, launcher, power menu)"));
     parser.addHelpOption();
     parser.addVersionOption();
     QCommandLineOption toggleLauncher(QStringLiteral("toggle-launcher"), QStringLiteral("Toggle the application launcher"));

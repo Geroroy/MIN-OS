@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=MIN OS
-Comment=MIN OS desktop session (labwc + MIN Shell)
+Name=하그라
+Comment=하그라 데스크톱 세션 (labwc + MIN Shell)
 Exec=minos-session
 Type=Application
 DesktopNames=MIN

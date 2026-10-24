@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MIN OS — Android(Termux) 에서 QEMU ARM64 가상 머신으로 MIN OS 를 부팅한다.
+# 하그라(HAGRA) — Android(Termux) 에서 QEMU ARM64 가상 머신으로 하그라를 부팅한다.
 #
 #   bash start-minos.sh [옵션]
 #   --mem MB        게스트 메모리 (기본 2048)
@@ -133,7 +133,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-say "MIN OS ${MINOS_VERSION:-} (${MINOS_SUITE:-} arm64) — $QEMU_VER"
+say "하그라(HAGRA) ${MINOS_VERSION:-} (${MINOS_SUITE:-} arm64) — $QEMU_VER"
 say "메모리 ${MEM}MB · vCPU $SMP · 해상도 $RES · 부팅: $([ "$UEFI" = 1 ] && echo UEFI || echo '직접 커널')"
 say "VNC 접속: 127.0.0.1:$((5900 + VNC))   (Android VNC 클라이언트에서 이 주소로 연결)"
 say "시리얼 로그: $SERIAL_LOG   —   종료: 패널 전원 메뉴 → Shut down, 또는 bash $0 --stop"

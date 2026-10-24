@@ -18,12 +18,13 @@ if getent passwd _greetd >/dev/null; then usermod -aG video,input,render _greetd
 
 # MIN OS 식별 정보 (Debian os-release는 그대로 두고 별도 파일로 제공)
 cat > /etc/minos-release <<R
-MINOS_NAME="MIN OS"
+MINOS_NAME="HAGRA"
+MINOS_DISPLAY_NAME="하그라"
 MINOS_VERSION="${MINOS_VERSION:-0.1.0-dev}"
 MINOS_BASE="${MINOS_SUITE:-unknown}"
 MINOS_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 R
 cat > /etc/issue <<'I'
-MIN OS \n (\l)
+HAGRA (하그라) \n (\l)
 
 I

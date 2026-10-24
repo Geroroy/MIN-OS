@@ -32,7 +32,7 @@ LayerWindow {
         // 시작 버튼
         MButton {
             id: startButton
-            text: "MIN"
+            text: Theme.brandName   // 임시: 브랜드 표기는 디자인 확정 후 결정
             bold: true
             flat: true
             highlighted: panel.launcherOpen

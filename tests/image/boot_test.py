@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MIN OS 부팅 이미지 자동 테스트 (QEMU + 시리얼 콘솔 + pexpect)
+"""하그라(HAGRA) 부팅 이미지 자동 테스트 (QEMU + 시리얼 콘솔 + pexpect)
 
 대상: x86-64 live ISO 또는 디스크 이미지 번들 디렉터리(ARM64 기본: qcow2 + vmlinuz + initrd, 직접 커널 부팅)
 
@@ -259,7 +259,7 @@ def main():
         check(not q.child.isalive() or q.child.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=30) == 0,
               "QEMU exited after poweroff")
         metrics["result"] = "PASS"
-        print("\nPASS: MIN OS boot test (artifacts in %s)" % args.out)
+        print("\nPASS: HAGRA boot test (artifacts in %s)" % args.out)
     finally:
         with open(os.path.join(args.out, "metrics.json"), "w") as f:
             json.dump(metrics, f, indent=2, ensure_ascii=False)

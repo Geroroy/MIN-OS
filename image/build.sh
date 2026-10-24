@@ -149,12 +149,14 @@ log "2/4 chroot 커스터마이즈"
 rm -rf "$ROOTFS/tmp/minos-src" "$ROOTFS/tmp/minos-hooks"
 mkdir -p "$ROOTFS/tmp/minos-src"
 rsync -a --exclude build --exclude 'build-*' --exclude out --exclude image/work --exclude .git \
-  "$REPO/CMakeLists.txt" "$REPO/libs" "$REPO/shell" "$REPO/session" "$REPO/image" "$ROOTFS/tmp/minos-src/"
+  "$REPO/CMakeLists.txt" "$REPO/libs" "$REPO/shell" "$REPO/tools" "$REPO/design" "$REPO/session" "$REPO/image" "$ROOTFS/tmp/minos-src/"
 cp -a "$CONF/hooks" "$ROOTFS/tmp/minos-hooks"
 chroot_mount
 for hook in "$ROOTFS"/tmp/minos-hooks/*.sh; do
   name=$(basename "$hook")
-  [ -z "$ONLY_HOOK" ] || [[ "$name" == "$ONLY_HOOK"* ]] || continue
+  if [ -n "$ONLY_HOOK" ]; then   # 쉼표로 여러 접두 번호 지정 가능: --only-hook 30,40,55
+    match=0; for h in ${ONLY_HOOK//,/ }; do [[ "$name" == "$h"* ]] && match=1; done; [ "$match" = 1 ] || continue
+  fi
   log "   hook $name"
   run_in_chroot /bin/bash "/tmp/minos-hooks/$name"
 done

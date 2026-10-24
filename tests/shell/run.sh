@@ -49,8 +49,13 @@ echo "labwc up on $WAYLAND_DISPLAY (pid $LABWC_PID)"
 
 "$SHELL_BIN" > "$OUT/shell.log" 2>&1 &
 SHELL_PID=$!
-sleep 2
-kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: minos-shell exited"; cat "$OUT/shell.log"; exit 1; }
+# 패널이 구성될 때까지 기다린다 (최대 20초; 소프트웨어 렌더링·느린 CI 고려)
+for i in $(seq 1 40); do
+  grep -q 'layer surface "minos-panel" configured' "$OUT/shell.log" 2>/dev/null && break
+  kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: minos-shell exited"; cat "$OUT/shell.log"; exit 1; }
+  sleep 0.5
+done
+sleep 1
 grep -q "zwlr_layer_shell_v1 bound" "$OUT/shell.log" || { echo "FAIL: layer shell not bound"; cat "$OUT/shell.log"; exit 1; }
 grep -q 'layer surface "minos-panel" configured' "$OUT/shell.log" || { echo "FAIL: panel not configured"; cat "$OUT/shell.log"; exit 1; }
 

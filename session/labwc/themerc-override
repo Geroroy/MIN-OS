@@ -1,4 +1,5 @@
-# MIN 테마 (Graphite) — labwc themerc. docs/DESIGN_LANGUAGE.md 토큰과 일치.
+# 생성된 파일 — 직접 수정하지 말 것. 원본: design/tokens/hagra.tokens.json, 생성기: design/tools/gen_tokens.py
+# labwc themerc — 하그라 창 장식 (토큰 세트: hagra-provisional)
 border.width: 1
 padding.height: 4
 padding.width: 8

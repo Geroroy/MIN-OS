@@ -1,8 +1,11 @@
-# MIN OS
+# 하그라 (HAGRA)
 
-**Minimal. Independent. Native.**
+> 한국의 미감과 생활에 대한 이해를 바탕으로, 누구나 자기 일을 편안하게 해낼 수 있도록 만드는 운영체제.
+>
+> 2026-10-24: 프로젝트 이름을 MIN OS 에서 **하그라**로 바꿨다. 영문 HAGRA 는 임시 표기다. 내부 식별자(`minos-*`)는 의존 관계 확인 후 단계적으로 바꾼다.
+> 철학: `docs/HAGRA_PHILOSOPHY.md` · UI 기반: `docs/UI_FOUNDATION.md` · 디자인 전달 명세: `docs/DESIGN_HANDOFF.md`
 
-MIN OS는 Debian Stable 위에 자체 사용자 인터페이스, 시스템 애플리케이션, 부팅 경험,
+하그라는 Debian Stable 위에 자체 사용자 인터페이스, 시스템 애플리케이션, 부팅 경험,
 설정 시스템을 갖춘 경량 데스크톱 운영체제입니다. 테마나 데스크톱 커스터마이징이 아니라,
 실제 PC에 설치해 일상적으로 사용할 수 있는 독자적인 데스크톱 운영체제를 목표로 합니다.
 
@@ -26,9 +29,18 @@ MIN-OS/
 ├── README.md                 이 문서
 ├── DEVELOPMENT_PLAN.md       마일스톤 및 일정
 ├── Makefile                  최상위 진입점 (deps / shell / image / run / test)
+├── design/                   디자인 토큰 원본·생성기·자산·대표 장면 (하그라 디자인 적용 기반)
+│   ├── tokens/hagra.tokens.json   단일 토큰 원본 (임시값)
+│   ├── tools/gen_tokens.py        Theme.qml / labwc themerc / foot.ini 생성·검증
+│   ├── assets/                    아이콘(SVG)·배경 자산 (디자인 담당 제공 예정)
+│   └── scenes/                    대표 검증 장면 (FilesScene: 예제 데이터 파일 탐색 화면)
+├── tools/preview/            minui-preview: QML 미리보기 실행기
 ├── docs/
+│   ├── HAGRA_PHILOSOPHY.md   하그라 제품·디자인 철학
+│   ├── UI_FOUNDATION.md      토큰·공통 부품·갤러리·대표 장면 실행법
+│   ├── DESIGN_HANDOFF.md     디자인 담당에게 전달하는 기술 명세
 │   ├── ARCHITECTURE.md       시스템 아키텍처
-│   ├── DESIGN_LANGUAGE.md    MIN 디자인 언어 (색상·치수·타이포·상호작용)
+│   ├── DESIGN_LANGUAGE.md    (이전) Graphite 디자인 언어 — 임시 기준
 │   ├── MILESTONE_1.md        첫 번째 마일스톤 구현 계획 및 검증 방법
 │   ├── BUILD_ENVIRONMENT.md  빌드 환경 요구사항과 제약
 │   ├── ARM64_ARCHITECTURE.md ARM64/x86-64 공통 구조와 차이
@@ -49,7 +61,7 @@ MIN-OS/
 ├── shell/                    MIN Shell (작업 표시줄, 실행 메뉴, 트레이, 시계, 알림, 창 전환)
 ├── libs/
 │   ├── minlayershell/        Qt 6용 wlr-layer-shell 클라이언트 통합 (패널을 화면 가장자리에 고정)
-│   └── minui/                MinUI: QML 디자인 시스템 모듈 (색상 토큰, 컨트롤)
+│   └── minui/                MinUI: QML 공통 부품 모듈 (생성된 Theme + 부품 20종, gallery/ 갤러리)
 ├── files/                    MIN Files (파일 관리자)          — M3
 ├── settings/                 MIN Settings (설정)              — M4
 ├── terminal/                 MIN Terminal (터미널)            — M5
@@ -76,9 +88,12 @@ Galaxy S25 Ultra 실기기 검증은 아직 수행되지 않았다. `DEVELOPMENT
 # 1. 호스트 의존성 (Debian 13 / Ubuntu 24.04)
 sudo scripts/install-deps.sh
 
-# 2. MIN Shell 호스트 빌드 + 헤드리스 테스트
+# 2. MIN Shell 호스트 빌드 + 헤드리스 테스트 + 토큰 검증
 make shell
 make test-shell
+make tokens-check
+# 2b. 디자인 검증 캡처 (부품 갤러리 3배율, 대표 장면)
+make design-captures
 
 # 3. 부팅 이미지 빌드 (기본: Debian trixie. Debian 미러가 막힌 환경에서는 SUITE=ubuntu-noble)
 sudo make image              # 결과: out/minos-dev-<suite>-<arch>.iso

@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-"""MIN OS 기본 배경 생성: Graphite 단색 + 1px 선으로 그린 MIN 워드마크 (글꼴 의존 없음).
-사용: python3 generate.py [out.png] [width] [height]"""
+"""하그라 임시 배경 생성: 단색 (워드마크 없음). 확정 배경·로고는 design/assets/wallpaper 로 교체한다.
+사용: python3 generate.py [out.png] [width] [height] [--wordmark]   (--wordmark: 이전 MIN 블록 글자, 보관용)"""
 import sys
 from PIL import Image, ImageDraw
 
-out = sys.argv[1] if len(sys.argv) > 1 else "min-graphite.png"
-W = int(sys.argv[2]) if len(sys.argv) > 2 else 1920
-H = int(sys.argv[3]) if len(sys.argv) > 3 else 1080
+args = [a for a in sys.argv[1:] if not a.startswith("--")]
+WORDMARK = "--wordmark" in sys.argv
+out = args[0] if len(args) > 0 else "min-graphite.png"
+W = int(args[1]) if len(args) > 1 else 1920
+H = int(args[2]) if len(args) > 2 else 1080
 BG, LINE = (0x1A, 0x1A, 0x1A), (0x3A, 0x3A, 0x3A)
 
 img = Image.new("RGB", (W, H), BG)
 d = ImageDraw.Draw(img)
+if not WORDMARK:
+    img.save(out, optimize=True)
+    print(out, W, H, "(plain)")
+    sys.exit(0)
 
 # 블록 글자 M I N (각 글자 5x7 격자, 셀 크기 s)
 glyphs = {

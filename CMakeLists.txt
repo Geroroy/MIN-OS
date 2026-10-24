@@ -27,6 +27,9 @@ option(MINOS_BUILD_TESTS "Build unit tests" ON)
 
 add_subdirectory(libs/minlayershell)
 add_subdirectory(libs/minui)
+add_subdirectory(tools/preview)
+# 디자인 자산 (아이콘·배경). design/assets/icons/*.svg → /usr/share/hagra/icons
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/design/assets/icons DESTINATION ${CMAKE_INSTALL_DATADIR}/hagra OPTIONAL)
 if(MINOS_BUILD_SHELL)
   add_subdirectory(shell)
 endif()

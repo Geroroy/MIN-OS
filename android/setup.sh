@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MIN OS — Termux 원클릭 설치·실행
+# 하그라(HAGRA) — Termux 원클릭 설치·실행
 #
 #   curl -fsSL https://raw.githubusercontent.com/Geroroy/MIN-OS/ccr-0dc4d66d-j60c3m/android/setup.sh | bash
 #

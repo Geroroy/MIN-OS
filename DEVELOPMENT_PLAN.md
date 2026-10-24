@@ -1,4 +1,6 @@
-# MIN OS 개발 계획
+# 하그라(HAGRA) 개발 계획
+
+> 2026-10-24 프로젝트명 변경: MIN OS → 하그라. 아래 M0/M1/M1-A 기록은 변경 전 이름으로 검증된 결과이며 그대로 유효하다.
 
 > 상태 표기: ☐ 예정 · ◐ 진행 중 · ☑ 완료 · 각 마일스톤은 "검증 방법"이 통과해야 완료로 간주한다.
 
@@ -71,6 +73,22 @@
 - [ ] Debian trixie ARM64 빌드 (Debian 미러 접근 가능한 PC)
 - [ ] 실기기 측정 후 기본 vCPU/해상도 재조정
 - [ ] 터치 UX 개선: 패널 높이/버튼 크기 모바일 프로필 옵션 (디자인 언어 유지 범위 안에서)
+
+## H0 — 하그라 전환 기반 (디자인 적용 준비)  ◐  (2026-10-24)
+
+| 항목 | 내용 | 상태 |
+|---|---|---|
+| 토큰 단일 원본 | `design/tokens/hagra.tokens.json` → Theme.qml / labwc themerc / foot.ini 생성, `--check` 드리프트 검사 (`make tokens-check`) | ☑ 값 동일성 확인 |
+| 공통 부품 | MinUI 20종(버튼·입력·검색·체크·라디오·선택목록·탭·목록행·스크롤바·툴팁·메뉴·대화상자·알림·진행·아이콘·창프레임 모형) + 8상태 모델, 선택/포커스 분리 | ☑ 갤러리에서 확인 |
+| 미리보기 실행기 | `tools/preview/minui-preview` (`--state`, `--scale`, `--icons`) | ☑ |
+| 갤러리 | `libs/minui/gallery/Gallery.qml`, 7섹션 × 100/150/200% 캡처 (`tests/design/capture-gallery.sh`) | ☑ 21장 캡처 |
+| 대표 장면 | `design/scenes/FilesScene.qml`(예제 데이터, 실제 파일 작업 없음) + 비활성 창 + 셸 + labwc 장식, 100%(기본/메뉴/대화상자)·200% 캡처 | ☑ 4장 캡처 |
+| 이름 변경 | 사용자 노출 문자열(GRUB, issue, 세션 항목, 패널 라벨, Android 안내) → 하그라/HAGRA. 내부 식별자 유지 | ☑ |
+| 디자인 문서 | `docs/HAGRA_PHILOSOPHY.md`, `docs/UI_FOUNDATION.md`, `docs/DESIGN_HANDOFF.md` | ☑ |
+| 회귀 검증 | 단위 테스트, 헤드리스 셸 테스트, x86-64 ISO·ARM64 번들 부팅 테스트 재실행 | 결과는 §H0 검증 기록 참고 |
+| 디자인 자산 적용 | 디자인 담당의 토큰·아이콘·기준 이미지 수신 후 적용·비교 | ☐ (자료 미수신) |
+| 한글 입력 | fcitx5-hangul 통합 | ☐ (M2) |
+| 접근성 역할 | MinUI 부품에 `Accessible.*` 부여 | ☐ |
 
 ## M2 — MIN Shell 완성  ☐
 

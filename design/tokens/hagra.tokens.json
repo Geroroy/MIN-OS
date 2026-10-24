@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "name": "hagra-provisional",
+    "status": "provisional",
+    "_note": "임시 토큰. 값은 이전 Graphite 테마(docs/DESIGN_LANGUAGE.md)를 그대로 옮긴 것이며 하그라의 확정 디자인이 아니다. 디자인 담당이 전달한 토큰으로 교체한다. 단위: 색상 #RRGGBB(AA), 치수 QML 논리 픽셀(배율 1.0 기준), 글꼴 크기 px.",
+    "generated_targets": [
+      "libs/minui/qml/MinUI/Theme.qml",
+      "session/labwc/themerc-override",
+      "session/foot/foot.ini"
+    ],
+    "generator": "design/tools/gen_tokens.py"
+  },
+  "brand": {
+    "name": "하그라",
+    "name_latin": "HAGRA",
+    "_note": "영문 표기는 임시. 로고·워드마크는 미확정."
+  },
+  "color": {
+    "bg":            "#1a1a1a",
+    "surface":       "#242424",
+    "surfaceRaised": "#2e2e2e",
+    "border":        "#3a3a3a",
+    "borderStrong":  "#5c5c5c",
+    "text":          "#e4e4e4",
+    "textMuted":     "#9a9a9a",
+    "textDisabled":  "#5c5c5c",
+    "accent":        "#3d7bd9",
+    "accentText":    "#ffffff",
+    "warning":       "#c9a227",
+    "danger":        "#c0392b",
+    "success":       "#5c9a5c",
+    "focusRing":     "#3d7bd9",
+    "selection":     "#3d7bd9",
+    "selectionText": "#ffffff",
+    "overlayDim":    "#80000000",
+    "_note": "focusRing/selection 은 현재 accent 와 같은 값이지만 의미가 다르므로 분리한다. 디자인에서 다른 값을 줄 수 있다."
+  },
+  "window": {
+    "activeBorder":   "#5c5c5c",
+    "inactiveBorder": "#3a3a3a",
+    "activeTitleBg":  "#242424",
+    "inactiveTitleBg":"#1e1e1e",
+    "activeTitleText":"#e4e4e4",
+    "inactiveTitleText":"#9a9a9a",
+    "buttonHoverBg":  "#2e2e2e",
+    "borderWidth": 1,
+    "titlePaddingY": 4,
+    "titlePaddingX": 8,
+    "titleFontPt": 9,
+    "titleJustify": "left",
+    "_note": "labwc 서버 측 창 장식(SSD). 제목 표시줄 높이는 글꼴 크기 + 2*titlePaddingY 로 labwc 가 계산한다."
+  },
+  "menu": {
+    "bg": "#242424", "text": "#e4e4e4", "border": "#5c5c5c", "borderWidth": 1,
+    "activeBg": "#3d7bd9", "activeText": "#ffffff", "separator": "#3a3a3a",
+    "paddingX": 8, "paddingY": 3
+  },
+  "osd": {
+    "bg": "#242424", "border": "#5c5c5c", "borderWidth": 1, "text": "#e4e4e4",
+    "switcherWidth": 480, "switcherPadding": 4, "itemPaddingX": 8, "itemPaddingY": 2, "itemActiveBorderWidth": 1,
+    "snapOverlay": "#3d7bd980"
+  },
+  "size": {
+    "unit": 4,
+    "panelHeight": 28,
+    "titleBarHeight": 22,
+    "rowHeight": 20,
+    "controlHeight": 22,
+    "borderWidth": 1,
+    "focusRingWidth": 1,
+    "selectionMarkerWidth": 3,
+    "padding": 4,
+    "paddingLarge": 8,
+    "iconSize": 16,
+    "iconSizeLarge": 24,
+    "radius": 0,
+    "scrollBarWidth": 10,
+    "dialogMinWidth": 320,
+    "tooltipMaxWidth": 320
+  },
+  "font": {
+    "family": "Inter",
+    "familyKo": "Noto Sans CJK KR",
+    "monoFamily": "DejaVu Sans Mono",
+    "size": 12,
+    "sizeSmall": 11,
+    "sizeTitle": 13,
+    "lineHeight": 1.4,
+    "_note": "Qt 는 글리프 단위로 fontconfig 폴백을 쓴다. familyKo 는 한글 폴백 우선순위를 명시하기 위한 값이며, 이미지에는 fonts-noto-cjk 가 포함된다."
+  },
+  "motion": {
+    "durationMs": 0,
+    "_note": "최소 애니메이션 원칙. 진행 표시기와 커서 점멸만 허용. 확정 디자인에서 재검토."
+  },
+  "terminal": {
+    "background": "1a1a1a", "foreground": "e4e4e4",
+    "regular": ["1a1a1a", "c0392b", "5c9a5c", "c9a227", "3d7bd9", "9a5c9a", "3d9a9a", "9a9a9a"],
+    "bright":  ["5c5c5c", "d9534f", "7ab87a", "e0b840", "5c95e6", "b87ab8", "5cb8b8", "e4e4e4"],
+    "selectionBackground": "3d7bd9", "selectionForeground": "ffffff",
+    "font": "DejaVu Sans Mono:size=10"
+  }
+}
