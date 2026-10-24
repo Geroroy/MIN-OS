@@ -85,7 +85,7 @@
 | 대표 장면 | `design/scenes/FilesScene.qml`(예제 데이터, 실제 파일 작업 없음) + 비활성 창 + 셸 + labwc 장식, 100%(기본/메뉴/대화상자)·200% 캡처 | ☑ 4장 캡처 |
 | 이름 변경 | 사용자 노출 문자열(GRUB, issue, 세션 항목, 패널 라벨, Android 안내) → 하그라/HAGRA. 내부 식별자 유지 | ☑ |
 | 디자인 문서 | `docs/HAGRA_PHILOSOPHY.md`, `docs/UI_FOUNDATION.md`, `docs/DESIGN_HANDOFF.md` | ☑ |
-| 회귀 검증 | 단위 테스트, 헤드리스 셸 테스트, x86-64 ISO·ARM64 번들 부팅 테스트 재실행 | 결과는 §H0 검증 기록 참고 |
+| 회귀 검증 | 단위 테스트, 헤드리스 셸 테스트, x86-64 ISO·ARM64 번들 부팅 테스트 재실행 | ☑ 2026-10-24: 단위 12/12, 셸 통합 PASS, x86-64 ISO 부팅→세션→실행 메뉴→터미널→재부팅→종료 PASS(셸 121 s), ARM64 번들 동일 시나리오 PASS |
 | 디자인 자산 적용 | 디자인 담당의 토큰·아이콘·기준 이미지 수신 후 적용·비교 | ☐ (자료 미수신) |
 | 한글 입력 | fcitx5-hangul 통합 | ☐ (M2) |
 | 접근성 역할 | MinUI 부품에 `Accessible.*` 부여 | ☐ |
