@@ -236,6 +236,8 @@ tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | 
 | foot 터미널 | 기본 테마의 foot.ini 만 설치 | 바뀌지 않음 (후속) |
 | 로그인 화면(greetd) | 관여하지 않음 | — |
 
+주의: live ISO(x86-64 개발 이미지)는 홈 디렉터리가 휘발성 overlay 라 테마 선택을 포함한 어떤 사용자 설정도 재부팅 후 남지 않는다. 설치된 시스템과 ARM64 디스크 번들에서는 유지된다(부팅 테스트로 확인).
+
 세션 시작: `minos-session` 이 `hagra-theme sync` 로 상태 파일을 쓰고 labwc 설정 디렉터리를 `$XDG_RUNTIME_DIR/minos-labwc-<uid>/` 에 파일 단위로 조립한다
 (사용자 `~/.config/minos/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/minos/labwc/`). 예전처럼 사용자 디렉터리 전체를 두면 그대로 전부 우선한다.
 `autostart` 는 `MINOS_WALLPAPER`(개발·테스트) > `hagra-theme wallpaper` > 기본 파일 순으로 배경을 고른다.

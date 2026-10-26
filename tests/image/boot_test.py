@@ -279,21 +279,30 @@ def main():
                 if "configured" in out:
                     break
                 time.sleep(5)
+            rc, live = q.sh("findmnt -no FSTYPE / ; test -d /run/live && echo live")
+            is_live = "overlay" in live or "live" in live   # live ISO: 홈 디렉터리가 휘발성 overlay 라 재부팅 후 설정이 남지 않는다 (설치 전 매체의 성질)
             rc, out = q.sh(asmin_home + "hagra-theme current")
-            check(out.strip().endswith("hagra-dancheong-deep"), f"theme restored after reboot: {out.strip()}")
-            rc, out = q.sh("tail -3 /home/min/.local/state/minos/session.log")
-            print("   session log:\n      " + out.replace("\n", "\n      "))
+            rc, out2 = q.sh("tail -3 /home/min/.local/state/minos/session.log")
+            print("   session log:\n      " + out2.replace("\n", "\n      "))
             time.sleep(3)
-            png = q.screendump("05-theme-deep-restored")
-            if os.path.exists(deep_tokens):
-                check_screenshot.load_tokens(deep_tokens)
+            if is_live:
+                check(out.strip().endswith("hagra-dancheong-light"), f"live ISO (no persistence): default theme after reboot: {out.strip()}")
+                metrics["theme_persist"] = "n/a (live overlay)"
+                png = q.screendump("05-theme-light-live")
                 check_screenshot.check_panel(Image.open(png).convert("RGB"))
-                check_screenshot.load_tokens(light_tokens)
-            rc, out = q.sh(asmin_home + "hagra-theme reset")
-            check(out.strip().endswith("hagra-dancheong-light"), f"reset to default: {out.strip()}")
-            time.sleep(10)
-            png = q.screendump("06-theme-light-again")
-            check_screenshot.check_panel(Image.open(png).convert("RGB"))
+            else:
+                check(out.strip().endswith("hagra-dancheong-deep"), f"theme restored after reboot: {out.strip()}")
+                metrics["theme_persist"] = "restored"
+                png = q.screendump("05-theme-deep-restored")
+                if os.path.exists(deep_tokens):
+                    check_screenshot.load_tokens(deep_tokens)
+                    check_screenshot.check_panel(Image.open(png).convert("RGB"))
+                    check_screenshot.load_tokens(light_tokens)
+                rc, out = q.sh(asmin_home + "hagra-theme reset")
+                check(out.strip().endswith("hagra-dancheong-light"), f"reset to default: {out.strip()}")
+                time.sleep(10)
+                png = q.screendump("06-theme-light-again")
+                check_screenshot.check_panel(Image.open(png).convert("RGB"))
 
         step("전원: PowerOff")
         q.child.sendline("busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager PowerOff b false")

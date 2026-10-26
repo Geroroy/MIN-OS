@@ -145,7 +145,9 @@
 ### H2 검증 기록
 
 - 2026-10-26 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK(토큰 + 테마 팩) · ctest 3/3 · `tests/shell/run.sh` PASS · 갤러리/장면/모양 창 캡처 `docs/screenshots/h2/`.
-- 부팅 회귀: (아래 갱신)
+- 부팅 회귀 ARM64 (2026-10-26, x86 호스트 TCG): hook 30,40,55,90 재실행(테마 팩·hagra-theme 설치 포함) → `boot_test.py out/minos-arm64` **PASS** (셸까지 147.9 s; 호스트가 동시에 x86 테스트를 돌려 느림). 이미지 안에서: 두 테마 팩 목록 확인 → `hagra-theme apply hagra-dancheong-deep` → `~/.config/minos/theme.conf` 저장 → 패널이 깊은 단청 토큰으로 검사 통과 → **재부팅 후 깊은 단청 복원**(패널 검사 통과, `docs/screenshots/h2/boot-arm64-theme-deep-restored.png`) → `hagra-theme reset` → 연한 단청 복귀 검사 통과 → 종료.
+- 부팅 회귀 x86-64 (2026-10-26): hook 30,40,90 재실행 → ISO → 1차 `boot_test.py` PASS(세션 변경 회귀 없음). 테마 단계 포함 2차: 적용·저장·깊은 패널 검사 통과, **재부팅 후에는 기본 테마** — live ISO 는 홈 디렉터리가 휘발성 overlay 라 어떤 설정도 남지 않는다(설치 전 매체의 성질, 테마 시스템 결함 아님). 테스트는 live(overlay) 를 감지해 그 경우 기본 테마 복귀를 기대한다. (3차 실행 결과: 아래)
+- Galaxy S25 Ultra 실기기: 수행하지 않음.
 
 ## M2 — MIN Shell 완성  ☐
 
