@@ -122,7 +122,7 @@
 - 부팅 회귀 ARM64 (2026-10-24, x86 호스트 TCG, qemu-user binfmt 로 chroot 빌드): hook 30,40,55,90 재실행 → 번들 1.2 GB → `boot_test.py out/minos-arm64` PASS (같은 시나리오; 셸까지 98.8 s). 이미지 안에서 단청 배경·패널·실행 메뉴 확인 (`docs/screenshots/h1/boot-arm64-*.png`). 게스트 시계는 RTC 기본값(4월 19일)이라 실제 날짜가 아니다. Galaxy S25 Ultra 실기기 검증은 수행하지 않았다.
 - 주의: binfmt 등록 시 매직의 NUL 바이트가 잘리면 모든 x86-64 ELF 가 qemu-aarch64 로 보내져 프로세스를 실행할 수 없게 된다(이번 작업에서 1회 발생, `-1` 쓰기로 복구). 등록은 `scripts/install-deps.sh` 의 리터럴 `\\x..` 문자열 방식만 사용한다.
 
-## H2 — 선택형 테마: 깊은 단청 추가  ◐  (2026-10-26)
+## H2 — 선택형 테마: 깊은 단청 추가  ◐  (2026-10-26; 구현·검증 완료, 터미널 팔레트·레일·트레이·실기기는 후속)
 
 입력: 디자인 패키지 v2 `design/hagra-dancheong-v2/` (CLAUDE_TASK.md, CHANGE_V2.md, tokens.json, theme-manifest.json, SVG 12종(v2 색), wallpaper.png, 콘셉트 PNG, 참고 사진 2장).
 원칙: 기존 연한 단청·기본 선택값·사용자 설정 보존, 독립 테마 ID `hagra-dancheong-deep`("깊은 단청"), 설치만으로 자동 활성화하지 않음, 본문은 분백 유지(다크 모드 아님), 내부 식별자 유지.
@@ -137,7 +137,7 @@
 | 세션 | `minos-session` 이 labwc 설정 디렉터리를 파일 단위로 조립: 사용자 `~/.config/minos/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/minos/labwc`. 사용자가 themerc-override 를 두면 테마 전환이 덮지 않는다. `autostart` 는 `hagra-theme wallpaper` 로 배경을 고른다 (`MINOS_WALLPAPER` 우선) | ☑ |
 | 부품 | 패널·창 항목·사이드바·목록행·버튼·아이콘에 어두운 면 지원(`onDark`, `MIcon.light` = 분백 잉크 변형 21종). 창 본문은 어느 테마에서도 `surface`(갤러리·메모 장면·창 모형이 `bg` 를 쓰던 것을 수정) | ☑ |
 | 검증 | ctest 3/3(appindex, theme.manager 10, minui.qml 12), `tests/shell/run.sh` PASS(기존 5 장면 + 테마 왕복 연한→깊은→연한: 셸 추종, labwc 재읽기, 깊은 패널/실행 메뉴 픽셀 검사, 저장 복원, 잘못된 ID 복귀 + 1920×1080), 연한 단청 장면 캡처가 H1 과 픽셀 동일(회귀 없음; buttons 의 진행 막대 애니메이션 위상만 다름), 깊은 단청 갤러리 9섹션·장면 5장·모양 창 3장 | ☑ |
-| 부팅 회귀 | session 스크립트 변경 → x86-64 ISO·ARM64 번들 재빌드·부팅 테스트 | ◐ 아래 "H2 검증 기록" |
+| 부팅 회귀 | session 스크립트 변경 → x86-64 ISO·ARM64 번들 재빌드·부팅 테스트(이미지 안 테마 전환·재부팅 복원 포함) | ☑ 모두 PASS (아래 "H2 검증 기록") |
 | 로그인 풍경 소리 | 저장소에 로그인 소리 구현이 없다 (M1·H1 에도 없었음). 이번 작업은 소리를 추가·변경하지 않았다 | — (해당 없음, 기록) |
 | 터미널 팔레트 | foot.ini 는 기본 테마에서만 생성·설치. 테마 전환 시 터미널 색은 바뀌지 않는다 (후속: 테마별 foot.ini 포함 + 새 창부터 적용) | ☐ |
 | 좌측 레일·트레이 | H1 과 동일하게 미구현 | ☐ (M2) |
@@ -146,7 +146,7 @@
 
 - 2026-10-26 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK(토큰 + 테마 팩) · ctest 3/3 · `tests/shell/run.sh` PASS · 갤러리/장면/모양 창 캡처 `docs/screenshots/h2/`.
 - 부팅 회귀 ARM64 (2026-10-26, x86 호스트 TCG): hook 30,40,55,90 재실행(테마 팩·hagra-theme 설치 포함) → `boot_test.py out/minos-arm64` **PASS** (셸까지 147.9 s; 호스트가 동시에 x86 테스트를 돌려 느림). 이미지 안에서: 두 테마 팩 목록 확인 → `hagra-theme apply hagra-dancheong-deep` → `~/.config/minos/theme.conf` 저장 → 패널이 깊은 단청 토큰으로 검사 통과 → **재부팅 후 깊은 단청 복원**(패널 검사 통과, `docs/screenshots/h2/boot-arm64-theme-deep-restored.png`) → `hagra-theme reset` → 연한 단청 복귀 검사 통과 → 종료.
-- 부팅 회귀 x86-64 (2026-10-26): hook 30,40,90 재실행 → ISO → 1차 `boot_test.py` PASS(세션 변경 회귀 없음). 테마 단계 포함 2차: 적용·저장·깊은 패널 검사 통과, **재부팅 후에는 기본 테마** — live ISO 는 홈 디렉터리가 휘발성 overlay 라 어떤 설정도 남지 않는다(설치 전 매체의 성질, 테마 시스템 결함 아님). 테스트는 live(overlay) 를 감지해 그 경우 기본 테마 복귀를 기대한다. (3차 실행 결과: 아래)
+- 부팅 회귀 x86-64 (2026-10-26): hook 30,40,90 재실행 → ISO → 1차 `boot_test.py` PASS(세션 변경 회귀 없음). 테마 단계 포함 2차: 적용·저장·깊은 패널 검사 통과, **재부팅 후에는 기본 테마** — live ISO 는 홈 디렉터리가 휘발성 overlay 라 어떤 설정도 남지 않는다(설치 전 매체의 성질, 테마 시스템 결함 아님). 테스트는 live(overlay) 를 감지해 그 경우 기본 테마 복귀를 기대한다. 3차 실행 **PASS** (두 팩 목록 → 깊은 단청 적용·저장 → 깊은 패널 검사 → 재부팅 → live 라 기본 테마 → 종료; `docs/screenshots/h2/boot-x86-theme-deep.png`). 그 사이 1회는 호스트 qemu-system-x86_64 가 GRUB 단계에서 segfault(호스트 TCG 문제, 이미지 결함 아님)해 재실행했다.
 - Galaxy S25 Ultra 실기기: 수행하지 않음.
 
 ## M2 — MIN Shell 완성  ☐
