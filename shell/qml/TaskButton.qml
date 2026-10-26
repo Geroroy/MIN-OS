@@ -23,22 +23,25 @@ Rectangle {
         return "window"
     }
 
+    readonly property bool dark: Theme.isDark(Theme.panel)
+    readonly property bool lit: activated || mouse.pressed     // 선택 배경 위 (밝음) → 짙은 전경
+    readonly property color fg: lit ? Theme.selectionText : Theme.panelText
     width: Math.min(220, Math.max(140, row.implicitWidth + Theme.padding * 2))
     height: Theme.controlHeight
     radius: Theme.radius
     color: !enabled ? "transparent"
          : mouse.pressed ? Theme.selection
          : activated ? Theme.selection
-         : mouse.containsMouse ? Theme.surfaceRaised
-         : Theme.surface
+         : mouse.containsMouse ? (dark ? Qt.rgba(Theme.panelText.r, Theme.panelText.g, Theme.panelText.b, 0.14) : Theme.surfaceRaised)
+         : (dark ? "transparent" : Theme.surface)
     border.width: Theme.borderWidth
-    border.color: activated ? Theme.borderStrong : Theme.border
+    border.color: activated ? (dark ? Theme.ochre : Theme.borderStrong) : (dark ? Theme.panelMuted : Theme.border)
 
     Rectangle { // 활성 표시 막대
         visible: task.activated
         anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right
         anchors.margins: Theme.borderWidth
-        height: Theme.selectionMarkerWidth; color: Theme.accent
+        height: Theme.selectionMarkerWidth; color: task.dark ? Theme.ochre : Theme.accent
     }
     Row {
         id: row
@@ -46,12 +49,14 @@ Rectangle {
         anchors.leftMargin: Theme.padding
         anchors.rightMargin: Theme.padding
         spacing: Theme.padding
-        MIcon { name: task.iconFor(task.appId); size: 20; anchors.verticalCenter: parent.verticalCenter; opacity: task.minimized ? 0.5 : 1 }
+        MIcon { name: task.iconFor(task.appId); size: 20; anchors.verticalCenter: parent.verticalCenter; opacity: task.minimized ? 0.5 : 1; light: task.dark && !task.lit }
         MLabel {
             width: task.width - Theme.padding * 2 - 20 - Theme.padding * 2 - closeBtn.width
             height: parent.height
             text: task.title.length ? task.title : task.appId
             font.bold: task.activated
+            textColor: task.fg
+            mutedColor: task.lit ? Theme.selectionText : (task.dark ? Theme.panelMuted : Theme.textMuted)
             muted: task.minimized
             font.italic: task.minimized
             elide: Text.ElideRight
@@ -59,6 +64,7 @@ Rectangle {
         MButton {
             id: closeBtn
             flat: true; icon: "close"; hPad: 2
+            onDark: task.dark && !task.lit
             width: 22; height: 22
             anchors.verticalCenter: parent.verticalCenter
             onClicked: task.closeRequested()

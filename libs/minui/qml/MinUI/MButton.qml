@@ -14,7 +14,8 @@ Rectangle {
     property bool defaultButton: false    // Enter 로 실행되는 기본 버튼 (2px accent 테두리)
     property bool error: false
     property bool busy: false
-    property string icon: ""              // design/assets/icons/<icon>.svg
+    property string icon: ""              // 모듈/테마 assets/<icon>.svg
+    property bool onDark: false           // 어두운 면(패널·사이드바) 위: 전경 분백, 포커스 링 focusRingOnDark, 호버는 반투명
     property alias hovered: mouse.containsMouse
     property alias pressed: mouse.pressed
     property alias horizontalPadding: control.hPad
@@ -24,10 +25,11 @@ Rectangle {
     implicitWidth: row.implicitWidth + hPad * 2
     implicitHeight: Theme.controlHeight
     radius: Theme.radius
+    readonly property color fg: onDark ? Theme.panelText : Theme.text
     color: !enabled ? "transparent"
          : mouse.pressed ? Theme.selection
          : highlighted ? Theme.selection
-         : mouse.containsMouse ? Theme.surfaceRaised
+         : mouse.containsMouse ? (onDark ? Qt.rgba(Theme.panelText.r, Theme.panelText.g, Theme.panelText.b, 0.14) : Theme.surfaceRaised)
          : (flat ? "transparent" : Theme.surface)
     border.width: flat ? 0 : (defaultButton ? 2 : Theme.borderWidth)
     border.color: !enabled ? Theme.border
@@ -50,7 +52,7 @@ Rectangle {
         visible: control.activeFocus
         z: 5
         anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 1)
-        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing; radius: Theme.radius
+        color: "transparent"; border.width: Theme.focusRingWidth; border.color: control.onDark ? Theme.focusRingOnDark : Theme.focusRing; radius: Theme.radius
     }
     Row {
         id: row
@@ -58,13 +60,14 @@ Rectangle {
         anchors.verticalCenterOffset: mouse.pressed ? 1 : 0   // 눌림: 1 논리 px 오프셋, 레이아웃 재배치 없음
         spacing: Theme.padding
         MIcon { visible: control.icon.length > 0; name: control.icon; anchors.verticalCenter: parent.verticalCenter
-                enabled: control.enabled; color: !control.enabled ? Theme.textDisabled : Theme.text }
+                light: control.onDark && !control.highlighted && !mouse.pressed
+                enabled: control.enabled; color: !control.enabled ? Theme.textDisabled : control.fg }
         Text {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             text: control.text
             visible: text.length > 0
-            color: !control.enabled ? Theme.textDisabled : (control.danger ? Theme.danger : Theme.text)
+            color: !control.enabled ? Theme.textDisabled : (control.danger ? Theme.danger : (control.highlighted || mouse.pressed) ? Theme.selectionText : control.fg)
             font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize; font.bold: control.bold
             renderType: Text.NativeRendering
         }

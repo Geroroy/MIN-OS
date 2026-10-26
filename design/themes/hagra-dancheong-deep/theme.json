@@ -1,0 +1,11 @@
+{
+  "id": "hagra-dancheong-deep",
+  "displayName": "깊은 단청",
+  "description": "짙은 목부 녹색 바탕·패널과 녹청·주홍·군청·황토 문양. 본문은 분백으로 유지 (디자인 패키지 v2). 선택했을 때만 적용되는 추가 테마.",
+  "default": false,
+  "tokens": "tokens.json",
+  "assets": "../../hagra-dancheong-v2/assets",
+  "wallpaper": "../../hagra-dancheong-v2/assets/wallpaper.png",
+  "preview": "preview.png",
+  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py"
+}

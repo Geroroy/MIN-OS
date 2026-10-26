@@ -7,5 +7,6 @@
     <file>PowerMenu.qml</file>
     <file>TaskButton.qml</file>
     <file>PowerIcon.qml</file>
+    <file>AppearanceWindow.qml</file>
   </qresource>
 </RCC>

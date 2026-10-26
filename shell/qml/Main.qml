@@ -19,6 +19,7 @@ Item {
         id: powerMenu
         onVisibleChanged: if (visible) launcher.visible = false
     }
+    AppearanceWindow { id: appearance }
 
     Connections {
         target: Shell
@@ -26,5 +27,6 @@ Item {
         function onShowLauncher() { launcher.visible = true }
         function onHideLauncher() { launcher.visible = false }
         function onTogglePowerMenu() { powerMenu.toggle() }
+        function onShowAppearance() { appearance.show(); appearance.raise(); appearance.requestActivate() }
     }
 }

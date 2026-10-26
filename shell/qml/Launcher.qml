@@ -119,7 +119,8 @@ LayerWindow {
                         onClicked: { if (Apps.launchCommand(Apps.terminalProgram())) launcher.visible = false }
                     }
                     MButton { text: "파일"; icon: "folder"; enabled: false; MToolTip { text: "파일 관리자는 M3 에서 구현 예정" } }
-                    MButton { text: "설정"; icon: "settings"; enabled: false; MToolTip { text: "설정은 M2 에서 구현 예정" } }
+                    MButton { text: "모양"; icon: "settings"; onClicked: { launcher.visible = false; Shell.dispatch("appearance") }
+                              MToolTip { text: "모양 설정: 테마·배경 (설정 앱 전체는 M2)" } }
                 }
                 MButton {
                     id: powerBtn

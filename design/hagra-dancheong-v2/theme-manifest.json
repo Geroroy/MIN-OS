@@ -1,0 +1,12 @@
+{
+  "id": "hagra-dancheong-deep",
+  "displayName": "깊은 단청",
+  "mode": "additional",
+  "activateOnInstall": false,
+  "preserveExistingDefault": true,
+  "tokens": "tokens.json",
+  "assets": "assets/",
+  "preview": "reference/hagra-dancheong-concept.png",
+  "labwcPreset": "labwc/themerc-override",
+  "note": "Integration descriptor; adapt to the repository actual registry schema."
+}

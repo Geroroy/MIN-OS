@@ -8,7 +8,7 @@ Rectangle {
     property bool indeterminate: false
     property bool error: false
     implicitWidth: 160; implicitHeight: 8
-    color: Theme.bg
+    color: Theme.surfaceRaised
     border.width: Theme.borderWidth
     border.color: error ? Theme.danger : Theme.borderStrong
     Rectangle {

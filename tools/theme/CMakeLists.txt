@@ -1,0 +1,5 @@
+# hagra-theme — 테마 선택 CLI (세션 스크립트·테스트·사용자용)
+set(CMAKE_AUTOMOC ON)
+qt_add_executable(hagra-theme main.cpp)
+target_link_libraries(hagra-theme PRIVATE hagratheme Qt6::Core)
+install(TARGETS hagra-theme RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

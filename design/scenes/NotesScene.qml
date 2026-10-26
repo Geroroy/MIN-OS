@@ -6,7 +6,7 @@ Window {
     id: win
     title: "메모 — 긴 텍스트와 줄바꿈 검증"
     width: 420; height: 300
-    color: Theme.bg
+    color: Theme.surface
     visible: true
     Column { anchors.fill: parent; anchors.margins: Theme.paddingLarge; spacing: Theme.paddingLarge
         MTabBar { tabs: ["오늘", "이번 주", "보관함"]; currentIndex: 0; width: parent.width }

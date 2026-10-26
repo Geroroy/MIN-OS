@@ -11,7 +11,7 @@ Window {
     readonly property string longText: "하그라는 한국의 미감과 생활에 대한 이해를 바탕으로, 누구나 자기 일을 편안하게 해낼 수 있도록 만드는 운영체제입니다. This sentence mixes Hangul, Latin letters and digits 1234567890 to verify line wrapping, baseline alignment and glyph fallback across fonts at 100 %, 150 % and 200 % scale."
     title: "MinUI 갤러리 — " + section + " · 배율 " + Math.round(previewScale * 100) + "%"
     width: 760; height: 420
-    color: Theme.bg
+    color: Theme.surface   // 본문 면. bg 는 바탕화면 색이라 어두운 테마에서 글자가 읽히지 않는다
     visible: true
 
     Column {

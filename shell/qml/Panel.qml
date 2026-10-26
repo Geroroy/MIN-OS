@@ -25,12 +25,13 @@ LayerWindow {
     keyboardInteractivity: LayerWindow.KeyboardNone
     width: Screen.width > 0 ? Screen.width : 1280   // 좌우 앵커이므로 컴포지터 configure 가 최종 폭을 정한다
     height: Theme.panelHeight
-    color: Theme.surface
+    color: Theme.panel
     visible: true
+    readonly property bool dark: Theme.isDark(Theme.panel)
 
     // 상단 장식 띠 (8px 축소형) + 경계선
     MOrnamentBand { compact: true; anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right }
-    Rectangle { y: panel.bandHeight; width: parent.width; height: Theme.borderWidth; color: Theme.borderStrong }
+    Rectangle { y: panel.bandHeight; width: parent.width; height: Theme.borderWidth; color: panel.dark ? Theme.ochre : Theme.borderStrong }
 
     RowLayout {
         y: panel.contentY
@@ -45,6 +46,7 @@ LayerWindow {
             icon: "lotus"
             bold: true
             flat: true
+            onDark: panel.dark
             highlighted: panel.launcherOpen
             hPad: 12
             Layout.preferredHeight: Theme.controlHeight
@@ -54,7 +56,7 @@ LayerWindow {
             onClicked: panel.launcherRequested()
             MToolTip { text: "실행 메뉴 (" + Theme.brandName + ")" }
         }
-        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter; color: panel.dark ? Theme.panelMuted : Theme.border }
 
         // 창 목록
         ListView {
@@ -74,7 +76,7 @@ LayerWindow {
             }
         }
 
-        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter; color: panel.dark ? Theme.panelMuted : Theme.border }
 
         // 시계: 날짜·요일·시각은 런타임 로케일 시계에서 읽는다 (고정 문자열 없음)
         MLabel {
@@ -83,6 +85,7 @@ LayerWindow {
             Layout.leftMargin: Theme.paddingLarge
             Layout.rightMargin: Theme.paddingLarge
             horizontalAlignment: Text.AlignHCenter
+            textColor: Theme.panelText
             property bool showFull: false
             readonly property var ko: Qt.locale("ko_KR")
             function refresh() {
@@ -95,13 +98,14 @@ LayerWindow {
             Timer { interval: 1000; running: true; repeat: true; onTriggered: clock.refresh() }
             MouseArea { anchors.fill: parent; onClicked: clock.showFull = !clock.showFull }
         }
-        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter }
+        MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter; color: panel.dark ? Theme.panelMuted : Theme.border }
 
         // 전원
         MButton {
             id: powerButton
             flat: true
             icon: "power"
+            onDark: panel.dark
             hPad: Theme.padding
             highlighted: panel.powerOpen
             Layout.preferredHeight: Theme.controlHeight

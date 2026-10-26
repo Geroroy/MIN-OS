@@ -9,7 +9,7 @@ Rectangle {
     property bool active: true
     default property alias content: inner.data
     implicitWidth: 320; implicitHeight: 200
-    color: Theme.bg
+    color: Theme.surface
     border.width: Theme.windowBorderWidth
     border.color: active ? Theme.windowActiveBorder : Theme.windowInactiveBorder
     radius: Theme.windowCornerRadius

@@ -6,12 +6,16 @@
 # 200% 는 컴포지터 출력 배율(wlr-randr --scale 2)로 적용되어 labwc 창 장식도 함께 확대된다.
 set -euo pipefail
 . "$(dirname "$0")/headless.sh"
-OUT=${1:-$REPO/out/design/scene}; mkdir -p "$OUT"
+OUT=${1:-$REPO/out/design/scene$(hd_theme_suffix)}; mkdir -p "$OUT"   # HAGRA_THEME=hagra-dancheong-deep → out/design/scene-deep
 [ -x "$SHELL_BIN" ] || { echo "minos-shell not built"; exit 2; }
 trap hd_stop EXIT
 hd_start 1280x720 1
+# labwc 창 장식도 테마에 맞춘다: 캡처용 설정 디렉터리의 themerc-override 를 테마 팩의 것으로 교체
+if [ -n "${HAGRA_THEME:-}" ] && [ -f "$BUILD/themes/$HAGRA_THEME/labwc/themerc" ]; then
+  cp "$BUILD/themes/$HAGRA_THEME/labwc/themerc" "$XDG_RUNTIME_DIR/labwc/themerc-override"; pkill -HUP -x labwc; sleep 0.5
+fi
 capture() { # $1 = tag, $2 = state, $3 = extra windows (notes)
-  swaybg -i "$REPO/session/wallpaper/hagra-dancheong.png" -m fill -c '#E3ECE6' >/dev/null 2>&1 &
+  swaybg -i "$(hd_wallpaper)" -m fill -c "$(hd_wallpaper_fill)" >/dev/null 2>&1 &
   "$SHELL_BIN" >/dev/null 2>&1 &
   sleep 2
   if [ "${3:-}" = "notes" ]; then "$PREVIEW" "$REPO/design/scenes/NotesScene.qml" >/dev/null 2>&1 & sleep 1.5; fi

@@ -67,12 +67,13 @@ Window {
 
         // ---- 본문: 탐색 영역 + 파일 격자 ----
         Row { width: parent.width; height: content.height - y - status.height
-            Rectangle { id: side; width: Math.min(180, parent.width / 4); height: parent.height; color: Theme.bg
+            Rectangle { id: side; width: Math.min(180, parent.width / 4); height: parent.height; color: Theme.sidebar
+                readonly property bool dark: Theme.isDark(Theme.sidebar)
                 Column { id: sideList; width: parent.width; y: Theme.padding
                     Repeater {
                         model: [ { t: "홈", i: "home" }, { t: "문서", i: "file" }, { t: "다운로드", i: "download" }, { t: "사진", i: "image" }, { t: "휴지통", i: "trash" } ]
                         delegate: MListRow { required property var modelData; required property int index
-                            text: modelData.t; icon: modelData.i; selected: index === 1; leftPadding: Theme.paddingLarge }
+                            text: modelData.t; icon: modelData.i; selected: index === 1; leftPadding: Theme.paddingLarge; onDark: side.dark }
                     }
                 }
                 // 사이드바 하단: 옅은 창살 + 연꽃 매듭 포인트 (목록 행 뒤에는 두지 않는다)
@@ -81,7 +82,7 @@ Window {
                     Image { anchors.fill: parent; source: Theme.asset("lattice-tile"); fillMode: Image.Tile; sourceSize: Qt.size(48, 48); opacity: 0.55; smooth: true }
                     MOrnamentDivider { anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: Theme.paddingLarge; height: 20 }
                 }
-                MSeparator { vertical: true; anchors.right: parent.right }
+                MSeparator { vertical: true; anchors.right: parent.right; color: side.dark ? Theme.borderStrong : Theme.border }
             }
             Item { width: parent.width - side.width; height: parent.height
                 GridView {

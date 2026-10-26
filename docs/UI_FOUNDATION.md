@@ -2,6 +2,7 @@
 
 > 2026-10-24 기준. 기존 M0/M1(x86-64 ISO, ARM64 번들) 과 Android 트랙은 그대로 두고, 그 위에 디자인을 받아 적용·비교할 수 있는 기반을 더한 것이다.
 > H1(같은 날): 디자인 패키지 `design/hagra-dancheong-v1/`(연한 단청)을 이 기반 위에 적용했다. §2.2(장식 범위), §2.3(패널 구조), §4.2(기준 시안 대비 차이) 참고.
+> H2(2026-10-26): 선택형 테마 시스템과 두 번째 테마 "깊은 단청"(`design/hagra-dancheong-v2/`). §7(테마 시스템), §4.3(깊은 단청 시안 대비 차이).
 
 ## 1. 토큰: 한곳에서 관리
 
@@ -164,12 +165,31 @@ build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 
 | 14 | 글꼴 | 본문 15px 수준 | Noto Sans CJK KR 15/13/16px, 제목 12pt | 일치 |
 | 15 | 창 버튼 | 산호색 닫기 배경 | 호버 시에만 산호 배경(themerc `window.active.button.hover.bg`), 평소 단색 | 명세 "닫기 ×, 장식은 주변 프레임" |
 
+### 4.3 깊은 단청 — 시안 대비 차이 (2026-10-26)
+
+기준: `design/hagra-dancheong-v2/reference/hagra-dancheong-concept.png`. 캡처: `docs/screenshots/h2/deep-scene-files-100.png`, 비교 `compare-deep-reference-vs-capture.png`.
+
+| # | 항목 | 시안 | 현재 구현 | 판단 |
+|---|---|---|---|---|
+| 1 | 바탕 | 짙은 녹 바탕에 학·구름·연화·창살이 화면 가장자리에 집중 | v2 wallpaper.png: 구름 줄무늬 + 모서리 연화·창살. 학 없음 | 패키지 자산 그대로(학 SVG 미제공). 참고 사진은 배포하지 않음 |
+| 2 | 창 제목줄 | 짙은 녹 바탕·분백 글자·연꽃 아이콘·주홍 닫기 | labwc: 활성 #28574A/비활성 #52695A, 분백 글자, 활성 굵게, 표준 × − □, 호버만 주홍 | SSD 제약(H1 과 동일). 아이콘 불가 |
+| 3 | 제목 아래 띠 | 녹청·군청·주홍 연화 띠 | v2 lotus-band(녹청 바탕, 군청 호, 주홍 연꽃) 18px | 일치 |
+| 4 | 창틀 | 겹테두리(녹·군청·주홍) + 모서리 | 앱 내부 `MOrnamentFrame`: 청록 2px + 주홍 1px + v2 모서리 결구 | 군청 겹선은 미구현(2색). 후속: 프레임 3색 옵션 |
+| 5 | 사이드바 | 짙은 녹, 분백 글자, 선택 행은 연한 녹청 바탕·짙은 글자 | `sidebar` #28574A + `sidebarText`, 선택 = `selection` #BDD7C6 + 짙은 글자 + 황토 막대 | 일치. 흰 글씨를 밝은 선택면에 남기지 않음(지시) |
+| 6 | 본문 | 분백 | `surface` #F2EADB, 글자 #20352E | 일치 (다크 모드 아님) |
+| 7 | 패널 | 짙은 녹, 분백 글자, 연꽃·트레이 | `panel` #183C35 + `panelText`, 띠 8px, 황토 경계선, 활성 창 = 연한 선택면+황토 막대. 트레이 없음(M2) | 구조 일치 |
+| 8 | 포커스 | — | 밝은 본문 위 군청 #203C7A 2px, 어두운 면 위 분백 | 지시서대로 |
+| 9 | 좌측 레일 | 있음 | 없음 | H1 과 동일 (실제 기능 없이는 추가하지 않음) |
+| 10 | 폴더·문서 아이콘 | 수채 질감·큰 크기 | v2 SVG 72px(분백 폴더, 녹청/군청/주홍 포인트) | 자산 그대로. 24/32/48/72 에서 실루엣·종류 표시 확인(갤러리 ornament) |
+| 11 | 설정 창 | 색 구성 카드 3개·포인트 색 등 | 예제 `SettingsScene`(동작 안 함) + **실제** 테마 선택은 셸 `모양 설정` 창 | 실제 테마 선택 UI 는 §7.4 |
+
 ## 5. 자산 경로
 
 | 종류 | 경로 | 설치 위치 |
 |---|---|---|
 | 토큰 | `design/tokens/hagra.tokens.json` | (생성물만 설치) |
-| 디자인 패키지 (원본 보존) | `design/hagra-dancheong-v1/` (tokens.json, assets/*.svg, wallpaper, reference PNG, DESIGN_SPEC) | — |
+| 디자인 패키지 (원본 보존) | `design/hagra-dancheong-v1/`(연한), `design/hagra-dancheong-v2/`(깊은) — tokens.json, assets/*.svg, wallpaper, reference, 문서 | — |
+| 테마 팩 소스 | `design/themes/<id>/{theme.json, tokens.json, preview.png}` (경로로 패키지 자산을 가리킴) → `build/themes/<id>/` 조립 | `/usr/share/hagra/themes/<id>/` |
 | 모듈 자산 (실행용) | `libs/minui/qml/MinUI/assets/<name>.svg` (패키지 사본 12 + 조작 기호 21, `assets/README.md`) | 모듈과 함께 `…/qt6/qml/MinUI/assets/` |
 | 외부 아이콘(선택) | `design/assets/icons/<name>.svg` (`HAGRA_ICON_PATH`) | `/usr/share/hagra/icons/` |
 | 배경 | `session/wallpaper/hagra-dancheong.png` (패키지 wallpaper.png 사전 렌더링, 1920×1080) · 이전 `min-graphite.png` 유지 | `/usr/share/minos/wallpaper/` (`MINOS_WALLPAPER` 로 교체) |
@@ -186,3 +206,64 @@ build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 
 | 토큰 원본·생성기, MinUI 부품 17종 추가/확장, 미리보기 실행기, 갤러리, 대표 장면, 캡처 스크립트 | 부팅 파이프라인 구조, 세션 흐름, 셸 동작, 테스트 시나리오, x86/ARM64 공통 UI 경로 |
 | 사용자 노출 이름(GRUB 항목, `/etc/issue`, 세션 항목, 패널 브랜드 라벨, Android 안내) → 하그라/HAGRA | 내부 식별자(`minos-*`, `/etc/minos`, `MinUI`), 호스트명, 패키지 목록 |
 | 배경 이미지: MIN 워드마크 제거(임시 단색) | 배경 파일명·설치 경로 |
+
+## 7. 테마 시스템 (H2, 2026-10-26)
+
+### 7.1 구조
+
+```
+design/themes/<id>/theme.json ──build_themes.py──► build/themes/<id>/{theme.json,tokens.json,assets/,wallpaper.png,preview.png,labwc/themerc}
+                                                          │ cmake install → /usr/share/hagra/themes/<id>/
+~/.config/minos/theme.conf  [appearance] theme=<id>, useThemeWallpaper=, wallpaper=      (QSettings INI, ARCHITECTURE §2.6)
+~/.local/state/minos/theme/ {current, themerc-override, wallpaper, wallpaper-fill}     (ThemeManager 가 쓰는 관리 상태)
+libs/hagratheme  ThemeManager (C++)  ── registerQmlTypes → QML `import HagraTheme 1.0; ThemeManager`
+                                     ── bindEngine      → MinUI.Theme.applyTokens(tokens) 즉시 + changed() 마다
+tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | wallpaper | wallpaper-fill | state-dir | set-wallpaper | use-theme-wallpaper | tokens
+```
+
+- **기본값과 보존**: 팩의 `default: true`(연한 단청) 또는 `/etc/minos/theme.conf` 가 기본. 저장된 선택이 없으면 기본. 설치·업데이트는 선택을 바꾸지 않는다.
+- **복귀**: 알 수 없는 ID, 토큰 파싱 실패, 팩 삭제 → 기본 테마. 배경 파일만 없으면 테마는 유지하고 기본 테마 배경을 쓴다.
+- **미리보기 재정의**: `HAGRA_THEME=<id>` 환경 변수는 그 프로세스에서만 적용되고 저장하지 않는다 (캡처 스크립트가 사용).
+- **다른 설정과 분리**: theme.conf 의 `[appearance]` 그룹만 쓴다. 다른 그룹(예: `[sound]`, `[panel]`)은 건드리지 않는다 (단위 테스트 `otherSettingsUntouched`).
+
+### 7.2 런타임 전환 범위
+
+| 층 | 전환 방식 | 즉시? |
+|---|---|---|
+| MinUI 앱 내부(셸·미리보기·ThemeManager 를 바인딩한 앱) | `Theme.applyTokens()` — 색·창 장식 값·치수·글꼴·테마 자산(`Theme.asset()` 가 팩 assets/ 우선) | 즉시 (바인딩된 프로세스). 바인딩하지 않은 앱은 다음 실행부터 |
+| labwc 창 장식·루트 메뉴·OSD | 관리 `themerc-override` 재작성 → `labwc --reconfigure`(LABWC_PID) 또는 SIGHUP | 즉시 (labwc 0.7 이 테마를 다시 읽는다; 셸 테스트에서 `read theme` 2회 확인) |
+| 배경 | `hagra-theme wallpaper` 경로로 swaybg 재시작 | 즉시 |
+| foot 터미널 | 기본 테마의 foot.ini 만 설치 | 바뀌지 않음 (후속) |
+| 로그인 화면(greetd) | 관여하지 않음 | — |
+
+세션 시작: `minos-session` 이 `hagra-theme sync` 로 상태 파일을 쓰고 labwc 설정 디렉터리를 `$XDG_RUNTIME_DIR/minos-labwc-<uid>/` 에 파일 단위로 조립한다
+(사용자 `~/.config/minos/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/minos/labwc/`). 예전처럼 사용자 디렉터리 전체를 두면 그대로 전부 우선한다.
+`autostart` 는 `MINOS_WALLPAPER`(개발·테스트) > `hagra-theme wallpaper` > 기본 파일 순으로 배경을 고른다.
+
+### 7.3 역할 전경 토큰과 어두운 면
+
+깊은 단청은 패널·제목·사이드바만 짙고 본문은 분백이다. 그래서 "어두운 면 위" 부품은 전용 토큰을 쓴다.
+
+| 면 | 바탕 | 전경 | 포커스 링 | 아이콘 |
+|---|---|---|---|---|
+| 패널 | `panel` | `panelText` / `panelMuted` | `focusRingOnDark` | `MIcon { light: true }` → `<name>-light.svg` (분백 잉크, `Theme.lightIcons`) |
+| 사이드바 | `sidebar` | `sidebarText` | `focusRingOnDark` | 위와 같음 (`MListRow { onDark }`) |
+| 창 제목(labwc) | `titleActive`/`titleInactive` | `titleText`/`titleInactiveText` | — | — |
+| 본문 | `surface` | `text`/`textMuted` | `focusRing` | 기본(짙은 잉크) |
+| 선택면(어느 면이든) | `selection` | `selectionText` | — | 짙은 잉크 |
+
+`Theme.isDark(color)` 로 면을 판정해 `onDark`/`light` 를 정한다. 연한 단청에서는 모두 밝은 면이므로 변형이 쓰이지 않는다(H1 캡처와 픽셀 동일).
+창 본문 바탕은 어느 테마에서도 `surface` 다. `bg` 는 바탕화면 색이므로 창 본문에 쓰지 않는다 (H2 에서 갤러리·메모 장면·창 모형을 수정).
+
+### 7.4 설정 → 모양 → 테마 (실제 동작)
+
+`minos-shell --appearance` 또는 실행 메뉴의 "모양" 버튼이 `shell/qml/AppearanceWindow.qml` 을 연다 (labwc 장식의 일반 창).
+테마 카드(이름·미리보기·설명·ID·"기본"·"✓ 현재")를 클릭하거나 방향키+Space/Enter 로 고르면 저장·즉시 적용된다. "기본 테마로" 버튼, "테마 기본 배경 사용" 체크, 사용자 배경 경로 입력이 있다.
+설정 앱(M2)이 생기면 이 창의 내용을 그대로 옮긴다. `docs/screenshots/h2/appearance-*.png`.
+
+### 7.5 새 테마 추가 방법
+
+1. `design/themes/<id>/theme.json` 작성 (id = 디렉터리 이름, displayName, tokens/assets/wallpaper/preview 상대 경로).
+2. tokens.json 은 `design/tokens/hagra.tokens.json` 과 같은 스키마 (`_meta.themeId` = id). 색·window·menu·osd 가 핵심, size/font 는 보통 그대로.
+3. `make tokens-check` (팩 조립 검사) → `make shell` → `HAGRA_THEME=<id> tests/design/capture-scene.sh` 로 확인.
+4. 사용자 팩은 `~/.local/share/hagra/themes/<id>/` 에 같은 구조로 두면 설치 없이 목록에 나타난다.

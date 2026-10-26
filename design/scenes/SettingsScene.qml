@@ -20,16 +20,17 @@ Window {
         MOrnamentBand { width: parent.width }
         MSeparator { width: parent.width }
         Row { width: parent.width; height: content.height - y
-            Rectangle { id: side; width: Math.min(150, parent.width / 3); height: parent.height; color: Theme.bg
+            Rectangle { id: side; width: Math.min(150, parent.width / 3); height: parent.height; color: Theme.sidebar
+                readonly property bool dark: Theme.isDark(Theme.sidebar)
                 Column { id: sideList; width: parent.width; y: Theme.padding
                     Repeater { model: [ { t: "시스템", i: "settings" }, { t: "모양", i: "lotus" }, { t: "입력", i: "window" }, { t: "저장 장치", i: "drive" } ]
                         delegate: MListRow { required property var modelData; required property int index
-                            text: modelData.t; icon: modelData.i; selected: index === 1; leftPadding: Theme.paddingLarge } }
+                            text: modelData.t; icon: modelData.i; selected: index === 1; leftPadding: Theme.paddingLarge; onDark: side.dark } }
                 }
                 Item { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
                        height: Math.max(0, Math.min(72, side.height - sideList.height - Theme.paddingLarge * 3))
                     Image { anchors.fill: parent; source: Theme.asset("lattice-tile"); fillMode: Image.Tile; sourceSize: Qt.size(48, 48); opacity: 0.55; smooth: true } }
-                MSeparator { vertical: true; anchors.right: parent.right }
+                MSeparator { vertical: true; anchors.right: parent.right; color: side.dark ? Theme.borderStrong : Theme.border }
             }
             Flickable { width: parent.width - side.width; height: parent.height; contentHeight: form.height + Theme.paddingLarge * 2; clip: true
                 Column { id: form; x: Theme.paddingLarge; y: Theme.paddingLarge; width: parent.width - Theme.paddingLarge * 2; spacing: Theme.paddingLarge

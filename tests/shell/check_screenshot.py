@@ -11,7 +11,11 @@ import sys
 from PIL import Image
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-with open(os.path.join(REPO, "design", "tokens", "hagra.tokens.json"), encoding="utf-8") as f:
+# 테마 토큰: --tokens PATH 또는 $HAGRA_CHECK_TOKENS, 기본은 기본 테마(연한 단청) 단일 원본
+_tok_path = os.environ.get("HAGRA_CHECK_TOKENS") or os.path.join(REPO, "design", "tokens", "hagra.tokens.json")
+if "--tokens" in sys.argv:
+    _i = sys.argv.index("--tokens"); _tok_path = sys.argv[_i + 1]; del sys.argv[_i:_i + 2]
+with open(_tok_path, encoding="utf-8") as f:
     TOK = json.load(f)
 
 
@@ -24,6 +28,9 @@ def rgb(hexstr):
 
 C = TOK["color"]
 SURFACE = rgb(C["surface"])
+PANEL = rgb(C.get("panel", C["surface"]))          # 패널 바탕 (역할 토큰; 없으면 surface)
+PANEL_DARK = (0.299 * PANEL[0] + 0.587 * PANEL[1] + 0.114 * PANEL[2]) < 128
+OCHRE = rgb(C.get("ochre", C["accent"]))
 BG = rgb(C["bg"])
 BORDER = rgb(C["border"])
 BORDER_STRONG = rgb(C["borderStrong"])
@@ -76,24 +83,26 @@ def check_panel_frame(img):
     top = h - PANEL_H
     # 장식 띠: 패널 맨 위 8px 는 surface 도 bg 도 아닌 문양 색이 상당 부분 있어야 한다 (띠가 로드됐는지)
     band_rows = [top + BAND_H // 2]
-    if not any(row_frac_not(img, y, [SURFACE, BG]) >= 0.3 for y in band_rows):
+    if not any(row_frac_not(img, y, [PANEL, BG]) >= 0.3 for y in band_rows):
         fail(f"panel ornament band not visible at y={band_rows}")
-    # 띠 아래 경계선 (borderStrong)
-    if not row_mostly(img, top + BAND_H, BORDER_STRONG, frac=0.6):
+    # 띠 아래 경계선 (밝은 패널: borderStrong, 어두운 패널: ochre — Panel.qml)
+    if not row_mostly(img, top + BAND_H, OCHRE if PANEL_DARK else BORDER_STRONG, frac=0.6):
         fail(f"panel band/content border not found at y={top + BAND_H}")
-    # 콘텐츠 영역 바탕 (창 목록 영역은 비어 있으므로 surface 가 과반)
+    # 콘텐츠 영역 바탕 (창 목록 영역은 비어 있으므로 panel 색이 과반)
     body_y = top + BAND_H + BORDER_W + (PANEL_H - BAND_H - BORDER_W) // 2
-    if not row_mostly(img, body_y, SURFACE, frac=0.4):
-        fail(f"panel content background not surface colour at y={body_y}")
+    if not row_mostly(img, body_y, PANEL, frac=0.4):
+        fail(f"panel content background not panel colour {PANEL} at y={body_y}")
 
 
 def check_panel(img):
     w, h = img.size
     check_panel_frame(img)
-    # 패널 위는 패널 색이 아니어야 함 (배경)
-    if row_mostly(img, h - PANEL_H - 10, SURFACE, frac=0.5):
-        fail("area above panel has panel colour: exclusive zone/anchoring wrong?")
-    print(f"ok: panel {w}x{PANEL_H} at bottom (band {BAND_H}px + content)")
+    # 패널이 정확히 바닥에 붙어 있어야 함: 띠·경계선이 한 줄 위에는 없어야 한다 (배경색이 패널색과 같은 테마도 있으므로 색 비교 대신 위치 비교)
+    top = h - PANEL_H
+    line = OCHRE if PANEL_DARK else BORDER_STRONG
+    if row_mostly(img, top - 1, line, frac=0.6) or row_frac_not(img, top - BAND_H // 2 - 1, [PANEL, BG]) >= 0.3 and row_mostly(img, top + BAND_H - 1, line, frac=0.6):
+        fail("panel band/border found above the expected position: exclusive zone/anchoring wrong?")
+    print(f"ok: panel {w}x{PANEL_H} at bottom (band {BAND_H}px + content, theme {TOK['_meta'].get('themeId', '?')})")
 
 
 def check_launcher(img):
@@ -142,7 +151,8 @@ def check_foot(img):
     check_panel_frame(img)
     # 작업 표시줄에 활성 창 항목(accent 3px 막대)이 있어야 함: 시작 버튼(≈120px) 오른쪽, 콘텐츠 영역 아래쪽
     ys = range(h - 12, h - 1)
-    found = any(close(img.getpixel((x, y)), ACCENT) for y in ys for x in range(100, 460, 2))
+    mark = OCHRE if PANEL_DARK else ACCENT
+    found = any(close(img.getpixel((x, y)), mark) for y in ys for x in range(100, 460, 2))
     if not found:
         fail("no active task indicator in panel (foreign-toplevel)")
     print("ok: panel visible with terminal running, task indicator present")

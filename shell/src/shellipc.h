@@ -27,6 +27,7 @@ Q_SIGNALS:
     void togglePowerMenu();
     void quitRequested();
     void launchTerminal();
+    void showAppearance();
     void unknownCommand(const QString &command);
 
 private:

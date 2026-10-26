@@ -2,7 +2,7 @@
 #   make deps        호스트 의존성 설치 (sudo)
 #   make shell       MIN 컴포넌트 호스트 빌드 (build/)
 #   make test        토큰 검증 + 단위 테스트 + 헤드리스 셸 통합 테스트
-#   make tokens      design/tokens/hagra.tokens.json → Theme.qml / labwc themerc / foot.ini 재생성
+#   make tokens      design/tokens/hagra.tokens.json → Theme.qml / labwc themerc / foot.ini 재생성 (테마 팩: make themes)
 #   make design-captures   부품 갤러리(3배율)·대표 장면 캡처 → out/design/
 #   make image       부팅 ISO 빌드 (sudo). SUITE=debian-trixie(기본)|ubuntu-noble
 #   make run         QEMU GUI 실행 / make run-serial 시리얼 콘솔
@@ -18,7 +18,7 @@ JOBS  ?= $(shell nproc)
 
 ARM64_BUNDLE ?= out/minos-arm64
 
-.PHONY: all deps shell test test-unit test-shell tokens tokens-check design-captures image run run-serial test-image clean distclean \
+.PHONY: all deps shell test test-unit test-shell tokens tokens-check themes design-captures image run run-serial test-image clean distclean \
         image-arm64 run-arm64 run-arm64-vnc test-image-arm64 bundle-android
 
 all: shell
@@ -37,10 +37,16 @@ tokens:
 
 tokens-check:
 	python3 -I design/tools/gen_tokens.py --check
+	python3 -I design/tools/build_themes.py $(BUILD)/themes --check
+
+themes:   # 테마 팩 조립 (make shell 에도 포함됨): design/themes/<id> → build/themes/<id>
+	python3 -I design/tools/build_themes.py $(BUILD)/themes
 
 design-captures: shell
 	tests/design/capture-gallery.sh
 	tests/design/capture-scene.sh
+	HAGRA_THEME=hagra-dancheong-deep tests/design/capture-gallery.sh
+	HAGRA_THEME=hagra-dancheong-deep tests/design/capture-scene.sh
 
 test-unit: shell
 	cd $(BUILD) && ctest --output-on-failure

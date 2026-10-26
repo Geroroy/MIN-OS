@@ -8,12 +8,17 @@ Item {
     property string name: ""
     property int size: Theme.iconSize
     property color color: Theme.text
+    property bool light: false            // 어두운 면(패널·사이드바) 위: 분백 잉크 변형 <name>-light.svg 를 먼저 찾는다
     property int attempt: 0
-    readonly property var candidates: [String(Theme.asset(name)), String(Theme.iconSource(name))]   // url → 문자열 (url.length 는 undefined)
+    readonly property bool useLight: light && Theme.lightIcons.indexOf(name) >= 0
+    readonly property string variant: useLight ? name + "-light" : name
+    readonly property var candidates: [String(Theme.asset(variant)), String(Theme.iconSource(variant))]   // url → 문자열 (url.length 는 undefined)
     readonly property bool ready: img.status === Image.Ready
     width: size; height: size
     opacity: enabled ? 1 : 0.45   // 비활성: 단색 재착색 대신 흐림
     onNameChanged: attempt = 0
+    onUseLightChanged: attempt = 0
+    Connections { target: Theme; function onThemeAssetsChanged() { icon.attempt = 0 } }
     Image {
         id: img
         anchors.fill: parent
@@ -22,7 +27,8 @@ Item {
         fillMode: Image.PreserveAspectFit
         visible: status === Image.Ready
         smooth: true; cache: true
-        onStatusChanged: if (status === Image.Error && icon.attempt < icon.candidates.length) icon.attempt++
+        // 실패 시 다음 후보로 — 바인딩 평가 중 attempt 를 바꾸면 루프 경고가 나므로 다음 이벤트 루프에서 바꾼다
+        onStatusChanged: if (status === Image.Error) Qt.callLater(function() { if (img.status === Image.Error && icon.attempt < icon.candidates.length) icon.attempt++ })
     }
     Rectangle { // 자리 표시자
         visible: !icon.ready

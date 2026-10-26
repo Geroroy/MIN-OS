@@ -81,6 +81,7 @@ QML 모듈 `MinUI`. 모든 MIN 애플리케이션이 공유하는 디자인 시�
 - `Theme` 싱글톤: 색상 토큰(`bg`, `surface`, `border`, `text`, `accent` …), 치수(`unit=4px`, `panelHeight=28`), 폰트.
 - 컨트롤: `MButton`, `MMenu`, `MListView`, `MTextField`, `MTitleBar`, `MSeparator` — 각진 모서리, 1px 테두리, 애니메이션 없음.
 - 테마 소스: `/etc/minos/theme.conf` → `~/.config/minos/theme.conf` (M4부터 `minos-settingsd`가 D-Bus로 변경 알림).
+  H2(2026-10-26): `libs/hagratheme` `ThemeManager` 가 이 파일(`[appearance] theme=`)을 읽고 쓰며, 테마 팩은 `/usr/share/hagra/themes/<id>/`. 변경 알림은 D-Bus 전까지 파일 감시. `docs/UI_FOUNDATION.md` §7.
 
 ### 2.5 시스템 애플리케이션
 

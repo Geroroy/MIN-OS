@@ -9,6 +9,7 @@
 
 #include "minlayershell/layershell.h"
 #include "minlayershell/layerwindow.h"
+#include "hagratheme/thememanager.h"
 #include "appindex.h"
 #include "power.h"
 #include "shellipc.h"
@@ -35,7 +36,8 @@ int main(int argc, char *argv[])
     QCommandLineOption power(QStringLiteral("power"), QStringLiteral("Toggle the power menu"));
     QCommandLineOption quit(QStringLiteral("quit"), QStringLiteral("Ask the running shell to quit"));
     QCommandLineOption terminal(QStringLiteral("terminal"), QStringLiteral("Launch the default terminal"));
-    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal });
+    QCommandLineOption appearance(QStringLiteral("appearance"), QStringLiteral("Open the appearance (theme) settings window"));
+    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance });
     parser.process(app);
 
     QString command;
@@ -44,6 +46,7 @@ int main(int argc, char *argv[])
     else if (parser.isSet(power)) command = QStringLiteral("power");
     else if (parser.isSet(quit)) command = QStringLiteral("quit");
     else if (parser.isSet(terminal)) command = QStringLiteral("terminal");
+    else if (parser.isSet(appearance)) command = QStringLiteral("appearance");
 
     // 이미 실행 중이면 명령만 전달하고 끝낸다.
     if (ShellIpc::sendToRunningInstance(command.isEmpty() ? QStringLiteral("ping") : command))
@@ -58,8 +61,10 @@ int main(int argc, char *argv[])
     Power powerCtl;
     AppIndex apps;
     ToplevelModel toplevels;
+    HagraTheme::ThemeManager themeManager;   // 저장된 테마 선택 복원 (~/.config/minos/theme.conf); 외부 변경 감시
 
     MinLayerShell::LayerWindow::registerQmlTypes();
+    HagraTheme::ThemeManager::registerQmlTypes(&themeManager);
     qmlRegisterSingletonInstance("MinShell", 1, 0, "Shell", &ipc);
     qmlRegisterSingletonInstance("MinShell", 1, 0, "Power", &powerCtl);
     qmlRegisterSingletonInstance("MinShell", 1, 0, "Apps", &apps);
@@ -72,6 +77,7 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
     if (engine.rootObjects().isEmpty())
         return 1;
+    HagraTheme::ThemeManager::bindEngine(&engine, &themeManager);   // MinUI.Theme 에 현재 테마 토큰 적용 + 변경 시 재적용
 
     QObject::connect(&ipc, &ShellIpc::quitRequested, &app, &QGuiApplication::quit, Qt::QueuedConnection);
     QObject::connect(&ipc, &ShellIpc::launchTerminal, &apps, [&apps] { apps.launchCommand(apps.terminalProgram()); });

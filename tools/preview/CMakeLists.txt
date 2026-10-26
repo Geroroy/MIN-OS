@@ -2,5 +2,5 @@
 set(CMAKE_AUTOMOC ON)
 qt_add_executable(minui-preview main.cpp)
 target_compile_definitions(minui-preview PRIVATE MINOS_QML_INSTALL_DIR="${MINOS_QML_INSTALL_DIR}" MINOS_VERSION="${PROJECT_VERSION}")
-target_link_libraries(minui-preview PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2)
+target_link_libraries(minui-preview PRIVATE hagratheme Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2)
 install(TARGETS minui-preview RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

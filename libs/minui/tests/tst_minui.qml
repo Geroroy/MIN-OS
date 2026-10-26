@@ -116,6 +116,28 @@ Item {
             compare(menu.lastIndex, 0)
         }
 
+        function test_10_applyTokens() {
+            var bg0 = String(Theme.bg), panel0 = String(Theme.panel)   // 값 타입 참조가 아니라 문자열로 보관 (속성이 바뀌면 참조도 바뀐다)
+            Theme.applyTokens({ themeId: "t-test", displayName: "테스트", color: { bg: "#183C35", panel: "#183C35", panelText: "#F2EADB" },
+                                window: { activeTitleBg: "#28574A", borderWidth: 3 }, size: { panelHeight: 60 }, assets: { lotus: "file:///nonexistent/lotus.svg" } })
+            compare(Theme.themeId, "t-test")
+            compare(Theme.bg, Qt.color("#183C35"))
+            compare(Theme.panelText, Qt.color("#F2EADB"))
+            verify(Theme.isDark(Theme.panel), "dark panel detected")
+            compare(Theme.windowActiveTitleBg, Qt.color("#28574A"))
+            compare(Theme.windowBorderWidth, 3)
+            compare(Theme.panelHeight, 60)
+            compare(String(Theme.asset("lotus")), "file:///nonexistent/lotus.svg", "theme asset wins")
+            verify(String(Theme.asset("home")).indexOf("MinUI/assets/home.svg") > 0, "module asset fallback")
+            compare(Theme.surface, Qt.color("#FAF6EA"), "keys not in the token set are untouched")
+            // 되돌리기
+            Theme.applyTokens({ themeId: "hagra-dancheong-light", color: { bg: bg0, panel: panel0, panelText: "#203F42" },
+                                window: { activeTitleBg: "#D2E2D5", borderWidth: 2 }, size: { panelHeight: 52 }, assets: {} })
+            compare(Theme.panelHeight, 52)
+            verify(!Theme.isDark(Theme.panel))
+            tryVerify(function() { return iconAsset.ready }, 2000)
+        }
+
         function test_09_assets() {
             tryVerify(function() { return iconAsset.ready }, 2000)
             tryVerify(function() { return iconUi.ready }, 2000)

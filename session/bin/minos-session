@@ -36,9 +36,26 @@ if [ "$SW" = 1 ]; then
   echo "software rendering enabled"
 fi
 
-# 설정 디렉터리: 사용자 재정의 > 시스템 기본
-CONF=/etc/minos/labwc
-[ -d "$HOME/.config/minos/labwc" ] && CONF="$HOME/.config/minos/labwc"
+# labwc 설정 디렉터리 조립 (파일 단위 우선순위: 사용자 재정의 > 테마 관리 파일 > 시스템 기본)
+#   사용자 재정의: ~/.config/minos/labwc/<파일>  (있는 파일만 덮는다; 예전처럼 디렉터리 전체를 둘 수도 있다)
+#   테마 관리:     themerc-override 만 — hagra-theme 가 저장된 선택(~/.config/minos/theme.conf)으로 상태 디렉터리에 쓴다.
+#                  사용자가 themerc-override 를 직접 두면 그것이 이긴다 (테마 전환이 개인 설정을 덮지 않음).
+#   시스템 기본:   /etc/minos/labwc/
+SYSCONF=/etc/minos/labwc
+USERCONF=$HOME/.config/minos/labwc
+CONF=${XDG_RUNTIME_DIR:-/tmp}/minos-labwc-$(id -u)
+mkdir -p "$CONF" && rm -f "$CONF"/*
+THEME_STATE=""
+if command -v hagra-theme >/dev/null 2>&1; then
+  hagra-theme sync >/dev/null 2>&1 && THEME_STATE=$(hagra-theme state-dir 2>/dev/null)
+fi
+for f in rc.xml menu.xml environment autostart themerc-override; do
+  if [ -e "$USERCONF/$f" ]; then ln -sf "$USERCONF/$f" "$CONF/$f"
+  elif [ "$f" = themerc-override ] && [ -n "$THEME_STATE" ] && [ -s "$THEME_STATE/themerc-override" ]; then ln -sf "$THEME_STATE/themerc-override" "$CONF/$f"
+  elif [ -e "$SYSCONF/$f" ]; then ln -sf "$SYSCONF/$f" "$CONF/$f"
+  fi
+done
+echo "labwc config dir: $CONF (user=$USERCONF theme-state=${THEME_STATE:-none})"
 
 # 세션 D-Bus (systemd --user + dbus-user-session 이 있으면 이미 설정되어 있다)
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && command -v dbus-run-session >/dev/null 2>&1; then

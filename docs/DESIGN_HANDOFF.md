@@ -113,3 +113,17 @@ v1 패키지(2026-10-24)로 1~5, 7~10 의 1차 결정이 들어왔다. 구현 �
 5. 좌측 레일: 실제 기능(실행·키보드 탐색·예약 영역)을 M2 에서 구현할 때의 항목 목록과 터치 타깃 크기.
 6. 워드마크(바탕 오른쪽 아래)와 로고 — 브랜드 확정 후.
 7. 어두운 테마 여부.
+
+## 12. 테마 팩 형식 (H2, 2026-10-26)
+
+디자인은 "테마 팩" 단위로 전달·추가된다. 기존 테마를 대체하지 않고 선택지로 들어간다.
+
+| 파일 | 내용 |
+|---|---|
+| `theme.json` | `id`(영문 소문자·하이픈), `displayName`, `description`, `default`(하나만 true), `tokens`, `assets`, `wallpaper`, `preview` 경로 |
+| `tokens.json` | 저장소 토큰 스키마 (`design/tokens/hagra.tokens.json` 복사 후 값 변경). 역할 전경 토큰 `panel/panelText/sidebar/sidebarText/titleText/titleInactiveText/focusRing/focusRingOnDark` 를 반드시 채운다 |
+| `assets/*.svg` | lotus, lotus-band(108×18 가로 반복), corner-rosette, cloud-tile, lattice-tile, bojagi-tile, folder-{writing,translation,reference,project}, document, settings — 이름은 고정 |
+| `wallpaper.png` | 1920×1080 사전 렌더링 |
+| `preview.png` | 480×270 (구현 측이 실제 캡처로 만든다) |
+
+대비: 본문·패널·사이드바·선택·제목의 글자/바탕이 4.5:1 이상. 어두운 면 위 조작 아이콘은 분백 잉크 변형을 자동으로 쓴다. 주홍·황토 같은 장식색은 작은 글자색으로 쓰지 않는다.

@@ -30,7 +30,22 @@ endif()
 
 add_subdirectory(libs/minlayershell)
 add_subdirectory(libs/minui)
+add_subdirectory(libs/hagratheme)
 add_subdirectory(tools/preview)
+add_subdirectory(tools/theme)
+
+# 테마 팩: design/themes/<id>/theme.json → build/themes/<id>/ (조립) → /usr/share/hagra/themes/<id>/ (설치)
+# 런타임(ThemeManager)은 $HAGRA_THEME_PATH → ~/.local/share/hagra/themes → 설치 경로 순으로 찾는다.
+file(GLOB_RECURSE MINOS_THEME_SOURCES CONFIGURE_DEPENDS
+  ${CMAKE_SOURCE_DIR}/design/themes/*/theme.json ${CMAKE_SOURCE_DIR}/design/themes/*/tokens.json
+  ${CMAKE_SOURCE_DIR}/design/tokens/hagra.tokens.json ${CMAKE_SOURCE_DIR}/design/hagra-dancheong-v*/assets/*)
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/themes/.stamp
+  COMMAND python3 -I ${CMAKE_SOURCE_DIR}/design/tools/build_themes.py ${CMAKE_BINARY_DIR}/themes
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/themes/.stamp
+  DEPENDS ${MINOS_THEME_SOURCES} ${CMAKE_SOURCE_DIR}/design/tools/build_themes.py ${CMAKE_SOURCE_DIR}/design/tools/gen_tokens.py
+  COMMENT "Assembling HAGRA theme packs")
+add_custom_target(themes ALL DEPENDS ${CMAKE_BINARY_DIR}/themes/.stamp)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/themes/ DESTINATION ${CMAKE_INSTALL_DATADIR}/hagra/themes PATTERN ".stamp" EXCLUDE)
 # 디자인 자산 (아이콘·배경). design/assets/icons/*.svg → /usr/share/hagra/icons
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/design/assets/icons DESTINATION ${CMAKE_INSTALL_DATADIR}/hagra OPTIONAL)
 if(MINOS_BUILD_SHELL)

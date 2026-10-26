@@ -1,0 +1,12 @@
+{
+  "id": "hagra-dancheong-light",
+  "displayName": "연한 단청",
+  "description": "밝은 분백 본문과 청자빛 제목 표시줄. 하그라 기본 테마 (디자인 패키지 v1).",
+  "default": true,
+  "tokens": "../../tokens/hagra.tokens.json",
+  "assets": "../../hagra-dancheong-v1/assets",
+  "wallpaper": "../../../session/wallpaper/hagra-dancheong.png",
+  "preview": "preview.png",
+  "_note": "경로는 이 파일 기준 상대 경로. design/tools/build_themes.py 가 build/themes/<id>/ 에 자급 팩(theme.json, tokens.json, assets/, wallpaper.png, preview.png, labwc/themerc)으로 조립하고 CMake 가 /usr/share/hagra/themes/<id>/ 에 설치한다.",
+  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py"
+}

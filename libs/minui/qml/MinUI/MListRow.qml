@@ -11,6 +11,9 @@ Rectangle {
     property bool focusVisible: false
     property alias hovered: mouse.containsMouse
     property int leftPadding: Theme.paddingLarge
+    property bool onDark: false           // 어두운 사이드바 위: 전경 sidebarText, 호버 반투명, 포커스 링 focusRingOnDark
+    readonly property color fg: onDark ? Theme.sidebarText : Theme.text
+    readonly property color fgMuted: onDark ? Theme.sidebarText : Theme.textMuted
     signal clicked(var mouseEvent)
     signal doubleClicked()
     signal rightClicked(real x, real y)
@@ -18,17 +21,18 @@ Rectangle {
     width: parent ? parent.width : implicitWidth
     implicitHeight: Theme.rowHeight
     radius: Theme.radius
-    color: !enabled ? "transparent" : selected ? Theme.selection : (mouse.containsMouse ? Theme.surfaceRaised : "transparent")
+    color: !enabled ? "transparent" : selected ? Theme.selection
+         : mouse.containsMouse ? (onDark ? Qt.rgba(Theme.sidebarText.r, Theme.sidebarText.g, Theme.sidebarText.b, 0.14) : Theme.surfaceRaised) : "transparent"
 
     Rectangle { // 선택 막대 (색 이외 단서)
         visible: row.selected
         anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
-        width: Theme.selectionMarkerWidth; color: Theme.accent
+        width: Theme.selectionMarkerWidth; color: row.onDark ? Theme.ochre : Theme.accent   // 어두운 사이드바에서는 accent 가 바탕과 같을 수 있다
     }
     Rectangle { // 포커스 링 (안쪽 1px)
         visible: row.focusVisible
         anchors.fill: parent
-        color: "transparent"; border.width: Theme.focusRingWidth; border.color: Theme.focusRing; z: 5
+        color: "transparent"; border.width: Theme.focusRingWidth; border.color: row.onDark ? Theme.focusRingOnDark : Theme.focusRing; z: 5
     }
     Row {
         anchors.fill: parent
@@ -36,12 +40,13 @@ Rectangle {
         anchors.rightMargin: Theme.paddingLarge
         spacing: Theme.paddingLarge
         MIcon { visible: row.icon.length > 0; name: row.icon; anchors.verticalCenter: parent.verticalCenter
-                color: row.selected ? Theme.selectionText : (row.enabled ? Theme.textMuted : Theme.textDisabled) }
+                light: row.onDark && !row.selected
+                color: row.selected ? Theme.selectionText : (row.enabled ? row.fgMuted : Theme.textDisabled) }
         Text {
             id: main
             height: parent.height
             text: row.text
-            color: !row.enabled ? Theme.textDisabled : row.selected ? Theme.selectionText : Theme.text
+            color: !row.enabled ? Theme.textDisabled : row.selected ? Theme.selectionText : row.fg
             font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize
             verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; renderType: Text.NativeRendering
             width: Math.min(implicitWidth, row.width - row.leftPadding - Theme.paddingLarge - (row.icon.length ? Theme.iconSize + Theme.paddingLarge : 0))
@@ -50,7 +55,7 @@ Rectangle {
             height: parent.height
             visible: row.detail.length > 0
             text: row.detail
-            color: !row.enabled ? Theme.textDisabled : row.selected ? Theme.selectionText : Theme.textMuted
+            color: !row.enabled ? Theme.textDisabled : row.selected ? Theme.selectionText : row.fgMuted
             font.family: Theme.fontFamily; font.pixelSize: Theme.fontSizeSmall
             verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight; renderType: Text.NativeRendering
             width: Math.max(0, row.width - row.leftPadding - Theme.paddingLarge * 2 - main.width - (row.icon.length ? Theme.iconSize + Theme.paddingLarge : 0))

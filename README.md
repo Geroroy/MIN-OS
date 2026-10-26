@@ -71,9 +71,14 @@ MIN-OS/
     └── image/                QEMU 부팅·종료·재부팅 자동 검증
 ```
 
-## 현재 상태 (M1 + ARM64 + H1 연한 단청 UI)
+## 현재 상태 (M1 + ARM64 + H1 연한 단청 UI + H2 선택형 테마)
 
 ![하그라 연한 단청 — 파일 장면](docs/screenshots/h1/scene-files-100.png)
+
+![하그라 깊은 단청 — 파일 장면](docs/screenshots/h2/deep-scene-files-100.png)
+
+H2(2026-10-26): 테마를 고를 수 있다. 기본은 "연한 단청", 추가 선택지로 "깊은 단청"(`design/hagra-dancheong-v2/`). 실행 메뉴 → 모양, 또는 `hagra-theme apply hagra-dancheong-deep`.
+선택은 `~/.config/minos/theme.conf` 에 저장되고 재로그인 후 복원된다. 구조: `docs/UI_FOUNDATION.md` §7.
 
 H1(2026-10-24): 디자인 패키지 `design/hagra-dancheong-v1/` 를 적용한 실제 세션 캡처(헤드리스 labwc + 셸 + 예제 파일 창). 패널 52px·연화 띠·모서리 결구·밝은 labwc 장식.
 기준 시안과의 차이 목록은 `docs/UI_FOUNDATION.md` §4.2.
@@ -97,8 +102,9 @@ sudo scripts/install-deps.sh
 make shell
 make test-unit        # ctest: shell.appindex, minui.qml (qmltestrunner)
 make test-shell
-make tokens-check
-# 2b. 디자인 검증 캡처 (부품 갤러리 9섹션×3배율, 대표 장면 720p/1080p/200%)
+make tokens-check          # 토큰 생성물 + 테마 팩 최신 여부
+# 2a. 테마 선택 (호스트에서 시험: HAGRA_THEME_PATH=build/themes build/tools/theme/hagra-theme list|apply ID|reset)
+# 2b. 디자인 검증 캡처 (두 테마: 갤러리 9섹션×3배율, 대표 장면 720p/1080p/200%)
 make design-captures
 
 # 3. 부팅 이미지 빌드 (기본: Debian trixie. Debian 미러가 막힌 환경에서는 SUITE=ubuntu-noble)

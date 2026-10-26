@@ -27,6 +27,11 @@ export XDG_CURRENT_DESKTOP=MIN
 export MINOS_TERMINAL=foot
 export MINOS_SHELL=none   # autostart 의 셸 실행은 건너뛰고 테스트가 직접 실행한다
 unset WAYLAND_DISPLAY DISPLAY
+# 테마: 사용자 설정을 건드리지 않도록 HOME 을 임시로, 테마 팩은 빌드 디렉터리에서
+export HOME=$XDG_RUNTIME_DIR/home; mkdir -p "$HOME"; unset XDG_CONFIG_HOME XDG_STATE_HOME HAGRA_THEME
+export HAGRA_THEME_PATH=$BUILD/themes
+THEME_BIN=$BUILD/tools/theme/hagra-theme
+[ -x "$THEME_BIN" ] || { echo "hagra-theme not built: $THEME_BIN"; exit 2; }
 
 cleanup() {
   pkill -P $$ 2>/dev/null || true
@@ -93,6 +98,36 @@ sleep 0.5
 "$SHELL_BIN" --quit
 sleep 0.5
 kill -0 $SHELL_PID 2>/dev/null && { echo "FAIL: shell did not quit on --quit"; exit 1; }
+
+# 테마 왕복: 연한 단청(기본) → 깊은 단청 → 연한 단청. CLI 가 설정을 쓰면 실행 중인 셸이 파일 감시로 따라가고 labwc 는 SIGHUP 재구성.
+"$SHELL_BIN" > "$OUT/shell-theme.log" 2>&1 &
+SHELL_PID=$!
+for i in $(seq 1 40); do grep -q 'layer surface "minos-panel" configured' "$OUT/shell-theme.log" 2>/dev/null && break; sleep 0.5; done
+sleep 1
+[ "$("$THEME_BIN" current)" = hagra-dancheong-light ] || { echo "FAIL: default theme is not hagra-dancheong-light"; exit 1; }
+"$THEME_BIN" apply hagra-dancheong-deep >/dev/null
+sleep 2.5
+kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: shell died on theme change"; cat "$OUT/shell-theme.log"; exit 1; }
+grep -q 'applied theme tokens "hagra-dancheong-deep"' "$OUT/shell-theme.log" || { echo "FAIL: shell did not pick up the theme change"; cat "$OUT/shell-theme.log"; exit 1; }
+[ "$(grep -c 'read theme' "$OUT/labwc.log")" -ge 2 ] || { echo "FAIL: labwc did not reload its theme on reconfigure"; grep -i theme "$OUT/labwc.log"; exit 1; }
+grim -t png "$OUT/06-panel-deep.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra-dancheong-deep/tokens.json" "$OUT/06-panel-deep.png" panel
+"$SHELL_BIN" --toggle-launcher; sleep 1
+grim -t png "$OUT/07-launcher-deep.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra-dancheong-deep/tokens.json" "$OUT/07-launcher-deep.png" launcher
+"$SHELL_BIN" --toggle-launcher; sleep 0.5
+# 저장·복원: 새 프로세스가 같은 선택을 읽는다
+[ "$("$THEME_BIN" current)" = hagra-dancheong-deep ] || { echo "FAIL: theme selection not persisted"; exit 1; }
+grep -q 'window.active.title.bg.color: #28574A' "$("$THEME_BIN" state-dir)/themerc-override" || { echo "FAIL: managed themerc-override not written for deep theme"; exit 1; }
+# 잘못된 ID → 기본 테마 복귀
+"$THEME_BIN" apply no-such-theme >/dev/null 2>&1 && { echo "FAIL: unknown theme id accepted"; exit 1; }
+[ "$("$THEME_BIN" current)" = hagra-dancheong-light ] || { echo "FAIL: unknown id did not revert to default"; exit 1; }
+sleep 2.5
+grep -q 'applied theme tokens "hagra-dancheong-light"' "$OUT/shell-theme.log" || { echo "FAIL: shell did not return to the light theme"; cat "$OUT/shell-theme.log"; exit 1; }
+grim -t png "$OUT/08-panel-light-again.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/08-panel-light-again.png" panel
+echo "ok: theme round trip light → deep → light (persisted, labwc reloaded, unknown id reverted)"
+"$SHELL_BIN" --quit; sleep 0.5
 
 # 1920×1080 회귀: 첫 configure 가 QML 초기 폭과 다를 때 셸이 죽지 않고 패널이 전체 폭을 채워야 한다 (layerwindow 생성 중 resize 지연)
 if command -v wlr-randr >/dev/null; then

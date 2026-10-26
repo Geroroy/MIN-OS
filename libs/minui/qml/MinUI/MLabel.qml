@@ -4,7 +4,9 @@ import MinUI 1.0
 Text {
     property bool muted: false
     property bool wrap: false
-    color: enabled ? (muted ? Theme.textMuted : Theme.text) : Theme.textDisabled
+    property color textColor: Theme.text          // 역할별 전경 (패널: Theme.panelText, 사이드바: Theme.sidebarText)
+    property color mutedColor: Theme.textMuted
+    color: enabled ? (muted ? mutedColor : textColor) : Theme.textDisabled
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
     elide: wrap ? Text.ElideNone : Text.ElideRight

@@ -12,6 +12,7 @@
 #include <QDir>
 #include <cstdio>
 #include <cstring>
+#include "hagratheme/thememanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
 
     if (icons.isEmpty()) icons = qEnvironmentVariable("HAGRA_ICON_PATH", QStringLiteral("/usr/share/hagra/icons"));
 
+    HagraTheme::ThemeManager themeManager;   // 저장된 선택 또는 $HAGRA_THEME (캡처용, 저장 안 함)
+    HagraTheme::ThemeManager::registerQmlTypes(&themeManager);
+
     QQmlApplicationEngine engine;
     engine.addImportPath(QStringLiteral(MINOS_QML_INSTALL_DIR));
     for (const QString &p : qEnvironmentVariable("MINOS_QML_IMPORT_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts))
@@ -45,6 +49,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("previewScale"), scale.isEmpty() ? 1.0 : scale.toDouble());
     engine.load(QUrl::fromLocalFile(QFileInfo(file).absoluteFilePath()));
     if (engine.rootObjects().isEmpty()) return 1;
-    fprintf(stderr, "minui-preview: %s state=%s scale=%s\n", qPrintable(file), qPrintable(state), scale.isEmpty() ? "1" : qPrintable(scale));
+    HagraTheme::ThemeManager::bindEngine(&engine, &themeManager);
+    fprintf(stderr, "minui-preview: %s state=%s scale=%s theme=%s\n", qPrintable(file), qPrintable(state), scale.isEmpty() ? "1" : qPrintable(scale), qPrintable(themeManager.currentId()));
     return app.exec();
 }

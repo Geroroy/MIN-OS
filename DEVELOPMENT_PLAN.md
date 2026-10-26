@@ -122,6 +122,31 @@
 - 부팅 회귀 ARM64 (2026-10-24, x86 호스트 TCG, qemu-user binfmt 로 chroot 빌드): hook 30,40,55,90 재실행 → 번들 1.2 GB → `boot_test.py out/minos-arm64` PASS (같은 시나리오; 셸까지 98.8 s). 이미지 안에서 단청 배경·패널·실행 메뉴 확인 (`docs/screenshots/h1/boot-arm64-*.png`). 게스트 시계는 RTC 기본값(4월 19일)이라 실제 날짜가 아니다. Galaxy S25 Ultra 실기기 검증은 수행하지 않았다.
 - 주의: binfmt 등록 시 매직의 NUL 바이트가 잘리면 모든 x86-64 ELF 가 qemu-aarch64 로 보내져 프로세스를 실행할 수 없게 된다(이번 작업에서 1회 발생, `-1` 쓰기로 복구). 등록은 `scripts/install-deps.sh` 의 리터럴 `\\x..` 문자열 방식만 사용한다.
 
+## H2 — 선택형 테마: 깊은 단청 추가  ◐  (2026-10-26)
+
+입력: 디자인 패키지 v2 `design/hagra-dancheong-v2/` (CLAUDE_TASK.md, CHANGE_V2.md, tokens.json, theme-manifest.json, SVG 12종(v2 색), wallpaper.png, 콘셉트 PNG, 참고 사진 2장).
+원칙: 기존 연한 단청·기본 선택값·사용자 설정 보존, 독립 테마 ID `hagra-dancheong-deep`("깊은 단청"), 설치만으로 자동 활성화하지 않음, 본문은 분백 유지(다크 모드 아님), 내부 식별자 유지.
+
+| 항목 | 내용 | 상태 |
+|---|---|---|
+| 테마 팩 | `design/themes/<id>/theme.json` + tokens.json(저장소 스키마) → `design/tools/build_themes.py` 가 `build/themes/<id>/`(tokens, assets/, wallpaper.png, preview.png, labwc/themerc) 조립 → `/usr/share/hagra/themes/<id>/` 설치. 연한 단청(기본, `default: true`)과 깊은 단청 두 팩 | ☑ `make tokens-check` 가 팩 최신 여부도 검사 |
+| 토큰 | 역할 전경 토큰 추가: `panel/panelText/panelMuted`, `sidebar/sidebarText`, `titleText/titleInactiveText`, `focusRingOnDark`, `redBrown`. 연한 단청은 기존 값과 같은 의미로 채움(패널=surface, 사이드바=bg). 깊은 단청: v2 값 + window/menu/osd 매핑 | ☑ |
+| 테마 관리자 | `libs/hagratheme` `ThemeManager`: 검색 경로(`$HAGRA_THEME_PATH` → `~/.local/share/hagra/themes` → `/usr/share/hagra/themes`), 선택 저장 `~/.config/minos/theme.conf` `[appearance] theme=`(ARCHITECTURE §2.6 의 경로 재사용), 관리 상태 `~/.local/state/minos/theme/{current,themerc-override,wallpaper,wallpaper-fill}`, 알 수 없는 ID·토큰 손상 → 기본 복귀, `HAGRA_THEME` 환경 변수 = 저장하지 않는 미리보기 재정의, 설정 파일 감시로 다른 프로세스의 변경 추종 | ☑ 단위 테스트 10 케이스 |
+| 런타임 전환 | `MinUI.Theme` 가 읽기 전용 상수 → 런타임 속성 + `applyTokens()` (공개 API 이름 유지). 호스트(셸·미리보기)가 ThemeManager 를 바인딩해 즉시 재적용. labwc 는 관리 themerc-override 재작성 후 `labwc --reconfigure`(LABWC_PID 없으면 SIGHUP), 배경은 swaybg 재시작. 이미 실행 중인 **다른** 앱은 설정 파일 감시로 따라감(ThemeManager 를 바인딩한 앱만) | ☑ 셸 테스트에서 실제 왕복 확인 |
+| 설정 UI | 셸 `AppearanceWindow.qml` (실행 메뉴 "모양" 버튼, `minos-shell --appearance`): 테마 목록(이름·미리보기·설명·현재 표시·기본 표시), 클릭/방향키+Space 로 선택·즉시 적용, "기본 테마로", "테마 기본 배경 사용" 체크, 사용자 배경 경로. 설정 앱 전체(M2)가 생기면 이 창을 옮긴다 | ☑ |
+| 세션 | `minos-session` 이 labwc 설정 디렉터리를 파일 단위로 조립: 사용자 `~/.config/minos/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/minos/labwc`. 사용자가 themerc-override 를 두면 테마 전환이 덮지 않는다. `autostart` 는 `hagra-theme wallpaper` 로 배경을 고른다 (`MINOS_WALLPAPER` 우선) | ☑ |
+| 부품 | 패널·창 항목·사이드바·목록행·버튼·아이콘에 어두운 면 지원(`onDark`, `MIcon.light` = 분백 잉크 변형 21종). 창 본문은 어느 테마에서도 `surface`(갤러리·메모 장면·창 모형이 `bg` 를 쓰던 것을 수정) | ☑ |
+| 검증 | ctest 3/3(appindex, theme.manager 10, minui.qml 12), `tests/shell/run.sh` PASS(기존 5 장면 + 테마 왕복 연한→깊은→연한: 셸 추종, labwc 재읽기, 깊은 패널/실행 메뉴 픽셀 검사, 저장 복원, 잘못된 ID 복귀 + 1920×1080), 연한 단청 장면 캡처가 H1 과 픽셀 동일(회귀 없음; buttons 의 진행 막대 애니메이션 위상만 다름), 깊은 단청 갤러리 9섹션·장면 5장·모양 창 3장 | ☑ |
+| 부팅 회귀 | session 스크립트 변경 → x86-64 ISO·ARM64 번들 재빌드·부팅 테스트 | ◐ 아래 "H2 검증 기록" |
+| 로그인 풍경 소리 | 저장소에 로그인 소리 구현이 없다 (M1·H1 에도 없었음). 이번 작업은 소리를 추가·변경하지 않았다 | — (해당 없음, 기록) |
+| 터미널 팔레트 | foot.ini 는 기본 테마에서만 생성·설치. 테마 전환 시 터미널 색은 바뀌지 않는다 (후속: 테마별 foot.ini 포함 + 새 창부터 적용) | ☐ |
+| 좌측 레일·트레이 | H1 과 동일하게 미구현 | ☐ (M2) |
+
+### H2 검증 기록
+
+- 2026-10-26 호스트(Ubuntu 24.04, Qt 6.4.2, labwc 0.7.1): `make tokens-check` OK(토큰 + 테마 팩) · ctest 3/3 · `tests/shell/run.sh` PASS · 갤러리/장면/모양 창 캡처 `docs/screenshots/h2/`.
+- 부팅 회귀: (아래 갱신)
+
 ## M2 — MIN Shell 완성  ☐
 
 - 창 목록/전환: `wlr-foreign-toplevel-management-unstable-v1` (labwc 지원) — Alt+Tab 오버레이 포함

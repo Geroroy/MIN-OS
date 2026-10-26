@@ -1,10 +1,16 @@
 # MIN OS 세션 자동 시작 (labwc가 /bin/sh 로 실행)
-# 배경
-WALL=${MINOS_WALLPAPER:-/usr/share/minos/wallpaper/hagra-dancheong.png}
+# 배경: MINOS_WALLPAPER(개발·테스트) > 테마 관리자(사용자 지정 배경 > 선택 테마 배경) > 기본 테마 파일
+WALL=${MINOS_WALLPAPER:-}
+FILL='#E3ECE6'
+if [ -z "$WALL" ] && command -v hagra-theme >/dev/null 2>&1; then
+  WALL=$(hagra-theme wallpaper 2>/dev/null)
+  FILL=$(hagra-theme wallpaper-fill 2>/dev/null || echo '#E3ECE6')
+fi
+[ -n "$WALL" ] || WALL=/usr/share/minos/wallpaper/hagra-dancheong.png
 if [ -f "$WALL" ]; then
-  swaybg -i "$WALL" -m fill -c '#E3ECE6' >/dev/null 2>&1 &
+  swaybg -i "$WALL" -m fill -c "$FILL" >/dev/null 2>&1 &
 else
-  swaybg -c '#E3ECE6' >/dev/null 2>&1 &
+  swaybg -c "$FILL" >/dev/null 2>&1 &
 fi
 
 # systemd --user / D-Bus 활성화 환경에 Wayland 디스플레이 전달 (포털, 알림 등)
