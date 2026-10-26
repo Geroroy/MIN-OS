@@ -8,3 +8,8 @@ _JAVA_AWT_WM_NONREPARENTING=1
 XKB_DEFAULT_LAYOUT=us
 XCURSOR_THEME=Adwaita
 XCURSOR_SIZE=24
+# 한글 입력기 (fcitx5 가 설치된 경우에만 효과; Qt6 는 fcitx5-frontend-qt6, GTK 는 fcitx5-frontend-gtk3/4)
+QT_IM_MODULE=fcitx
+GTK_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
+SDL_IM_MODULE=fcitx

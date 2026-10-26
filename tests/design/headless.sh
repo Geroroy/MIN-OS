@@ -18,6 +18,8 @@ hd_start() {
   export HAGRA_ICON_PATH=$REPO/design/assets/icons
   export HAGRA_THEME_PATH=$BUILD/themes            # 테마 팩 (build_themes.py 조립본); HAGRA_THEME=<id> 로 캡처 테마 선택
   export HAGRA_THEME_NO_SESSION_RELOAD=1
+  export HAGRA_TRANSLATIONS=$BUILD/translations            # 번역은 빌드 디렉터리에서 (LANG 이 한국어가 아니면 영어 UI)
+  export LANG=${HAGRA_CAPTURE_LANG:-ko_KR.UTF-8} LANGUAGE=${HAGRA_CAPTURE_LANGUAGE:-ko}   # 기본 캡처는 한국어
   unset WAYLAND_DISPLAY DISPLAY
   # 캡처용 설정: 세션 설정을 복사하되 창 배치를 automatic 으로 바꿔 활성/비활성 창이 겹치지 않게 한다
   mkdir -p "$XDG_RUNTIME_DIR/labwc"; cp "$REPO"/session/labwc/* "$XDG_RUNTIME_DIR/labwc/"

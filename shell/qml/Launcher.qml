@@ -11,7 +11,8 @@ LayerWindow {
     id: launcher
     scope: "hagra-launcher"
     layer: LayerWindow.Overlay
-    anchors: LayerWindow.AnchorLeft | LayerWindow.AnchorBottom
+    property bool panelAtTop: false
+    anchors: LayerWindow.AnchorLeft | (panelAtTop ? LayerWindow.AnchorTop : LayerWindow.AnchorBottom)
     marginBottom: 0   // 패널의 exclusive zone 이 이미 공간을 비우므로 추가 여백 없음
     keyboardInteractivity: LayerWindow.KeyboardExclusive
     width: 440

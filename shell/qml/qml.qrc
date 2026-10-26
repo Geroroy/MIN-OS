@@ -10,5 +10,10 @@
     <file>AppearanceWindow.qml</file>
     <file>AppIcon.qml</file>
     <file>LauncherRow.qml</file>
+    <file>TaskMenu.qml</file>
+    <file>CalendarPopup.qml</file>
+    <file>AudioPopup.qml</file>
+    <file>NotificationPopups.qml</file>
+    <file>NotificationCenter.qml</file>
   </qresource>
 </RCC>

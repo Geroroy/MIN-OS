@@ -120,6 +120,15 @@ EN = {
 "이미지 파일 경로 (PNG/JPG/WebP)": "Image file path (PNG/JPG/WebP)", "배경 이미지 경로": "Wallpaper image path", "이미지 파일을 읽을 수 없습니다: ": "Cannot read image file: ", "검색 폴더: ": "Search folders: ",
 "내 이미지는 ": "Your own images placed in ", "\n내 이미지는 ": "\nYour own images placed in ", " 에 넣으면 목록에 나타납니다. 테마를 바꿔도 사용자 지정 배경은 유지됩니다.": " appear in this list. A custom wallpaper is kept when you change themes.", "목록 새로 고침": "Refresh list",
 "/배경": "/Wallpapers", " 테마 배경": " theme wallpaper",
+"소리 설정": "Sound settings", "AP h:mm:ss": "h:mm:ss AP", "이전 달": "Previous month", "yyyy년 M월": "MMMM yyyy", "다음 달": "Next month",
+"새 알림이 없습니다": "No new notifications", "알림 서버를 등록하지 못했습니다 (세션 D-Bus 없음 또는 다른 서버가 실행 중)": "Could not register the notification server (no session D-Bus, or another server is running)",
+"모두 지우기": "Clear all", "알림 설정": "Notification settings", "실행 메뉴": "Launcher", "네트워크 연결됨": "Network connected", "네트워크 끊김": "Network disconnected",
+"Wi-Fi ": "Wi-Fi ", "유선 ": "Wired ", "네트워크 연결 없음 — 클릭하면 네트워크 설정": "No network connection — click for network settings", "소리 ": "Sound ", "볼륨 ": "Volume ",
+"배터리 ": "Battery ", " 충전 중": " charging", " · 충전 중": " · charging", " · 배터리 사용 중": " · on battery", "알림 ": "Notifications ", "새 알림 ": "New notifications: ",
+" · 방해 금지": " · do not disturb", "시계 ": "Clock ", " (활성)": " (active)", " (최소화)": " (minimized)", "복원": "Restore", "최소화": "Minimize", "활성화": "Activate",
+"최대화 해제": "Unmaximize", "최대화": "Maximize", "닫기": "Close",
+"패널": "Panel", "패널 위치": "Panel position", "작업 표시줄을 화면 아래 또는 위에 둡니다. 실행 메뉴·전원 메뉴·알림 센터가 같은 쪽에 붙습니다. 즉시 적용.": "Places the taskbar at the bottom or top of the screen. The launcher, power menu and notification center attach to the same edge. Applies immediately.",
+"아래": "Bottom", "위": "Top", "시계에 초 표시": "Show seconds in the clock",
 }
 
 def fill(ts):

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "hagralayershell/layerwindow.h"
+#include <QGuiApplication>
+#include <qpa/qplatformnativeinterface.h>
 #include "hagralayershell/layershell.h"
 
 #include <QCoreApplication>
@@ -135,8 +137,14 @@ void LayerWindow::createLayerSurface()
         return;
     }
 
+    wl_output *output = nullptr;
+    if (m_targetScreen) {
+        if (QPlatformNativeInterface *ni = QGuiApplication::platformNativeInterface())
+            output = static_cast<wl_output *>(ni->nativeResourceForScreen(QByteArrayLiteral("output"), m_targetScreen));
+        qCInfo(lcLayerShell) << "layer surface" << m_scope << "pinned to output" << m_targetScreen->name() << (output ? "ok" : "(no wl_output; compositor chooses)");
+    }
     ::zwlr_layer_surface_v1 *object =
-        shell->get_layer_surface(surface, nullptr, static_cast<uint32_t>(m_layer), m_scope);
+        shell->get_layer_surface(surface, output, static_cast<uint32_t>(m_layer), m_scope);
     m_surface = new LayerSurface(object, this);
     m_configured = false;
     pushState();
@@ -276,3 +284,23 @@ void LayerWindow::setMarginBottom(int v) { if (m_margins.bottom() == v) return; 
 void LayerWindow::setMarginLeft(int v)   { if (m_margins.left() == v) return;   m_margins.setLeft(v);   pushState(); emit marginsChanged(); }
 
 } // namespace HagraLayerShell
+
+void HagraLayerShell::LayerWindow::setTargetScreen(QScreen *s)
+{
+    if (m_targetScreen == s)
+        return;
+    m_targetScreen = s;
+    if (s)
+        setScreen(s);   // Qt 쪽 화면(배율·크기)도 맞춘다
+    emit targetScreenChanged();
+}
+
+void HagraLayerShell::LayerWindow::setTargetOutput(const QString &name)
+{
+    QScreen *found = nullptr;
+    for (QScreen *s : QGuiApplication::screens())
+        if (s->name() == name) { found = s; break; }
+    if (!name.isEmpty() && !found)
+        qCWarning(lcLayerShell) << "unknown output" << name << "— compositor will choose";
+    setTargetScreen(found);
+}

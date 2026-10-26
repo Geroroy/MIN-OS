@@ -17,8 +17,33 @@ fi
 systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP QT_QPA_PLATFORM 2>/dev/null
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP QT_QPA_PLATFORM 2>/dev/null
 
-# 하그라 셸 (로그: $XDG_RUNTIME_DIR/hagra-shell.log)
-[ "${HAGRA_SHELL:-hagra-shell}" = none ] || "${HAGRA_SHELL:-hagra-shell}" >"${XDG_RUNTIME_DIR:-/tmp}/hagra-shell.log" 2>&1 &
+# 한글 입력기: fcitx5 가 설치되어 있으면 데몬으로 시작 (환경 변수는 environment 파일: QT_IM_MODULE 등)
+if command -v fcitx5 >/dev/null 2>&1 && ! pgrep -x fcitx5 >/dev/null 2>&1; then
+  fcitx5 -d --replace >"${XDG_RUNTIME_DIR:-/tmp}/fcitx5.log" 2>&1 || true
+fi
+
+# 하그라 셸 (로그: $XDG_RUNTIME_DIR/hagra-shell.log) — 감시 루프: 비정상 종료하면 다시 띄운다 (1분에 5회 넘으면 포기, 로그 기록).
+#   정상 종료(hagra-shell --quit, 종료 코드 0)는 다시 띄우지 않는다. 상태: $XDG_STATE_HOME/hagra/shell-crashes.log
+if [ "${HAGRA_SHELL:-hagra-shell}" != none ]; then
+  (
+    SHELL_CMD=${HAGRA_SHELL:-hagra-shell}
+    LOG=${XDG_RUNTIME_DIR:-/tmp}/hagra-shell.log
+    CRASHLOG=${XDG_STATE_HOME:-$HOME/.local/state}/hagra/shell-crashes.log
+    mkdir -p "$(dirname "$CRASHLOG")" 2>/dev/null
+    n=0; window_start=$(date +%s)
+    while :; do
+      "$SHELL_CMD" >>"$LOG" 2>&1
+      rc=$?
+      [ "$rc" = 0 ] && break
+      now=$(date +%s)
+      if [ $((now - window_start)) -gt 60 ]; then n=0; window_start=$now; fi
+      n=$((n + 1))
+      echo "$(date -Is) hagra-shell exited with code $rc (restart $n/5)" >>"$CRASHLOG"
+      [ "$n" -ge 5 ] && { echo "$(date -Is) giving up: too many crashes; run hagra-shell manually or check $LOG" >>"$CRASHLOG"; break; }
+      sleep $n
+    done
+  ) &
+fi
 
 # 저장된 디스플레이(해상도·배율)·입력 설정 적용 (hagra-settings 가 저장; labwc 는 출력 설정을 기억하지 않는다)
 if command -v hagra-settings >/dev/null 2>&1 && [ "${HAGRA_SHELL:-hagra-shell}" != none ]; then

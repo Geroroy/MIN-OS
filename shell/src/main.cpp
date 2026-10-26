@@ -9,12 +9,17 @@
 #include <QLocale>
 #include <QTranslator>
 #include <QProcess>
+#include <QTimer>
+#include <QWindow>
 #include <QStandardPaths>
 
 #include "hagralayershell/layershell.h"
 #include "hagralayershell/layerwindow.h"
 #include "hagratheme/thememanager.h"
 #include "appindex.h"
+#include "conffile.h"
+#include "notificationserver.h"
+#include "systemstatus.h"
 #include "appiconprovider.h"
 #include "launcherstate.h"
 #include "power.h"
@@ -25,7 +30,8 @@
 // 번역: 원문은 한국어. LANGUAGE/LC_MESSAGES/LANG 이 한국어가 아니면 <base>_<lang>.qm 을 찾는다 ($HAGRA_TRANSLATIONS → 설치 경로).
 static void hagraLoadTranslation(QCoreApplication &app, const QString &base)
 {
-    const QLocale locale;
+    QLocale locale;
+    if (locale.language() == QLocale::C) locale = QLocale(QStringLiteral("en_US"));   // POSIX/C 로케일은 영어 UI
     if (locale.language() == QLocale::Korean) return;
     static QTranslator translator;
     QStringList dirs;
@@ -65,8 +71,11 @@ int main(int argc, char *argv[])
     QCommandLineOption quit(QStringLiteral("quit"), QStringLiteral("Ask the running shell to quit"));
     QCommandLineOption terminal(QStringLiteral("terminal"), QStringLiteral("Launch the default terminal"));
     QCommandLineOption appearance(QStringLiteral("appearance"), QStringLiteral("Open Settings → Appearance & Themes"));
+    QCommandLineOption notificationsOpt(QStringLiteral("notifications"), QStringLiteral("Toggle the notification center"));
+    QCommandLineOption calendarOpt(QStringLiteral("calendar"), QStringLiteral("Toggle the calendar popup"));
+    QCommandLineOption audioOpt(QStringLiteral("audio"), QStringLiteral("Toggle the volume popup"));
     QCommandLineOption settings(QStringLiteral("settings"), QStringLiteral("Open the Settings application (optional page name)"), QStringLiteral("page"), QString());
-    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance, settings });
+    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance, settings, notificationsOpt, calendarOpt, audioOpt });
     parser.process(app);
 
     QString command;
@@ -76,6 +85,9 @@ int main(int argc, char *argv[])
     else if (parser.isSet(quit)) command = QStringLiteral("quit");
     else if (parser.isSet(terminal)) command = QStringLiteral("terminal");
     else if (parser.isSet(appearance)) command = QStringLiteral("appearance");
+    else if (parser.isSet(notificationsOpt)) command = QStringLiteral("notifications");
+    else if (parser.isSet(calendarOpt)) command = QStringLiteral("calendar");
+    else if (parser.isSet(audioOpt)) command = QStringLiteral("audio");
     else if (parser.isSet(settings)) command = parser.value(settings).isEmpty() ? QStringLiteral("settings") : QStringLiteral("settings:") + parser.value(settings);
 
     // 이미 실행 중이면 명령만 전달하고 끝낸다.
@@ -94,6 +106,9 @@ int main(int argc, char *argv[])
     launcherState.seedDefaults(apps.allIds());
     QObject::connect(&apps, &AppIndex::launched, &launcherState, &LauncherState::noteLaunch);
     ToplevelModel toplevels;
+    NotificationServer notifications;
+    notifications.registerOnBus();
+    SystemStatus status;
     HagraTheme::ThemeManager themeManager;   // 저장된 테마 선택 복원 (~/.config/hagra/theme.conf); 외부 변경 감시
 
     HagraLayerShell::LayerWindow::registerQmlTypes();
@@ -103,6 +118,9 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "Apps", &apps);
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "Toplevels", &toplevels);
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "LauncherState", &launcherState);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Notifications", &notifications);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Status", &status);
+    qmlRegisterType<ConfFile>("HagraShell", 1, 0, "ConfFile");
 
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("appicon"), new AppIconProvider);   // image://appicon/<Icon=>
@@ -114,7 +132,16 @@ int main(int argc, char *argv[])
         return 1;
     HagraTheme::ThemeManager::bindEngine(&engine, &themeManager);   // HagraUI.Theme 에 현재 테마 토큰 적용 + 변경 시 재적용
 
-    QObject::connect(&ipc, &ShellIpc::quitRequested, &app, &QGuiApplication::quit, Qt::QueuedConnection);
+    QObject::connect(&ipc, &ShellIpc::quitRequested, &app, [&app] {
+        // 종료 순서: layer surface(역할 객체)를 먼저 정리하고 나서 wl_surface 가 파괴되게 창을 숨긴다 → "surface was destroyed before its role object" 방지
+        for (QWindow *w : QGuiApplication::topLevelWindows()) {
+            if (auto *lw = qobject_cast<HagraLayerShell::LayerWindow *>(w))
+                lw->setVisible(false);   // LayerWindow::setVisible 은 비가상: layer surface 를 먼저 정리한다
+            else
+                w->setVisible(false);
+        }
+        QTimer::singleShot(0, &app, &QGuiApplication::quit);
+    }, Qt::QueuedConnection);
     QObject::connect(&ipc, &ShellIpc::launchTerminal, &apps, [&apps] { apps.launchCommand(apps.terminalProgram()); });
     // 설정 앱: hagra-settings [--page NAME]. 설치되어 있지 않으면(개발 호스트) 셸 내장 모양 창으로 대체한다 (모양 페이지만).
     QObject::connect(&ipc, &ShellIpc::openSettings, &ipc, [&ipc, &apps](const QString &page) {

@@ -1,0 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: hagra
+Source: https://github.com/Geroroy/MIN-OS
+
+Files: *
+Copyright: 2026 HAGRA Project contributors
+License: GPL-3.0-or-later
+
+Files: libs/hagralayershell/protocols/*
+Copyright: 2017-2023 wlroots and freedesktop.org contributors
+License: MIT

@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+%:
+	dh $@ --buildsystem=cmake+ninja
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DHAGRA_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/usr
+
+override_dh_auto_install:
+	dh_auto_install
+	# 세션 파일 (image/config/hooks/30-hagra-install.sh 와 동일한 배치)
+	install -Dm755 session/bin/hagra-session debian/hagra-desktop/usr/bin/hagra-session
+	install -d debian/hagra-desktop/etc/hagra/labwc
+	install -m644 session/labwc/rc.xml session/labwc/menu.xml session/labwc/environment session/labwc/themerc-override debian/hagra-desktop/etc/hagra/labwc/
+	install -m755 session/labwc/autostart debian/hagra-desktop/etc/hagra/labwc/autostart
+	install -Dm644 session/labwc/themerc-override debian/hagra-desktop/usr/share/themes/HAGRA/labwc/themerc
+	install -Dm644 session/foot/foot.ini debian/hagra-desktop/etc/xdg/foot/foot.ini
+	install -Dm644 session/hagra.desktop debian/hagra-desktop/usr/share/wayland-sessions/hagra.desktop
+	install -Dm644 session/wallpaper/hagra-dancheong.png debian/hagra-desktop/usr/share/hagra/wallpaper/hagra-dancheong.png
+	install -Dm644 session/wallpaper/graphite.png debian/hagra-desktop/usr/share/hagra/wallpaper/graphite.png

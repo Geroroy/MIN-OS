@@ -169,10 +169,33 @@ def check_foot(img):
     print("ok: panel visible with terminal running, task indicator present")
 
 
+def check_notification(img):
+    w, h = img.size
+    # 오른쪽 위 모서리 12px 여백 안에 알림 카드(surface 바탕 + borderStrong 테두리)가 있어야 한다 (360 너비)
+    x1, y0 = w - 12, 12
+    x0 = x1 - 360
+    if not region_mostly(img, x0 + 6, y0 + 6, x1 - 6, y0 + 60, SURFACE, frac=0.4):
+        fail("notification popup body not found at top-right")
+    if not row_mostly(img, y0, BORDER_STRONG, x0, x1, frac=0.7):
+        fail(f"notification popup top border not at y={y0}")
+    print("ok: notification popup at top-right")
+
+
+def check_panels2(img):
+    """두 출력(각 1280 폭)에 패널이 하나씩: 왼쪽/오른쪽 절반 모두에서 패널 프레임 검사."""
+    w, h = img.size
+    if w < 2000:
+        fail(f"expected a two-output capture, got {w}x{h}")
+    for half in (img.crop((0, 0, w // 2, h)), img.crop((w // 2, 0, w, h))):
+        check_panel_frame(half)
+    print(f"ok: panel on both outputs ({w}x{h})")
+
+
 def main():
     path, what = sys.argv[1], sys.argv[2]
     img = Image.open(path).convert("RGB")
-    {"panel": check_panel, "launcher": check_launcher, "power": check_power, "foot": check_foot}[what](img)
+    {"panel": check_panel, "launcher": check_launcher, "power": check_power, "foot": check_foot,
+     "notification": check_notification, "panels2": check_panels2}[what](img)
 
 
 if __name__ == "__main__":

@@ -23,6 +23,13 @@ qml6-module-qtquick-templates
 qml6-module-qtquick-shapes
 qml6-module-qtqml
 qml6-module-qtqml-workerscript
+# 한글 입력기 (fcitx5 + 한글 엔진 + Qt6/GTK 프런트엔드)
+fcitx5
+fcitx5-hangul
+fcitx5-frontend-qt6
+fcitx5-frontend-gtk3
+# 로케일
+locales
 # 글꼴
 fonts-dejavu
 fonts-inter

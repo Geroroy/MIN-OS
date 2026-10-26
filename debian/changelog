@@ -1,0 +1,7 @@
+hagra (0.1.0~rc1) unstable; urgency=medium
+
+  * Release candidate 1: launcher hierarchy (apps/favorites/system), Settings
+    application, three theme packs with accent variants, notification server,
+    panel indicators, per-output panels, English/Korean UI, accessibility roles.
+
+ -- HAGRA Project <hagra@example.invalid>  Sun, 26 Oct 2026 12:00:00 +0000

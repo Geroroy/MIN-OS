@@ -19,7 +19,7 @@ PKGS="build-essential cmake ninja-build pkg-config git"
 
 # Qt 6 (하그라 셸 / HagraUI 호스트 빌드 및 헤드리스 테스트)
 PKGS="$PKGS qt6-base-dev qt6-base-dev-tools qt6-declarative-dev qt6-declarative-dev-tools
-      qt6-wayland qt6-wayland-dev qt6-wayland-dev-tools qt6-svg-dev
+      qt6-wayland qt6-wayland-dev qt6-wayland-dev-tools qt6-svg-dev qt6-tools-dev qt6-l10n-tools dbus
       qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qttest qt6-declarative-dev-tools
       qml6-module-qtquick-window qml6-module-qtqml qml6-module-qtqml-workerscript
       qml6-module-qtquick-templates qml6-module-qtquick-shapes qml6-module-qtcore

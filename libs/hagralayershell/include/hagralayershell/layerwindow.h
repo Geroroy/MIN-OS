@@ -5,6 +5,7 @@
 #include <QQuickWindow>
 #include <QQmlParserStatus>
 #include <QMargins>
+#include <QScreen>
 
 namespace HagraLayerShell {
 
@@ -31,6 +32,8 @@ class LayerWindow : public QQuickWindow, public QQmlParserStatus
     Q_PROPERTY(bool configured READ isConfigured NOTIFY configuredChanged)
     // QWindow::setVisible 은 가상 함수가 아니므로 QQuickWindowQmlImpl 과 같은 방식으로 속성을 재선언한다.
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
+    // 출력 선택: 보이기 전에 정하면 그 출력(wl_output)에 고정된다. 비우면 컴포지터가 고른다 (다중 모니터: 화면마다 패널).
+    Q_PROPERTY(QString targetOutput READ targetOutput WRITE setTargetOutput NOTIFY targetScreenChanged)
 
 public:
     enum Layer { Background = 0, Bottom = 1, Top = 2, Overlay = 3 };
@@ -65,6 +68,10 @@ public:
     void setMarginBottom(int v);
     void setMarginLeft(int v);
     bool isConfigured() const { return m_configured; }
+    QScreen *targetScreen() const { return m_targetScreen; }
+    void setTargetScreen(QScreen *s);
+    QString targetOutput() const { return m_targetScreen ? m_targetScreen->name() : QString(); }
+    void setTargetOutput(const QString &name);   // QScreen::name() (예: HEADLESS-1, eDP-1); 빈 문자열 = 컴포지터가 선택
 
     /// QML 타입 등록: import HagraLayerShell 1.0
     static void registerQmlTypes();
@@ -81,6 +88,7 @@ Q_SIGNALS:
     void scopeChanged();
     void marginsChanged();
     void configuredChanged();
+    void targetScreenChanged();
     /// 컴포지터가 표면을 닫았다 (출력 제거 등).
     void closedByCompositor();
 
@@ -115,6 +123,7 @@ private:
     bool m_inSetVisible = false;
     bool m_creating = false;       // createLayerSurface() 의 동기 대기 중 (configure 에 의한 resize 를 지연)
     QSize m_pendingSize;           // 생성 중 받은 configure 크기 (대기 종료 후 적용)
+    QScreen *m_targetScreen = nullptr;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(LayerWindow::Anchors)

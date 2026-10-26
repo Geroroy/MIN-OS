@@ -10,8 +10,12 @@ qt_add_executable(hagra-shell
   src/power.cpp        src/power.h
   src/shellipc.cpp     src/shellipc.h
   src/toplevelmodel.cpp src/toplevelmodel.h
+  src/notificationserver.cpp src/notificationserver.h
+  src/systemstatus.cpp src/systemstatus.h
+  ${CMAKE_SOURCE_DIR}/settings/src/conffile.cpp ${CMAKE_SOURCE_DIR}/settings/src/conffile.h
   qml/qml.qrc
 )
+target_include_directories(hagra-shell PRIVATE ${CMAKE_SOURCE_DIR}/settings/src)
 target_compile_definitions(hagra-shell PRIVATE
   HAGRA_QML_INSTALL_DIR="${HAGRA_QML_INSTALL_DIR}"
   HAGRA_VERSION="${PROJECT_VERSION}"

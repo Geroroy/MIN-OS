@@ -28,7 +28,13 @@
     <raiseOnFocus>no</raiseOnFocus>
   </focus>
 
-  <!-- Alt+Tab 창 전환: 윈도우 2000식 목록형 OSD, 미리보기 없음 (최소 애니메이션 원칙) -->
+  <!-- 창 가장자리 끌기 스냅 (labwc 0.7): 화면 가장자리 10px 안에서 놓으면 반 화면, 위쪽은 최대화 -->
+  <snapping>
+    <range>10</range>
+    <topMaximize>yes</topMaximize>
+  </snapping>
+
+  <!-- Alt+Tab 창 전환: 목록형 OSD, 미리보기 없음 (최소 애니메이션 원칙) -->
   <windowSwitcher show="yes" preview="no" outlines="yes" allWorkspaces="no">
     <fields>
       <field content="type" width="20%" />
@@ -36,7 +42,10 @@
     </fields>
   </windowSwitcher>
 
-  <desktops number="1" />
+  <!-- 작업 공간 4개: Super+1~4 이동, Super+Shift+1~4 창 보내기. 전환 OSD 는 labwc 기본 -->
+  <desktops number="4">
+    <names><name>1</name><name>2</name><name>3</name><name>4</name></names>
+  </desktops>
 
   <keyboard>
     <default />
@@ -54,6 +63,21 @@
     <keybind key="A-Tab"><action name="NextWindow" /></keybind>
     <keybind key="A-S-Tab"><action name="PreviousWindow" /></keybind>
     <keybind key="W-S-r"><action name="Reconfigure" /></keybind>
+    <keybind key="W-1"><action name="GoToDesktop" to="1" /></keybind>
+    <keybind key="W-2"><action name="GoToDesktop" to="2" /></keybind>
+    <keybind key="W-3"><action name="GoToDesktop" to="3" /></keybind>
+    <keybind key="W-4"><action name="GoToDesktop" to="4" /></keybind>
+    <keybind key="W-S-1"><action name="SendToDesktop" to="1" /></keybind>
+    <keybind key="W-S-2"><action name="SendToDesktop" to="2" /></keybind>
+    <keybind key="W-S-3"><action name="SendToDesktop" to="3" /></keybind>
+    <keybind key="W-S-4"><action name="SendToDesktop" to="4" /></keybind>
+    <keybind key="W-C-Left"><action name="GoToDesktop" to="left" wrap="yes" /></keybind>
+    <keybind key="W-C-Right"><action name="GoToDesktop" to="right" wrap="yes" /></keybind>
+    <keybind key="W-f"><action name="ToggleFullscreen" /></keybind>
+    <keybind key="W-S-Up"><action name="SnapToEdge" direction="up" /></keybind>
+    <keybind key="W-S-Down"><action name="SnapToEdge" direction="down" /></keybind>
+    <keybind key="W-i"><action name="Execute" command="hagra-shell --settings" /></keybind>
+    <keybind key="W-n"><action name="Execute" command="hagra-shell --notifications" /></keybind>
   </keyboard>
 
   <mouse>

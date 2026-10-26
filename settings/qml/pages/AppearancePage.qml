@@ -10,6 +10,7 @@ SPage {
     title: qsTr("모양과 테마")
     subtitle: qsTr("선택하면 바로 저장되고 셸·창 장식·배경에 적용됩니다. 재로그인 후에도 유지됩니다.")
     ConfFile { id: cursorConf; name: "cursor" }
+    ConfFile { id: panelConf; name: "panel" }
 
     SSection { title: qsTr("테마"); divider: false }
     Column { id: list; width: parent.width; spacing: Theme.padding
@@ -57,6 +58,13 @@ SPage {
             text: ThemeManager.sessionReloadSupported ? qsTr("창 장식(labwc)은 재구성 명령으로 즉시 갱신됩니다. 이미 실행 중인 다른 앱은 다음 실행부터 새 테마를 씁니다.")
                                                       : qsTr("세션 밖에서 실행 중: 창 장식·배경은 다음 로그인부터 적용됩니다.") }
 
+    SSection { title: qsTr("패널") }
+    SRow { label: qsTr("패널 위치"); description: qsTr("작업 표시줄을 화면 아래 또는 위에 둡니다. 실행 메뉴·전원 메뉴·알림 센터가 같은 쪽에 붙습니다. 즉시 적용.")
+        SChoice { current: panelConf.revision >= 0 ? String(panelConf.get("panel/position", "bottom")) : ""
+                  options: [ { id: "bottom", label: qsTr("아래") }, { id: "top", label: qsTr("위") } ]
+                  onSelected: (id) => panelConf.set("panel/position", id) }
+    }
+    SRow { label: qsTr("시계에 초 표시"); MCheckBox { checked: String(panelConf.get("panel/clockSeconds", false)) === "true"; text: checked ? qsTr("켜짐") : qsTr("꺼짐"); onToggled: (c) => panelConf.set("panel/clockSeconds", c) } }
     SSection { title: qsTr("커서") }
     SRow { label: qsTr("커서 테마"); description: qsTr("설치된 커서 테마(/usr/share/icons/*/cursors). 다음 로그인부터 적용됩니다.")
         MComboBox { id: cursorTheme

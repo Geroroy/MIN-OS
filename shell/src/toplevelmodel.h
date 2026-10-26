@@ -3,6 +3,7 @@
 #pragma once
 #include <QAbstractListModel>
 #include <QList>
+#include <QVariantMap>
 
 namespace HagraLayerShell { class Toplevel; class ToplevelManager; }
 
@@ -24,6 +25,10 @@ public:
     Q_INVOKABLE void activate(int row);
     Q_INVOKABLE void minimize(int row);
     Q_INVOKABLE void close(int row);
+    Q_INVOKABLE void maximize(int row);
+    Q_INVOKABLE void unmaximize(int row);
+    Q_INVOKABLE void toggleMaximize(int row);
+    Q_INVOKABLE QVariantMap info(int row) const;   // {title, appId, activated, minimized, maximized}
     /// 작업 표시줄 클릭 동작: 활성 창이면 최소화, 아니면 활성화(+복원).
     Q_INVOKABLE void toggle(int row);
 

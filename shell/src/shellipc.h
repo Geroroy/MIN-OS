@@ -30,6 +30,9 @@ Q_SIGNALS:
     void showAppearance();
     /// 설정 앱 열기 요청 (page: "" | appearance | wallpaper | display | ...). 호스트가 hagra-settings 를 실행한다.
     void openSettings(const QString &page);
+    void toggleNotifications();
+    void toggleCalendar();
+    void toggleAudio();
     void unknownCommand(const QString &command);
 
 private:

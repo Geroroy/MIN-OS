@@ -20,4 +20,9 @@ apt-get autoremove -y --purge >/tmp/hagra-autoremove.log 2>&1 || { tail -20 /tmp
 rm -rf /tmp/hagra-build
 # 런타임 자가 점검
 test -x /usr/bin/hagra-shell
+test -x /usr/bin/hagra-settings
+test -x /usr/bin/hagra-theme
+test -f /usr/share/hagra/themes/hagra-dancheong-night/theme.json
+test -f /usr/share/hagra/translations/hagra-shell_en.qm
+test -f /usr/share/applications/org.hagra.settings.desktop
 test -f "$(find /usr/lib -path '*/qt6/qml/HagraUI/qmldir' | head -1)"

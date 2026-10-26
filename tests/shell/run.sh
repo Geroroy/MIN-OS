@@ -30,15 +30,25 @@ unset WAYLAND_DISPLAY DISPLAY
 # 테마: 사용자 설정을 건드리지 않도록 HOME 을 임시로, 테마 팩은 빌드 디렉터리에서
 export HOME=$XDG_RUNTIME_DIR/home; mkdir -p "$HOME"; unset XDG_CONFIG_HOME XDG_STATE_HOME HAGRA_THEME
 export HAGRA_THEME_PATH=$BUILD/themes
+export HAGRA_TRANSLATIONS=$BUILD/translations
+export LANG=ko_KR.UTF-8 LANGUAGE=ko   # 기본은 한국어 UI; 영어 단계가 따로 바꾼다
 THEME_BIN=$BUILD/tools/theme/hagra-theme
 [ -x "$THEME_BIN" ] || { echo "hagra-theme not built: $THEME_BIN"; exit 2; }
 
 cleanup() {
   pkill -P $$ 2>/dev/null || true
   [ -n "${LABWC_PID:-}" ] && kill "$LABWC_PID" 2>/dev/null || true
+  [ -n "${DBUS_PID:-}" ] && kill "$DBUS_PID" 2>/dev/null || true
   rm -rf "$XDG_RUNTIME_DIR"
 }
 trap cleanup EXIT
+
+# 세션 D-Bus (알림 서버 검사용). dbus-daemon 이 없으면 알림 단계는 건너뛴다.
+DBUS_PID=""
+if command -v dbus-daemon >/dev/null; then
+  eval "$(dbus-daemon --session --fork --print-address=1 --print-pid=1 --address="unix:path=$XDG_RUNTIME_DIR/bus" | { read -r addr; read -r pid; echo "export DBUS_SESSION_BUS_ADDRESS='$addr'; DBUS_PID=$pid"; })"
+  echo "session bus: $DBUS_SESSION_BUS_ADDRESS (pid $DBUS_PID)"
+fi
 
 # labwc: -C 설정 디렉터리(하그라 테마), -s 시작 명령은 쓰지 않고 소켓을 직접 기다린다.
 labwc -C "$REPO/session/labwc" -d > "$OUT/labwc.log" 2>&1 &
@@ -94,6 +104,23 @@ grim -t png "$OUT/04-foot.png"
 python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/04-foot.png" foot
 kill $FOOT_PID 2>/dev/null || true
 sleep 0.5
+
+# 알림: 서버 등록 → busctl 로 Notify → 오른쪽 위 팝업 검사 → 알림 센터 열기 → 닫기
+if [ -n "$DBUS_PID" ] && command -v busctl >/dev/null; then
+  grep -q 'notification server registered' "$OUT/shell.log" || { echo "FAIL: notification server not registered"; grep -i notif "$OUT/shell.log"; exit 1; }
+  NID=$(busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications Notify 'susssasa{sv}i' hagra-test 0 "" "테스트 알림" "본문입니다" 0 0 8000 | awk '{print $2}')
+  [ "${NID:-0}" -ge 1 ] || { echo "FAIL: Notify did not return an id ($NID)"; exit 1; }
+  sleep 1
+  grim -t png "$OUT/12-notification.png"
+  python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/12-notification.png" notification
+  busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications GetServerInformation | grep -q hagra-shell || { echo "FAIL: GetServerInformation"; exit 1; }
+  "$SHELL_BIN" --notifications; sleep 1
+  grep -q 'layer surface "hagra-notification-center" configured' "$OUT/shell.log" || { echo "FAIL: notification center not configured"; exit 1; }
+  grim -t png "$OUT/13-notification-center.png"
+  "$SHELL_BIN" --notifications; sleep 0.5
+  busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications CloseNotification u "$NID"
+  echo "ok: notification server (Notify id=$NID, popup, center, close)"
+fi
 
 "$SHELL_BIN" --quit
 sleep 0.5
@@ -170,5 +197,24 @@ if command -v wlr-randr >/dev/null; then
   python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/05-panel-fhd.png" panel
   "$SHELL_BIN" --quit; sleep 0.5
 fi
+
+# 다중 모니터: 헤드리스 출력 2개로 labwc 를 다시 띄우면 패널이 출력마다 하나씩 (Instantiator + wl_output 고정)
+kill "$LABWC_PID" 2>/dev/null; wait "$LABWC_PID" 2>/dev/null || true; sleep 0.5
+rm -f "$XDG_RUNTIME_DIR"/wayland-*
+WLR_HEADLESS_OUTPUTS=2 labwc -C "$REPO/session/labwc" -d > "$OUT/labwc-2.log" 2>&1 &
+LABWC_PID=$!
+for i in $(seq 1 50); do sock=$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | grep -v '\.lock$' | head -1 || true); [ -n "$sock" ] && break; sleep 0.1; done
+export WAYLAND_DISPLAY=$(basename "$sock")
+"$SHELL_BIN" > "$OUT/shell-2out.log" 2>&1 &
+SHELL_PID=$!
+for i in $(seq 1 40); do [ "$(grep -c 'layer surface "hagra-panel" configured' "$OUT/shell-2out.log" 2>/dev/null)" -ge 2 ] && break; sleep 0.5; done
+sleep 1.5
+kill -0 $SHELL_PID 2>/dev/null || { echo "FAIL: hagra-shell exited with two outputs"; cat "$OUT/shell-2out.log"; exit 1; }
+[ "$(grep -c 'layer surface "hagra-panel" configured' "$OUT/shell-2out.log")" -ge 2 ] || { echo "FAIL: expected a panel per output"; cat "$OUT/shell-2out.log"; exit 1; }
+grep -q 'pinned to output "HEADLESS-2" ok' "$OUT/shell-2out.log" || { echo "FAIL: second panel not pinned to HEADLESS-2"; grep pinned "$OUT/shell-2out.log"; exit 1; }
+grim -t png "$OUT/14-panels-2outputs.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/14-panels-2outputs.png" panels2
+"$SHELL_BIN" --quit; sleep 0.5
+echo "ok: one panel per output (2 headless outputs)"
 
 echo "PASS: 하그라 셸 headless integration test (screenshots in $OUT)"

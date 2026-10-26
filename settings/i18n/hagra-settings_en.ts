@@ -289,117 +289,157 @@
         <translation>Selecting a theme saves it immediately and applies it to the shell, window decorations and wallpaper. It persists across logins.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="14" />
+        <location filename="../qml/pages/AppearancePage.qml" line="15" />
         <source>테마</source>
         <translation>Themes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="28" />
+        <location filename="../qml/pages/AppearancePage.qml" line="29" />
         <source>밝기</source>
         <translation>Brightness</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="28" />
+        <location filename="../qml/pages/AppearancePage.qml" line="29" />
         <source>같은 계열의 밝은/어두운 테마로 바꿉니다. 해당 밝기의 테마가 없으면 비활성.</source>
         <translation>Switches to the light or dark theme of the same family. Disabled when no theme of that brightness exists.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="30" />
+        <location filename="../qml/pages/AppearancePage.qml" line="31" />
         <source>밝게</source>
         <translation>Light</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="31" />
+        <location filename="../qml/pages/AppearancePage.qml" line="32" />
         <source>어둡게</source>
         <translation>Dark</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="34" />
+        <location filename="../qml/pages/AppearancePage.qml" line="35" />
         <source>포인트 색</source>
         <translation>Accent color</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="35" />
+        <location filename="../qml/pages/AppearancePage.qml" line="36" />
         <source>테마가 정의한 대비 검증된 변형만 제공합니다. 강조·포커스 링·선택 표시에 쓰입니다.</source>
         <translation>Only contrast-verified variants defined by the theme are offered. Used for emphasis, focus rings and selection markers.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="37" />
+        <location filename="../qml/pages/AppearancePage.qml" line="38" />
         <source>테마 기본</source>
         <translation>Theme default</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="42" />
+        <location filename="../qml/pages/AppearancePage.qml" line="43" />
         <source> (선택됨)</source>
         <translation> (selected)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="52" />
+        <location filename="../qml/pages/AppearancePage.qml" line="53" />
         <source>기본 테마로 되돌리기</source>
         <translation>Restore the default theme</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="52" />
+        <location filename="../qml/pages/AppearancePage.qml" line="53" />
         <source>기본 테마(</source>
         <translation>Returns to the default theme (</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="52" />
+        <location filename="../qml/pages/AppearancePage.qml" line="53" />
         <source>)와 테마 기본 포인트 색으로 돌아갑니다. 사용자 배경은 유지됩니다.</source>
         <translation>) and its default accent color. A custom wallpaper is kept.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="53" />
+        <location filename="../qml/pages/AppearancePage.qml" line="54" />
         <source>기본 테마로</source>
         <translation>Reset to default theme</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="57" />
+        <location filename="../qml/pages/AppearancePage.qml" line="58" />
         <source>창 장식(labwc)은 재구성 명령으로 즉시 갱신됩니다. 이미 실행 중인 다른 앱은 다음 실행부터 새 테마를 씁니다.</source>
         <translation>Window decorations (labwc) are reloaded immediately. Other applications already running pick up the new theme on their next start.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="58" />
+        <location filename="../qml/pages/AppearancePage.qml" line="59" />
         <source>세션 밖에서 실행 중: 창 장식·배경은 다음 로그인부터 적용됩니다.</source>
         <translation>Running outside the session: window decorations and wallpaper apply at the next login.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="60" />
+        <location filename="../qml/pages/AppearancePage.qml" line="61" />
+        <source>패널</source>
+        <translation>Panel</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="62" />
+        <source>패널 위치</source>
+        <translation>Panel position</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="62" />
+        <source>작업 표시줄을 화면 아래 또는 위에 둡니다. 실행 메뉴·전원 메뉴·알림 센터가 같은 쪽에 붙습니다. 즉시 적용.</source>
+        <translation>Places the taskbar at the bottom or top of the screen. The launcher, power menu and notification center attach to the same edge. Applies immediately.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="64" />
+        <source>아래</source>
+        <translation>Bottom</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="64" />
+        <source>위</source>
+        <translation>Top</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="67" />
+        <source>시계에 초 표시</source>
+        <translation>Show seconds in the clock</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="67" />
+        <source>켜짐</source>
+        <translation>On</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="67" />
+        <source>꺼짐</source>
+        <translation>Off</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppearancePage.qml" line="68" />
         <source>커서</source>
         <translation>Cursor</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="61" />
+        <location filename="../qml/pages/AppearancePage.qml" line="69" />
         <source>커서 테마</source>
         <translation>Cursor theme</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="61" />
+        <location filename="../qml/pages/AppearancePage.qml" line="69" />
         <source>설치된 커서 테마(/usr/share/icons/*/cursors). 다음 로그인부터 적용됩니다.</source>
         <translation>Installed cursor themes (/usr/share/icons/*/cursors). Applies at the next login.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="68" />
+        <location filename="../qml/pages/AppearancePage.qml" line="76" />
         <source>커서 크기</source>
         <translation>Cursor size</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="68" />
+        <location filename="../qml/pages/AppearancePage.qml" line="76" />
         <source>24(기본) · 32 · 48. HiDPI 화면에서는 큰 값을 권합니다. 다음 로그인부터 적용됩니다.</source>
         <translation>24 (default) · 32 · 48. Larger sizes are recommended on HiDPI screens. Applies at the next login.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="73" />
+        <location filename="../qml/pages/AppearancePage.qml" line="81" />
         <source>글자 크기</source>
         <translation>Text size</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="73" />
+        <location filename="../qml/pages/AppearancePage.qml" line="81" />
         <source>접근성 페이지에서 바꿉니다 (현재 배율 </source>
         <translation>Changed on the Accessibility page (current scale </translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppearancePage.qml" line="74" />
+        <location filename="../qml/pages/AppearancePage.qml" line="82" />
         <source>접근성으로</source>
         <translation>Go to Accessibility</translation>
     </message>

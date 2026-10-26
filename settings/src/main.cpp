@@ -35,7 +35,8 @@ Q_LOGGING_CATEGORY(lcSettings, "hagra.settings")
 // 번역: 원문은 한국어. LANGUAGE/LC_MESSAGES/LANG 이 한국어가 아니면 <base>_<lang>.qm 을 찾는다 ($HAGRA_TRANSLATIONS → 설치 경로).
 static void hagraLoadTranslation(QCoreApplication &app, const QString &base)
 {
-    const QLocale locale;
+    QLocale locale;
+    if (locale.language() == QLocale::C) locale = QLocale(QStringLiteral("en_US"));   // POSIX/C 로케일은 영어 UI
     if (locale.language() == QLocale::Korean) return;
     static QTranslator translator;
     QStringList dirs;

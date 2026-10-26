@@ -12,6 +12,7 @@ Rectangle {
     signal clicked()
     signal closeRequested()
     signal middleClicked()
+    signal menuRequested(real x)
 
     // 앱 식별자 → 아이콘 (앱 자체 아이콘은 M2 이후; 지금은 종류별 기호)
     function iconFor(id) {
@@ -76,8 +77,10 @@ Rectangle {
         anchors.fill: parent
         anchors.rightMargin: closeBtn.width + Theme.padding
         hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-        onClicked: (ev) => { if (ev.button === Qt.MiddleButton) { task.middleClicked(); task.closeRequested() } else task.clicked() }
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+        onClicked: (ev) => { if (ev.button === Qt.MiddleButton) { task.middleClicked(); task.closeRequested() } else if (ev.button === Qt.RightButton) task.menuRequested(ev.x); else task.clicked() }
     }
+    Accessible.role: Accessible.Button
+    Accessible.name: task.title + (task.activated ? qsTr(" (활성)") : task.minimized ? qsTr(" (최소화)") : "")
     MToolTip { text: task.title }
 }

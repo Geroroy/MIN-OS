@@ -8,7 +8,8 @@ LayerWindow {
     id: menu
     scope: "hagra-power"
     layer: LayerWindow.Overlay
-    anchors: LayerWindow.AnchorRight | LayerWindow.AnchorBottom
+    property bool panelAtTop: false
+    anchors: LayerWindow.AnchorRight | (panelAtTop ? LayerWindow.AnchorTop : LayerWindow.AnchorBottom)
     marginBottom: 0   // 패널 exclusive zone 위에 바로 붙는다
     keyboardInteractivity: LayerWindow.KeyboardExclusive
     width: 240

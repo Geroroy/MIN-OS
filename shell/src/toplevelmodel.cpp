@@ -77,6 +77,16 @@ void ToplevelModel::changed(Toplevel *t)
 void ToplevelModel::activate(int row) { if (row >= 0 && row < m_items.size()) { m_items[row]->unminimize(); m_items[row]->activate(); } }
 void ToplevelModel::minimize(int row) { if (row >= 0 && row < m_items.size()) m_items[row]->minimize(); }
 void ToplevelModel::close(int row)    { if (row >= 0 && row < m_items.size()) m_items[row]->close(); }
+void ToplevelModel::maximize(int row) { if (row >= 0 && row < m_items.size()) { m_items[row]->unminimize(); m_items[row]->maximize(); m_items[row]->activate(); } }
+void ToplevelModel::unmaximize(int row) { if (row >= 0 && row < m_items.size()) m_items[row]->unmaximize(); }
+void ToplevelModel::toggleMaximize(int row) { if (row >= 0 && row < m_items.size()) { if (m_items[row]->isMaximized()) unmaximize(row); else maximize(row); } }
+QVariantMap ToplevelModel::info(int row) const
+{
+    if (row < 0 || row >= m_items.size()) return {};
+    const Toplevel *t = m_items[row];
+    return { { QStringLiteral("title"), t->title() }, { QStringLiteral("appId"), t->appId() }, { QStringLiteral("activated"), t->isActivated() },
+             { QStringLiteral("minimized"), t->isMinimized() }, { QStringLiteral("maximized"), t->isMaximized() } };
+}
 void ToplevelModel::toggle(int row)
 {
     if (row < 0 || row >= m_items.size()) return;
