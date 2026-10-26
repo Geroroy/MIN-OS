@@ -18,3 +18,6 @@ override_dh_auto_install:
 	install -Dm644 session/hagra.desktop debian/hagra-desktop/usr/share/wayland-sessions/hagra.desktop
 	install -Dm644 session/wallpaper/hagra-dancheong.png debian/hagra-desktop/usr/share/hagra/wallpaper/hagra-dancheong.png
 	install -Dm644 session/wallpaper/graphite.png debian/hagra-desktop/usr/share/hagra/wallpaper/graphite.png
+
+override_dh_auto_test:
+	# 단위 테스트는 HAGRA_BUILD_TESTS=OFF 로 빌드하므로 여기서 돌리지 않는다 (호스트: make test / tests/qa/run-all.sh)

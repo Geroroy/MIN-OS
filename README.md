@@ -111,6 +111,14 @@ x86-64 QEMU(UEFI)에서 부팅한 개발 이미지: labwc 세션 위의 하그�
 ARM64 디스크 번들을 QEMU `virt` 머신(TCG, virtio-gpu 1280×720)으로 부팅한 화면. 같은 셸·세션 코드가 두 아키텍처에서 동작한다.
 Galaxy S25 Ultra 실기기 검증은 아직 수행되지 않았다. `DEVELOPMENT_PLAN.md` 참고.
 
+## 생산 준비·UX 개편 (P1~P5, 2026-10-26)
+
+- **테마 설정 세 경로**: 실행 메뉴 → 설정 버튼 / 시스템 탭 · 바탕 화면 우클릭 → 개인 설정 · 설정 앱 → 모양과 테마. (`docs/UI_FOUNDATION.md` §7.4)
+- **설정 앱** `hagra-settings`: 모양과 테마·배경·디스플레이·소리·키보드와 마우스·언어와 지역·네트워크·알림·전원·접근성·정보. 백엔드가 없는 기능은 이유를 보여 준다.
+- **테마 3종**: 연한 단청(기본) · 깊은 단청 · 밤 단청(어두움) + 포인트 색 변형 (`docs/DESIGN_TOKENS.md`). 영어/한국어 UI.
+- **패널**: 표시기·알림 서버·달력·창 메뉴·위/아래 위치·출력별 패널. 작업 공간 4개.
+- 문서: `docs/USER_GUIDE.md` · `docs/INSTALL.md` · `docs/KNOWN_ISSUES.md` · `docs/RELEASE_CHECKLIST.md` · `docs/RELEASE_READINESS.md`. QA: `tests/qa/run-all.sh`.
+
 ## 빠른 시작
 
 ```sh

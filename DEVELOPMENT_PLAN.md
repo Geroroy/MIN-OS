@@ -166,6 +166,18 @@
 - 2026-10-26 GitHub Actions run 4 (push 03e3a36): ARM64 이미지 빌드·부팅 테스트 성공, `android-latest` 릴리스에 `hagra-android-arm64.tar.zst` 게시. 사용자 실기기(Galaxy S25 Ultra, Termux)에서 다운로드·체크섬·설치·`hagra` 명령 설치까지 확인됨; 첫 실행은 VNC 포트 5900 점유(이전 minos QEMU)로 QEMU 가 종료 → 런처가 이전 QEMU 를 정리하고 빈 포트를 고르도록 수정.
 - 2026-10-26 ARM64 로컬: rootfs 부터 전체 재빌드(qemu-user, 45분) → 번들 → `boot_test.py out/hagra-arm64` **PASS**: `/etc/hagra-release`, `hagra-shell`, 깊은 단청 적용·저장 → 재부팅 후 복원 → 기본 복귀. 이름 정리로 인한 회귀 없음.
 
+## P1~P5 — 생산 준비·UX 개편 (2026-10-26)  ◐  (P1~P4 구현·호스트 검증 완료, P5 보고서 작성)
+
+요청: 테마 설정 발견성(최우선) → 실행 메뉴 계층 → 설정 앱 → 디자인 시스템 2.0 → 패널 완성 → 신뢰성 → 릴리스 후보. 원칙: 기존 compositor(labwc)·셸·HagraUI·테마 3종 보존, 거짓 토글 금지, 실행하지 않은 검사는 PASS 로 적지 않음.
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| P1 | 실행 메뉴(앱·즐겨찾기·시스템 탭, 설정 버튼, 앱 아이콘, 초성·영문 검색, 빈 상태) · 바탕 화면 개인 설정 메뉴 · `hagra-settings` 11 페이지(실제 백엔드만) · ThemeManager 포인트 색·밝기·글자 배율 | ☑ ctest 5/5 · 셸 통합 PASS · 설정 페이지 QML 경고 0 (`docs/screenshots/p1/`) |
+| P2 | 밤 단청(어두운) 테마 · accents · 대비 검사 203 · 접근성 역할 · MSlider · 아이콘 29종 · 영어 UI(ts 98+334) · 토큰·아이콘 문서 | ☑ (`docs/screenshots/p2/`, `docs/DESIGN_TOKENS.md`, `docs/ICONS.md`) |
+| P3 | 표시기(네트워크·소리·배터리·알림) · 알림 서버 · 달력 · 창 메뉴 · 패널 위치 · 출력별 패널 · 작업 공간 4 · 스냅 | ☑ 헤드리스: 알림 서버·2출력 단계 PASS (`docs/screenshots/p3/`) |
+| P4 | 셸 감시 루프 · 종료 순서 · fcitx5 통합(패키지·환경·자동 시작) · 저장 설정 복원(--apply) · 유휴 측정(CPU 0.03 %, RSS 68 MiB) · debian/ 패키징 | ☑ 호스트 / ☐ 이미지 안 fcitx5 실제 조합 미검증 |
+| P5 | QA 실행기(`tests/qa/run-all.sh`) · 사용자 안내·설치·알려진 문제·점검표 · 릴리스 준비 보고 `docs/RELEASE_READINESS.md` · 이미지 빌드·부팅 테스트 | ◐ 보고서 참조 |
+
 ## M2 — 하그라 셸 완성  ☐
 
 - 창 목록/전환: `wlr-foreign-toplevel-management-unstable-v1` (labwc 지원) — Alt+Tab 오버레이 포함

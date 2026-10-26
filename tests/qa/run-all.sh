@@ -31,7 +31,7 @@ else
   skip shell "헤드리스 셸 통합" BLOCKED "labwc/grim/foot 없음"
 fi
 if need dpkg-buildpackage && need dh; then
-  run deb      "Debian 패키지 빌드 (dpkg-buildpackage -b)"       bash -c 'rm -rf out/deb && mkdir -p out/deb && cp -a . out/deb/src 2>/dev/null; cd out/deb/src && rm -rf build out && dpkg-buildpackage -us -uc -b 2>&1 | tail -5 && ls ../*.deb'
+  run deb      "Debian 패키지 빌드 (dpkg-buildpackage -b)"       bash -c 'rm -rf out/deb && mkdir -p out/deb/src && rsync -a --exclude build --exclude out --exclude .git ./ out/deb/src/ && cd out/deb/src && dpkg-buildpackage -us -uc -b 2>&1 | tail -5 && ls -la ../*.deb'
 else
   skip deb "Debian 패키지 빌드" BLOCKED "debhelper(dh) 미설치"
 fi

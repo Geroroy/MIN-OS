@@ -41,25 +41,31 @@ screencopy, virtual-keyboard)을 모두 노출한다. 서버 측 창 장식(SSD)
 
 ### 2.2 하그라 셸 (`shell/`)
 
-단일 프로세스 `hagra-shell`. QML 엔진 하나에 여러 최상위 창을 둔다.
+단일 프로세스 `hagra-shell`. QML 엔진 하나에 여러 최상위 창(layer-shell)을 둔다. (2026-10-26 P1~P4 기준)
 
 ```
 hagra-shell
-├── Panel (layer-shell, bottom, exclusive)       ─ 시작 버튼 · 작업 목록 · 트레이 · 시계 · 전원
-├── Launcher (layer-shell, overlay, keyboard)    ─ .desktop 검색/실행, Super 키
-├── Switcher (layer-shell, overlay)              ─ Alt+Tab 창 전환 (M2)
-├── NotificationPopups (layer-shell, top)        ─ org.freedesktop.Notifications 서버 (M2)
+├── Panel ×N (layer-shell bottom|top, exclusive, 출력마다 하나)  ─ 시작 · 창 목록(우클릭 메뉴) · 표시기(네트워크·소리·배터리·알림) · 시계 · 전원
+├── Launcher (overlay, keyboard)                 ─ 검색(초성·영문) · 앱/즐겨찾기/시스템 탭 · 설정·전원 버튼
+├── PowerMenu · CalendarPopup · AudioPopup · TaskMenu · NotificationCenter (overlay)
+├── NotificationPopups (overlay, 위치 설정)       ─ 알림 카드 최대 3장
+├── AppearanceWindow (일반 창; hagra-settings 가 없을 때만 대체)
 └── C++ 백엔드
-    ├── AppIndex         ~/.local/share/applications, /usr/share/applications 스캔 (freedesktop .desktop)
-    ├── Toplevels        wlr-foreign-toplevel-management → 창 목록 모델 (M2)
-    ├── Tray             StatusNotifierWatcher/Host (D-Bus) (M2)
-    ├── Power            org.freedesktop.login1 → PowerOff/Reboot/Suspend
-    └── Clock            QTimer, 로케일 포맷
+    ├── AppIndex            .desktop 스캔·검색·실행 (foot 는 테마 팔레트 foot.ini 로)
+    ├── AppIconProvider     image://appicon/<Icon=> (아이콘 테마·pixmaps)
+    ├── LauncherState       즐겨찾기(launcher.conf)·최근(launcher-recent.conf)
+    ├── ToplevelModel       wlr-foreign-toplevel-management → 창 목록·활성화·최소화·최대화·닫기
+    ├── NotificationServer  org.freedesktop.Notifications (D-Bus) + 알림 모델, notifications.conf 감시
+    ├── SystemStatus        /proc·/sys 폴링(5 s): 기본 경로·Wi-Fi 신호·배터리, wpctl/pactl 볼륨
+    ├── Power               org.freedesktop.login1 → PowerOff/Reboot/Suspend, labwc --exit
+    ├── ShellIpc            단일 인스턴스 소켓: --toggle-launcher --power --settings [page] --notifications --calendar --audio --quit
+    └── ThemeManager(libs/hagratheme) · ConfFile(settings/src 공유: panel.conf)
 ```
 
-- 상태 관리: QML은 뷰만 담당하고 모든 상태는 C++ 모델(`QAbstractListModel`)에 둔다.
-- 메모리 목표: 패널 상주 상태 RSS ≤ 60 MB (Qt Quick 소프트웨어 렌더러 fallback 포함).
+- 상태 관리: QML은 뷰만 담당하고 상태는 C++ 모델에 둔다. 설정 파일은 `~/.config/hagra/*.conf` 를 감시해 다른 프로세스(설정 앱·CLI)의 변경을 따라간다.
+- 측정(헤드리스 소프트웨어 렌더링, 2026-10-26): 유휴 CPU 0.03 %, RSS 68 MiB (`tests/shell/measure_idle.sh`). 목표 60 MB 는 소프트웨어 렌더러에서 약간 넘는다.
 - 렌더링: Qt Quick RHI(OpenGL ES) 기본, GPU가 없는 환경(QEMU TCG)은 `QT_QUICK_BACKEND=software`.
+- 설정 앱 `hagra-settings` (`settings/`): 목차 + 11 페이지, 백엔드(Display=wlr-randr, Sound=wpctl/pactl, Input=rc.xml 렌더링, Locale, Network=nmcli/QNetworkInterface, Power=logind, Notify=D-Bus, Wallpapers, SystemInfo). `--apply` 는 autostart 가, `--render-session` 은 hagra-session 이 호출한다.
 
 ### 2.3 libhagralayershell (`libs/hagralayershell/`)
 

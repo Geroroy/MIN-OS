@@ -36,5 +36,5 @@ hd_theme_suffix() { [ -n "${HAGRA_THEME:-}" ] && [ "$HAGRA_THEME" != hagra-danch
 hd_wallpaper() { "$BUILD/tools/theme/hagra-theme" wallpaper 2>/dev/null || echo "$REPO/session/wallpaper/hagra-dancheong.png"; }
 hd_wallpaper_fill() { "$BUILD/tools/theme/hagra-theme" wallpaper-fill 2>/dev/null || echo '#E3ECE6'; }
 hd_mode() { wlr-randr --output HEADLESS-1 --custom-mode "${1}@60" --scale "${2:-1}" >/dev/null 2>&1 || wlr-randr --output HEADLESS-1 --scale "${2:-1}" >/dev/null 2>&1; sleep 0.5; }
-hd_kill_clients() { pkill -P $$ -f "hagra-preview|hagra-shell|swaybg|foot" 2>/dev/null; sleep 0.3; }
-hd_stop() { hd_kill_clients; [ -n "${HD_LABWC:-}" ] && kill "$HD_LABWC" 2>/dev/null; rm -rf "$XDG_RUNTIME_DIR"; }
+hd_kill_clients() { pkill -P $$ -f "hagra-preview|hagra-shell|swaybg|foot" 2>/dev/null || true; sleep 0.3; }
+hd_stop() { hd_kill_clients; [ -n "${HD_LABWC:-}" ] && kill "$HD_LABWC" 2>/dev/null || true; rm -rf "$XDG_RUNTIME_DIR"; return 0; }
