@@ -57,4 +57,4 @@ skip net    "NetworkManager Wi-Fi 연결" "NOT TESTED" "호스트에 nmcli 없�
   echo
   [ -f out/metrics/idle.json ] && { echo "유휴 측정: \`out/metrics/idle.json\`"; echo; cat out/metrics/idle.json; echo; }
 } > "$REPORT"
-echo; echo "report: $REPORT"; grep -c '| \*\*FAIL\*\* |' "$REPORT" | grep -q '^0$'
+echo; echo "report: $REPORT"; [ "$(grep -c '| \*\*FAIL\*\* |' "$REPORT" || true)" = 0 ]

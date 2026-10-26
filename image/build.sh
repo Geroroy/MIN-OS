@@ -149,7 +149,7 @@ log "2/4 chroot 커스터마이즈"
 rm -rf "$ROOTFS/tmp/hagra-src" "$ROOTFS/tmp/hagra-hooks"
 mkdir -p "$ROOTFS/tmp/hagra-src"
 rsync -a --exclude build --exclude 'build-*' --exclude out --exclude image/work --exclude .git \
-  "$REPO/CMakeLists.txt" "$REPO/libs" "$REPO/shell" "$REPO/tools" "$REPO/design" "$REPO/session" "$REPO/image" "$ROOTFS/tmp/hagra-src/"
+  "$REPO/CMakeLists.txt" "$REPO/libs" "$REPO/shell" "$REPO/settings" "$REPO/tools" "$REPO/design" "$REPO/session" "$REPO/image" "$ROOTFS/tmp/hagra-src/"
 cp -a "$CONF/hooks" "$ROOTFS/tmp/hagra-hooks"
 chroot_mount
 for hook in "$ROOTFS"/tmp/hagra-hooks/*.sh; do
