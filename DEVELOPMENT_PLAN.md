@@ -162,7 +162,9 @@
 
 ### N1 검증 기록
 
-- (아래 갱신)
+- 2026-10-26 x86-64: rootfs 부터 전체 재빌드(계정 `hagra`, 호스트명 `hagra`) → ISO → `boot_test.py` **PASS** (셸까지 203 s; 호스트가 CI 와 동시 작업으로 느림). `/etc/hagra-release` `HAGRA_NAME`, `hagra-shell`, 테마 팩 2개, 깊은 단청 적용·저장·패널 검사, live 매체 특성대로 재부팅 후 기본 테마. 터미널 프롬프트 `hagra@hagra` (`docs/screenshots/h2/boot-x86-hagra-terminal.png`).
+- 2026-10-26 GitHub Actions run 4 (push 03e3a36): ARM64 이미지 빌드·부팅 테스트 성공, `android-latest` 릴리스에 `hagra-android-arm64.tar.zst` 게시. 사용자 실기기(Galaxy S25 Ultra, Termux)에서 다운로드·체크섬·설치·`hagra` 명령 설치까지 확인됨; 첫 실행은 VNC 포트 5900 점유(이전 minos QEMU)로 QEMU 가 종료 → 런처가 이전 QEMU 를 정리하고 빈 포트를 고르도록 수정.
+- ARM64 로컬 전체 재빌드·부팅 테스트: (아래 갱신)
 
 ## M2 — 하그라 셸 완성  ☐
 

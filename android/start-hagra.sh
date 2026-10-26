@@ -51,9 +51,22 @@ die() { printf '\033[1;31m[hagra] %s\033[0m\n' "$*" >&2; exit 1; }
 running_pid() { [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null && cat "$PIDFILE"; }
 
 if [ "$ACTION" = status ]; then
-  if pid=$(running_pid); then say "running (pid $pid), VNC 127.0.0.1:$((5900 + VNC))"; else say "not running"; fi; exit 0
+  if pid=$(running_pid); then say "running (pid $pid), VNC 127.0.0.1:$((5900 + VNC))"; else say "not running"; fi
+  if command -v pgrep >/dev/null; then
+    for p in $(pgrep -f "qemu-system-aarch64" 2>/dev/null); do [ -f "$PIDFILE" ] && [ "$p" = "$(cat "$PIDFILE")" ] && continue; say "other qemu-system-aarch64 running: pid $p (hagra --stop 으로 정리 가능)"; done
+  fi
+  exit 0
 fi
 if [ "$ACTION" = stop ]; then
+  # 이전 버전(minos) pid 파일과 하그라 디렉터리에서 띄운 떠돌이 qemu-system-aarch64 도 함께 정리
+  if [ -f "$TMP/minos-qemu.pid" ] && kill -0 "$(cat "$TMP/minos-qemu.pid")" 2>/dev/null; then kill "$(cat "$TMP/minos-qemu.pid")" 2>/dev/null; say "stopped legacy minos QEMU"; fi
+  rm -f "$TMP/minos-qemu.pid"
+  if command -v pgrep >/dev/null; then
+    for p in $(pgrep -f "qemu-system-aarch64.*(hagra|minos)-arm64" 2>/dev/null); do
+      [ -f "$PIDFILE" ] && [ "$p" = "$(cat "$PIDFILE")" ] && continue
+      kill "$p" 2>/dev/null && say "stopped stray QEMU (pid $p)"
+    done
+  fi
   if pid=$(running_pid); then
     say "sending ACPI/PSCI power-down to guest (pid $pid)…"
     if command -v socat >/dev/null && [ -n "$MONITOR" ] && [ -S "$MONITOR" ]; then echo system_powerdown | socat - "UNIX-CONNECT:$MONITOR" >/dev/null 2>&1 || true; fi
@@ -87,6 +100,23 @@ fi
 
 # ---- 3. 메모리/공간 확인 ----
 if pid=$(running_pid); then die "이미 실행 중입니다 (pid $pid). --stop 으로 종료하십시오."; fi
+# 이전 설치(minos-arm64, 이름 정리 전)가 남긴 QEMU 는 pid 파일 이름이 달라 위에서 잡히지 않는다 → 종료한다
+LEGACY_PIDFILE=$TMP/minos-qemu.pid
+if [ -f "$LEGACY_PIDFILE" ] && kill -0 "$(cat "$LEGACY_PIDFILE")" 2>/dev/null; then
+  say "이전 버전(minos) QEMU 가 아직 실행 중입니다 (pid $(cat "$LEGACY_PIDFILE")) — 종료합니다"
+  kill "$(cat "$LEGACY_PIDFILE")" 2>/dev/null; for i in $(seq 1 10); do kill -0 "$(cat "$LEGACY_PIDFILE")" 2>/dev/null || break; sleep 1; done
+  rm -f "$LEGACY_PIDFILE"
+fi
+# VNC 포트가 다른 프로그램(또는 떠돌이 QEMU)에 잡혀 있으면 다음 빈 디스플레이를 고른다 ("Address already in use" 방지)
+port_busy() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
+if port_busy $((5900 + VNC)); then
+  WANTED=$VNC
+  for d in $(seq $((VNC + 1)) $((VNC + 10))); do port_busy $((5900 + d)) || { VNC=$d; break; }; done
+  if [ "$VNC" = "$WANTED" ]; then
+    die "VNC 포트 $((5900 + WANTED))~$((5910 + WANTED)) 가 모두 사용 중입니다. 'hagra --stop' 또는 다른 VNC/QEMU 프로그램을 종료하십시오."
+  fi
+  say "VNC 포트 $((5900 + WANTED)) 가 사용 중이라 :$VNC (127.0.0.1:$((5900 + VNC))) 를 씁니다. 떠돌이 QEMU 가 있으면 'hagra --stop' 으로 정리할 수 있습니다."
+fi
 AVAIL_MB=$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || true); AVAIL_MB=${AVAIL_MB:-0}
 NEED_MB=$(( MEM + 384 ))
 if [ "$AVAIL_MB" -gt 0 ] && [ "$AVAIL_MB" -lt "$NEED_MB" ]; then

@@ -105,6 +105,11 @@ bash start-hagra.sh --stop               # 게스트에 전원 끄기 신호 →
 스크립트는 QEMU 설치·이미지·메모리·공간을 확인한 뒤 QEMU 를 실행하고, VNC 주소와 로그 경로를 출력한다.
 시리얼 콘솔 로그는 `logs/serial-<시각>.log` 에 저장된다(개발 이미지는 root 자동 로그인 셸이 열려 있어 디버깅에 쓸 수 있다: `--serial`).
 
+### 6.1 "Failed to find an available port: Address already in use"
+
+VNC 포트 5900 을 다른 프로그램이 쓰고 있을 때 QEMU 가 바로 종료된다. 흔한 원인은 이전 설치(`~/minos-arm64`, 이름 정리 전)에서 띄운 QEMU 가 아직 떠 있는 것이다.
+`start-hagra.sh` 는 이제 이전 버전 QEMU 를 알아서 종료하고, 그래도 포트가 막혀 있으면 다음 빈 디스플레이(:1 → 127.0.0.1:5901 …)를 골라 출력에 알려 준다. 직접 정리하려면 `hagra --stop` (떠돌이 qemu-system-aarch64 포함) 또는 `pkill qemu-system-aarch64`.
+
 ## 7. VNC 연결과 조작
 
 1. VNC 클라이언트에서 새 연결: 주소 `127.0.0.1`, 포트 `5900` (비밀번호 없음 — 127.0.0.1 에만 바인딩되어 외부에서 접근 불가).
