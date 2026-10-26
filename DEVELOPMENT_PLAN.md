@@ -149,7 +149,7 @@
 - 부팅 회귀 x86-64 (2026-10-26): hook 30,40,90 재실행 → ISO → 1차 `boot_test.py` PASS(세션 변경 회귀 없음). 테마 단계 포함 2차: 적용·저장·깊은 패널 검사 통과, **재부팅 후에는 기본 테마** — live ISO 는 홈 디렉터리가 휘발성 overlay 라 어떤 설정도 남지 않는다(설치 전 매체의 성질, 테마 시스템 결함 아님). 테스트는 live(overlay) 를 감지해 그 경우 기본 테마 복귀를 기대한다. 3차 실행 **PASS** (두 팩 목록 → 깊은 단청 적용·저장 → 깊은 패널 검사 → 재부팅 → live 라 기본 테마 → 종료; `docs/screenshots/h2/boot-x86-theme-deep.png`). 그 사이 1회는 호스트 qemu-system-x86_64 가 GRUB 단계에서 segfault(호스트 TCG 문제, 이미지 결함 아님)해 재실행했다.
 - Galaxy S25 Ultra 실기기: 수행하지 않음.
 
-## N1 — 이름 정리: 모든 식별자·경로를 하그라로  ◐  (2026-10-26)
+## N1 — 이름 정리: 모든 식별자·경로를 하그라로  ☑  (2026-10-26)
 
 사용자 요청으로 OS 이름·바이너리·경로·환경 변수·QML 모듈·계정·호스트명·산출물 이름에서 MIN OS 잔재를 제거했다 (대응표: README "이름 정리"). 저장소 이름만 유지.
 
@@ -157,14 +157,14 @@
 |---|---|
 | 소스·스크립트·CI·문서 일괄 변경 (122 파일, 디렉터리 이동 10건), 토큰 생성물 재생성 | ☑ |
 | 클린 빌드, ctest 3/3, 헤드리스 셸 테스트(테마 왕복 포함) PASS, 연한·깊은 단청 장면 캡처 | ☑ 연한 단청 캡처는 H2 와 동일(설정 창 슬라이더 모형만 H2 에서 바뀜) |
-| 전체 이미지 재빌드(rootfs 포함: 계정 `hagra`, 호스트명 `hagra`) + 부팅 테스트 x86-64·ARM64 | ◐ 아래 "N1 검증 기록" |
-| GitHub 릴리스 자산 이름 변경(`hagra-android-arm64.tar.zst`) — 푸시 후 CI 가 새로 만든다. `android/setup.sh` 는 새 이름을 받는다 | ☐ (푸시 대기) |
+| 전체 이미지 재빌드(rootfs 포함: 계정 `hagra`, 호스트명 `hagra`) + 부팅 테스트 x86-64·ARM64 | ☑ 모두 PASS (아래 "N1 검증 기록") |
+| GitHub 릴리스 자산 이름 변경(`hagra-android-arm64.tar.zst`) — CI run 4 가 게시, 실기기 설치 확인 | ☑ |
 
 ### N1 검증 기록
 
 - 2026-10-26 x86-64: rootfs 부터 전체 재빌드(계정 `hagra`, 호스트명 `hagra`) → ISO → `boot_test.py` **PASS** (셸까지 203 s; 호스트가 CI 와 동시 작업으로 느림). `/etc/hagra-release` `HAGRA_NAME`, `hagra-shell`, 테마 팩 2개, 깊은 단청 적용·저장·패널 검사, live 매체 특성대로 재부팅 후 기본 테마. 터미널 프롬프트 `hagra@hagra` (`docs/screenshots/h2/boot-x86-hagra-terminal.png`).
 - 2026-10-26 GitHub Actions run 4 (push 03e3a36): ARM64 이미지 빌드·부팅 테스트 성공, `android-latest` 릴리스에 `hagra-android-arm64.tar.zst` 게시. 사용자 실기기(Galaxy S25 Ultra, Termux)에서 다운로드·체크섬·설치·`hagra` 명령 설치까지 확인됨; 첫 실행은 VNC 포트 5900 점유(이전 minos QEMU)로 QEMU 가 종료 → 런처가 이전 QEMU 를 정리하고 빈 포트를 고르도록 수정.
-- ARM64 로컬 전체 재빌드·부팅 테스트: (아래 갱신)
+- 2026-10-26 ARM64 로컬: rootfs 부터 전체 재빌드(qemu-user, 45분) → 번들 → `boot_test.py out/hagra-arm64` **PASS**: `/etc/hagra-release`, `hagra-shell`, 깊은 단청 적용·저장 → 재부팅 후 복원 → 기본 복귀. 이름 정리로 인한 회귀 없음.
 
 ## M2 — 하그라 셸 완성  ☐
 
