@@ -48,13 +48,13 @@ LayerWindow {
         var l = currentList()
         var n = l.count
         if (n <= 0) return
-        var i = l.currentIndex
-        for (var step = 0; step < n; ++step) {
-            i = Math.max(0, Math.min(n - 1, i + delta))
-            if (l === appList || !l.model[i].header) break
-            if (i === 0 || i === n - 1) { if (delta < 0 && l.model[i].header) { i = l.currentIndex; break } }
+        var target = Math.max(0, Math.min(n - 1, l.currentIndex + delta))
+        if (l !== appList) {   // 머리글(선택 불가)을 진행 방향으로 건너뛴다; 그쪽에 항목이 없으면 그대로 둔다
+            var dir = delta < 0 ? -1 : 1
+            while (target >= 0 && target < n && l.model[target].header) target += dir
+            if (target < 0 || target >= n) return
         }
-        l.currentIndex = i
+        l.currentIndex = target
     }
     function setTab(i) { tab = Math.max(0, Math.min(2, i)); if (!searching) { search.text = "" } }
     // 즐겨찾기 탭 모델: [머리글 즐겨찾기, 항목…, 머리글 최근 실행, 항목…] — 항목은 Apps.entry 로 이름·아이콘을 가져온다
@@ -269,7 +269,7 @@ LayerWindow {
                 }
                 MLabel {
                     anchors.centerIn: parent; muted: true; font.pixelSize: Theme.fontSizeSmall
-                    text: launcher.searching ? Apps.count + " / " + Apps.totalCount + qsTr("개") : (launcher.tab === 0 ? qsTr("앱 ") + Apps.totalCount + qsTr("개") : "")
+                    text: launcher.searching ? qsTr("%1 / %2개").arg(Apps.count).arg(Apps.totalCount) : (launcher.tab === 0 ? qsTr("앱 %1개").arg(Apps.totalCount) : "")
                     Accessible.ignored: true
                 }
                 MButton {

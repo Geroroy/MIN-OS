@@ -266,13 +266,13 @@
     </message>
     <message>
         <location filename="../qml/Launcher.qml" line="272" />
-        <source>개</source>
-        <translation />
+        <source>%1 / %2개</source>
+        <translation>%1 / %2</translation>
     </message>
     <message>
         <location filename="../qml/Launcher.qml" line="272" />
-        <source>앱 </source>
-        <translation>Apps: </translation>
+        <source>앱 %1개</source>
+        <translation>Apps: %1</translation>
     </message>
     <message>
         <location filename="../qml/Launcher.qml" line="280" />
@@ -409,16 +409,6 @@
     </message>
     <message>
         <location filename="../qml/Panel.qml" line="137" />
-        <source>새 알림 </source>
-        <translation>New notifications: </translation>
-    </message>
-    <message>
-        <location filename="../qml/Panel.qml" line="137" />
-        <source>개</source>
-        <translation />
-    </message>
-    <message>
-        <location filename="../qml/Panel.qml" line="137" />
         <source>알림</source>
         <translation>Notifications</translation>
     </message>
@@ -426,6 +416,11 @@
         <location filename="../qml/Panel.qml" line="137" />
         <source> · 방해 금지</source>
         <translation> · do not disturb</translation>
+    </message>
+    <message>
+        <location filename="../qml/Panel.qml" line="137" />
+        <source>새 알림 %1개</source>
+        <translation>New notifications: %1</translation>
     </message>
     <message>
         <location filename="../qml/Panel.qml" line="158" />

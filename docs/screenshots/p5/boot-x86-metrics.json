@@ -1,0 +1,19 @@
+{
+  "target": "out/hagra-dev-ubuntu-noble-amd64.iso",
+  "res": "1280x720",
+  "uefi": false,
+  "boot_to_shell_s": 130.8,
+  "boot_to_shell_process_s": 142.6,
+  "mem_total_mb": 1961,
+  "mem_used_mb": 301,
+  "top_rss": [
+    "74024 hagra-shell",
+    "58912 Xwayland",
+    "37504 labwc",
+    "21552 fcitx5",
+    "18304 NetworkManager"
+  ],
+  "idle_top_cpu_line": "%Cpu(s): 11.6 us, 16.3 sy,  0.0 ni, 72.1 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st",
+  "theme_persist": "n/a (live overlay)",
+  "result": "PASS"
+}

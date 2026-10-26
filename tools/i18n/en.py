@@ -22,7 +22,7 @@ EN = {
 "설정": "Settings", "모든 설정 (hagra-settings)": "All settings (hagra-settings)", "모양과 테마": "Appearance & Themes", "테마 · 포인트 색 · 글자 크기 · 커서": "Themes · accent color · text size · cursor",
 "배경 바꾸기": "Change Wallpaper", "바탕 화면 배경 이미지": "Desktop background image", "디스플레이 설정": "Display Settings", "해상도 · 배율 · 화면 배치": "Resolution · scale · arrangement",
 "터미널": "Terminal", "시스템 정보": "System Information", "하그라 버전 · 하드웨어 · 로그": "HAGRA version · hardware · logs", "전원": "Power", "종료 · 다시 시작 · 로그아웃": "Shut down · restart · log out",
-"설정 열기": "Open Settings", "설정 — 모양과 테마, 디스플레이, 소리, 입력, 정보": "Settings — appearance & themes, display, sound, input, about", "개": "", "앱 ": "Apps: ", "전원 메뉴": "Power menu",
+"설정 열기": "Open Settings", "설정 — 모양과 테마, 디스플레이, 소리, 입력, 정보": "Settings — appearance & themes, display, sound, input, about", "%1 / %2개": "%1 / %2", "앱 %1개": "Apps: %1", "새 알림 %1개": "New notifications: %1", "전원 메뉴": "Power menu",
 "실행": "Launch", "즐겨찾기에서 제거": "Remove from favorites", "즐겨찾기에 추가": "Add to favorites", "실행 메뉴 (": "Launcher (",
 "yyyy년 M월 d일 (ddd) AP h:mm:ss": "ddd, MMM d yyyy h:mm:ss AP", "M월 d일 (ddd) AP h:mm": "ddd, MMM d h:mm AP",
 "시스템 종료": "Shut down", "다시 시작": "Restart", "로그아웃": "Log out", "취소": "Cancel", "창 닫기": "Close window",
@@ -141,6 +141,8 @@ def fill(ts):
         t = m.find("translation")
         if t is None:
             t = ET.SubElement(m, "translation")
+        if t.get("type") == "vanished":
+            continue   # 원문에서 사라진 항목 (lupdate 보존) — 세지 않는다
         if src in EN:
             t.text = EN[src]
             if "type" in t.attrib: del t.attrib["type"]

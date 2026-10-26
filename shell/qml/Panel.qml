@@ -134,7 +134,7 @@ LayerWindow {
                 height: Theme.controlHeight; anchors.verticalCenter: parent.verticalCenter
                 onClicked: panel.notificationsRequested()
                 Accessible.name: qsTr("알림 ") + Notifications.unread
-                MToolTip { text: (Notifications.unread > 0 ? qsTr("새 알림 ") + Notifications.unread + qsTr("개") : qsTr("알림")) + (Notifications.doNotDisturb ? qsTr(" · 방해 금지") : "") + " — Super+N" }
+                MToolTip { text: (Notifications.unread > 0 ? qsTr("새 알림 %1개").arg(Notifications.unread) : qsTr("알림")) + (Notifications.doNotDisturb ? qsTr(" · 방해 금지") : "") + " — Super+N" }
                 Rectangle { // 읽지 않은 수 배지
                     visible: Notifications.unread > 0
                     anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 2

@@ -176,7 +176,7 @@
 | P2 | 밤 단청(어두운) 테마 · accents · 대비 검사 203 · 접근성 역할 · MSlider · 아이콘 29종 · 영어 UI(ts 98+334) · 토큰·아이콘 문서 | ☑ (`docs/screenshots/p2/`, `docs/DESIGN_TOKENS.md`, `docs/ICONS.md`) |
 | P3 | 표시기(네트워크·소리·배터리·알림) · 알림 서버 · 달력 · 창 메뉴 · 패널 위치 · 출력별 패널 · 작업 공간 4 · 스냅 | ☑ 헤드리스: 알림 서버·2출력 단계 PASS (`docs/screenshots/p3/`) |
 | P4 | 셸 감시 루프 · 종료 순서 · fcitx5 통합(패키지·환경·자동 시작) · 저장 설정 복원(--apply) · 유휴 측정(CPU 0.03 %, RSS 68 MiB) · debian/ 패키징 | ☑ 호스트 / ☐ 이미지 안 fcitx5 실제 조합 미검증 |
-| P5 | QA 실행기(`tests/qa/run-all.sh`) · 사용자 안내·설치·알려진 문제·점검표 · 릴리스 준비 보고 `docs/RELEASE_READINESS.md` · 이미지 빌드·부팅 테스트 | ◐ 보고서 참조 |
+| P5 | QA 실행기(`tests/qa/run-all.sh`, 12 자동 검사 PASS) · 사용자 안내·설치·알려진 문제·점검표 · 릴리스 준비 보고 `docs/RELEASE_READINESS.md` · x86-64 ISO 빌드(477 MB)·QEMU 부팅 테스트 PASS · .deb PASS | ☑ 실기기·한글 조합·trixie 프로필은 NOT TESTED (보고서 §2) |
 
 ## M2 — 하그라 셸 완성  ☐
 

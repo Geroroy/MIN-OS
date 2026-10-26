@@ -15,7 +15,7 @@ sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/; s/^# *ko_KR.UTF-8 UTF-8/ko_K
 grep -q '^en_US.UTF-8' /etc/locale.gen || echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
 grep -q '^ko_KR.UTF-8' /etc/locale.gen || echo 'ko_KR.UTF-8 UTF-8' >> /etc/locale.gen
 locale-gen >/dev/null
-echo 'LANG=en_US.UTF-8' > /etc/default/locale
+echo 'LANG=ko_KR.UTF-8' > /etc/default/locale   # 하그라 기본 UI 언어는 한국어; 설정 → 언어와 지역에서 바꾼다
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 echo UTC > /etc/timezone
 
