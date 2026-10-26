@@ -4,11 +4,13 @@
 
 #include <QAbstractListModel>
 #include <QStringList>
+#include <QVariantMap>
 #include <optional>
 
 struct AppEntry {
     QString id;        // 예: org.codeberg.dnkl.foot (파일명에서 .desktop 제거)
     QString name;
+    QString nameUnlocalized;   // Name= (번역 전) — 영문 검색용
     QString genericName;
     QString comment;
     QString icon;
@@ -47,6 +49,12 @@ public:
     /// 임의 명령 실행 (예: 터미널). inTerminal=true 이면 터미널 안에서 실행.
     Q_INVOKABLE bool launchCommand(const QString &command, bool inTerminal = false);
     Q_INVOKABLE QString terminalProgram() const;
+    /// ID 로 항목 조회 (즐겨찾기·최근 목록용). 없으면 빈 맵. 키: appId, name, comment, icon, terminal
+    Q_INVOKABLE QVariantMap entry(const QString &id) const;
+    Q_INVOKABLE bool hasApp(const QString &id) const;
+    /// 범주(Categories=)에 해당하는 첫 앱 ID (예: "FileManager"). 없으면 빈 문자열.
+    Q_INVOKABLE QString firstInCategory(const QString &category) const;
+    QStringList allIds() const;
 
     // 테스트 가능한 순수 함수들
     static std::optional<AppEntry> parseDesktopFile(const QString &filePath, const QStringList &localeKeys);
@@ -55,6 +63,9 @@ public:
     static QStringList applicationDirs();            // XDG 규칙에 따른 applications/ 디렉터리 목록
     static QList<AppEntry> scan(const QStringList &dirs, const QString &currentDesktop);
     static bool matchesFilter(const AppEntry &entry, const QString &needle, int *score);
+    /// 한글 초성 검색: needle 이 자음(ㄱ-ㅎ)만으로 이루어졌을 때 text 의 음절 초성 열과 앞부분/부분 일치. 반환 0 = 불일치, 1 = 부분, 2 = 접두.
+    static int chosungMatch(const QString &text, const QString &needle);
+    static bool isChosungOnly(const QString &needle);
 
 Q_SIGNALS:
     void filterChanged();

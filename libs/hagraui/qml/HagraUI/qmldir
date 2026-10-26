@@ -24,3 +24,4 @@ MWindowFrameMock 1.0 MWindowFrameMock.qml
 MOrnamentBand 1.0 MOrnamentBand.qml
 MOrnamentFrame 1.0 MOrnamentFrame.qml
 MOrnamentDivider 1.0 MOrnamentDivider.qml
+MSlider 1.0 MSlider.qml

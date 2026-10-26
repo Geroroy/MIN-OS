@@ -19,3 +19,8 @@ dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 
 # 하그라 셸 (로그: $XDG_RUNTIME_DIR/hagra-shell.log)
 [ "${HAGRA_SHELL:-hagra-shell}" = none ] || "${HAGRA_SHELL:-hagra-shell}" >"${XDG_RUNTIME_DIR:-/tmp}/hagra-shell.log" 2>&1 &
+
+# 저장된 디스플레이(해상도·배율)·입력 설정 적용 (hagra-settings 가 저장; labwc 는 출력 설정을 기억하지 않는다)
+if command -v hagra-settings >/dev/null 2>&1 && [ "${HAGRA_SHELL:-hagra-shell}" != none ]; then
+  (sleep 2; hagra-settings --apply >>"${XDG_RUNTIME_DIR:-/tmp}/hagra-settings-apply.log" 2>&1) &
+fi

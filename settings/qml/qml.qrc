@@ -1,0 +1,23 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/qml">
+    <file>Main.qml</file>
+    <file>SPage.qml</file>
+    <file>SSection.qml</file>
+    <file>SRow.qml</file>
+    <file>SNote.qml</file>
+    <file>SChoice.qml</file>
+    <file>ThemeCard.qml</file>
+    <file>pages/AppearancePage.qml</file>
+    <file>pages/WallpaperPage.qml</file>
+    <file>pages/DisplayPage.qml</file>
+    <file>pages/SoundPage.qml</file>
+    <file>pages/InputPage.qml</file>
+    <file>pages/LocalePage.qml</file>
+    <file>pages/NetworkPage.qml</file>
+    <file>pages/NotificationsPage.qml</file>
+    <file>pages/PowerPage.qml</file>
+    <file>pages/AccessibilityPage.qml</file>
+    <file>pages/AboutPage.qml</file>
+  </qresource>
+</RCC>

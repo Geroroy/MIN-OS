@@ -78,7 +78,9 @@ void ShellIpc::dispatch(const QString &command)
     else if (command == QLatin1String("show-launcher")) emit showLauncher();
     else if (command == QLatin1String("hide-launcher")) emit hideLauncher();
     else if (command == QLatin1String("power")) emit togglePowerMenu();
-    else if (command == QLatin1String("appearance")) emit showAppearance();
+    else if (command == QLatin1String("appearance")) emit openSettings(QStringLiteral("appearance"));
+    else if (command == QLatin1String("settings")) emit openSettings(QString());
+    else if (command.startsWith(QLatin1String("settings:"))) emit openSettings(command.mid(9));
     else if (command == QLatin1String("quit")) emit quitRequested();
     else if (command == QLatin1String("terminal")) emit launchTerminal();
     else emit unknownCommand(command);

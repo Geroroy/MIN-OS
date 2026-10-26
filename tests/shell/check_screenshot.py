@@ -2,7 +2,7 @@
 """하그라 셸 스크린샷 픽셀 검사. 사용: check_screenshot.py <png> <panel|launcher|power|foot>
 
 기준 색·치수는 design/tokens/hagra.tokens.json (단일 원본) 에서 읽는다. 토큰이 바뀌면 검사 기준도 함께 바뀐다.
-배치 기준: shell/qml/Panel.qml (띠 8 + 경계 1 + 콘텐츠), Launcher.qml (360×440), PowerMenu.qml (240 너비).
+배치 기준: shell/qml/Panel.qml (띠 8 + 경계 1 + 콘텐츠), Launcher.qml (440×560), PowerMenu.qml (240 너비).
 """
 import json
 import os
@@ -46,7 +46,7 @@ def load_tokens(path):
 
 
 load_tokens(_tok_path)
-LAUNCHER_W, LAUNCHER_H = 360, 440
+LAUNCHER_W, LAUNCHER_H = 440, 560
 POWER_W = 240
 
 

@@ -86,6 +86,24 @@ private slots:
         QVERIFY(AppIndex::matchesFilter(e, "foo", &s)); QCOMPARE(s, 40);
         QVERIFY(!AppIndex::matchesFilter(e, "zzz", &s));
     }
+
+    void searchUnlocalizedNameAndChosung()
+    {
+        AppEntry e; e.name = QString::fromUtf8("터미널"); e.nameUnlocalized = "Terminal"; e.exec = "foot";
+        int s = 0;
+        QVERIFY(AppIndex::matchesFilter(e, "term", &s)); QCOMPARE(s, 95);      // 한국어 UI 에서 영문 이름으로도 찾는다
+        QVERIFY(AppIndex::matchesFilter(e, "rmin", &s)); QCOMPARE(s, 75);
+        QVERIFY(AppIndex::matchesFilter(e, QString::fromUtf8("ㅌㅁ"), &s)); QCOMPARE(s, 90);   // 초성 접두
+        QVERIFY(AppIndex::matchesFilter(e, QString::fromUtf8("ㅁㄴ"), &s)); QCOMPARE(s, 70);   // 초성 부분
+        QVERIFY(!AppIndex::matchesFilter(e, QString::fromUtf8("ㅎㄱ"), &s));
+        AppEntry two; two.name = QString::fromUtf8("하그라 설정"); two.exec = "hagra-settings";
+        QVERIFY(AppIndex::matchesFilter(two, QString::fromUtf8("ㅅㅈ"), &s)); QCOMPARE(s, 90);  // 단어 시작 일치
+        QVERIFY(AppIndex::matchesFilter(two, QString::fromUtf8("ㅎㄱㄹ"), &s)); QCOMPARE(s, 90);
+        QCOMPARE(AppIndex::chosungMatch(QString::fromUtf8("파일"), QString::fromUtf8("파")), 0);  // 완성 음절은 초성 검색이 아니다
+        QVERIFY(AppIndex::isChosungOnly(QString::fromUtf8("ㄱㄴ")));
+        QVERIFY(!AppIndex::isChosungOnly(QString::fromUtf8("ㄱa")));
+        QVERIFY(!AppIndex::isChosungOnly(""));
+    }
 };
 
 QTEST_GUILESS_MAIN(TestAppIndex)

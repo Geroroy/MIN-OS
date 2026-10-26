@@ -137,7 +137,7 @@ QtObject {
     property string iconBasePath: ""
     function iconSource(name) { return iconBasePath.length ? iconBasePath + "/" + name + ".svg" : "" }
     // 분백 잉크 변형(<name>-light.svg)이 있는 조작 아이콘 (생성 시 모듈 assets/ 를 스캔). MIcon { light: true } 가 이 목록에 있을 때만 변형을 찾는다.
-    readonly property var lightIcons: ["apps", "back", "check", "close", "download", "drive", "error", "file", "folder", "forward", "home", "image", "power", "search", "terminal", "trash", "up", "usb", "view-grid", "view-list", "window"]
+    readonly property var lightIcons: ["accessibility", "apps", "back", "battery", "battery-charging", "bell", "bell-off", "calendar", "check", "clock", "close", "cursor", "display", "download", "drive", "error", "ethernet", "file", "folder", "forward", "globe", "home", "image", "info", "keyboard", "language", "lock", "menu", "moon", "mouse", "network", "network-off", "palette", "power", "refresh", "reset", "search", "speaker", "speaker-muted", "star", "sun", "terminal", "text-size", "trash", "up", "usb", "view-grid", "view-list", "window", "workspace"]
     // 어두운 면 판정 (패널·사이드바 위의 글자·아이콘·포커스 링 선택용). c 는 color 값.
     function isDark(c) { return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) < 0.5 }
 }

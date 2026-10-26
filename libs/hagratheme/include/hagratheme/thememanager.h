@@ -30,6 +30,8 @@ struct ThemeInfo {
     QString preview;
     QString labwcThemerc;
     QString wallpaperFill;   // swaybg -c (배경 이미지 바깥 색)
+    QString appearance;      // "light" | "dark" — 본문(surface) 밝기. 설정 앱의 밝게/어둡게 전환에 쓴다
+    QVariantList accents;    // 포인트 색 변형 [{id, name, accent, accentText, focusRing, borderStrong?}] (테마 팩이 정의, 대비 검증 완료)
     bool isDefault = false;
     bool valid() const { return !id.isEmpty() && !tokensPath.isEmpty(); }
 };
@@ -46,6 +48,13 @@ class ThemeManager : public QObject
     Q_PROPERTY(QString userWallpaper READ userWallpaper WRITE setUserWallpaper NOTIFY wallpaperChanged)
     Q_PROPERTY(QString effectiveWallpaper READ effectiveWallpaper NOTIFY wallpaperChanged)
     Q_PROPERTY(bool sessionReloadSupported READ sessionReloadSupported CONSTANT)
+    Q_PROPERTY(QString accentId READ accentId WRITE setAccentId NOTIFY changed)
+    Q_PROPERTY(QVariantList accents READ accentsForQml NOTIFY changed)
+    Q_PROPERTY(QString appearance READ appearance NOTIFY changed)
+    Q_PROPERTY(double textScale READ textScale NOTIFY changed)
+    Q_PROPERTY(bool thickFocus READ thickFocus NOTIFY changed)
+    Q_PROPERTY(QString configFilePath READ configFilePath CONSTANT)
+    Q_PROPERTY(QString accessibilityConfigPath READ accessibilityConfigPath CONSTANT)
 public:
     explicit ThemeManager(QObject *parent = nullptr);
     ~ThemeManager() override;
@@ -54,6 +63,7 @@ public:
     static QStringList searchDirs();
     static QString configFilePath();             // ~/.config/hagra/theme.conf
     static QString stateDir();                   // ~/.local/state/hagra/theme
+    static QString accessibilityConfigPath();    // ~/.config/hagra/accessibility.conf  ([text] scale=)
 
     void rescan();
     QVector<ThemeInfo> themes() const { return m_themes; }
@@ -74,6 +84,17 @@ public:
     /// 저장된 선택으로 관리 상태 파일(themerc-override, wallpaper)을 다시 쓴다. 세션 시작 시 호출.
     Q_INVOKABLE bool syncState();
     Q_INVOKABLE void reloadFromSettings();
+    /// 포인트 색 변형 (테마 팩의 accents 중 하나; "" = 테마 기본). 저장되고 즉시 적용된다.
+    QString accentId() const { return m_accentId; }
+    void setAccentId(const QString &id);
+    QVariantList accentsForQml() const;
+    QString appearance() const { return current().appearance.isEmpty() ? QStringLiteral("light") : current().appearance; }
+    /// 접근성 글자 배율 (accessibility.conf [text] scale, 1.0~1.6). tokens() 의 글꼴 크기에 곱해진다.
+    double textScale() const { return m_textScale; }
+    /// 접근성: 굵은 포커스 링·선택 막대 (accessibility.conf [focus] thick)
+    bool thickFocus() const { return m_thickFocus; }
+    /// 같은 밝기 계열의 다른 테마 ID (밝게/어둡게 전환용). 없으면 빈 문자열.
+    Q_INVOKABLE QString themeWithAppearance(const QString &appearance) const;
 
     bool useThemeWallpaper() const { return m_useThemeWallpaper; }
     void setUseThemeWallpaper(bool v);
@@ -105,6 +126,9 @@ private:
     QVector<ThemeInfo> m_themes;
     QString m_currentId;
     QString m_userWallpaper;
+    QString m_accentId;
+    double m_textScale = 1.0;
+    bool m_thickFocus = false;
     bool m_useThemeWallpaper = true;
     bool m_envOverride = false;
     QFileSystemWatcher *m_watcher = nullptr;

@@ -75,6 +75,11 @@ QString ThemeManager::configFilePath()
     return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QStringLiteral("/hagra/theme.conf");
 }
 
+QString ThemeManager::accessibilityConfigPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QStringLiteral("/hagra/accessibility.conf");
+}
+
 QString ThemeManager::stateDir()
 {
     QString base = qEnvironmentVariable("XDG_STATE_HOME");
@@ -110,6 +115,10 @@ ThemeInfo ThemeManager::readPack(const QString &dir)
     t.preview = rel(QStringLiteral("preview"), QStringLiteral("preview.png"));
     t.labwcThemerc = rel(QStringLiteral("labwcThemerc"), QStringLiteral("labwc/themerc"));
     t.wallpaperFill = o.value(QStringLiteral("wallpaperFill")).toString(QStringLiteral("#000000"));
+    t.appearance = o.value(QStringLiteral("appearance")).toString(QStringLiteral("light"));
+    for (const QJsonValue &a : o.value(QStringLiteral("accents")).toArray())
+        if (a.isObject() && !a.toObject().value(QStringLiteral("id")).toString().isEmpty())
+            t.accents << a.toObject().toVariantMap();
     t.isDefault = o.value(QStringLiteral("default")).toBool(false);
     if (t.id.isEmpty() || !QFileInfo::exists(t.tokensPath)) {
         qCWarning(lcTheme) << "theme pack" << dir << "lacks id or tokens.json — skipped";
@@ -175,6 +184,8 @@ QVariantList ThemeManager::themesForQml() const
         m[QStringLiteral("preview")] = QFileInfo::exists(t.preview) ? QUrl::fromLocalFile(t.preview).toString() : QString();
         m[QStringLiteral("isDefault")] = t.id == defaultId();
         m[QStringLiteral("current")] = t.id == m_currentId;
+        m[QStringLiteral("appearance")] = t.appearance.isEmpty() ? QStringLiteral("light") : t.appearance;
+        m[QStringLiteral("accentCount")] = t.accents.size();
         list << m;
     }
     return list;
@@ -203,17 +214,35 @@ QVariantMap ThemeManager::tokensFor(const ThemeInfo &t) const
         return out;
     out[QStringLiteral("themeId")] = t.id;
     out[QStringLiteral("displayName")] = t.displayName;
-    out[QStringLiteral("color")] = jsonGroup(root, QStringLiteral("color"));
+    QVariantMap color = jsonGroup(root, QStringLiteral("color"));
+    if (!m_accentId.isEmpty()) {   // 포인트 색 변형: 테마 팩이 정의한 키만 덮는다
+        for (const QVariant &a : t.accents) {
+            const QVariantMap am = a.toMap();
+            if (am.value(QStringLiteral("id")).toString() != m_accentId) continue;
+            for (auto it = am.begin(); it != am.end(); ++it)
+                if (it.key() != QLatin1String("id") && it.key() != QLatin1String("name") && color.contains(it.key()))
+                    color[it.key()] = it.value();
+            out[QStringLiteral("accentId")] = m_accentId;
+            break;
+        }
+    }
+    out[QStringLiteral("color")] = color;
     out[QStringLiteral("window")] = jsonGroup(root, QStringLiteral("window"));
-    out[QStringLiteral("size")] = jsonGroup(root, QStringLiteral("size"));
+    QVariantMap size = jsonGroup(root, QStringLiteral("size"));
+    if (m_thickFocus) {
+        size[QStringLiteral("focusRingWidth")] = size.value(QStringLiteral("focusRingWidth"), 2).toInt() + 1;
+        size[QStringLiteral("selectionMarkerWidth")] = size.value(QStringLiteral("selectionMarkerWidth"), 3).toInt() + 1;
+    }
+    out[QStringLiteral("size")] = size;
     QVariantMap font;
     const QJsonObject fo = root.value(QStringLiteral("font")).toObject();
     font[QStringLiteral("family")] = fo.value(QStringLiteral("family")).toString();
     font[QStringLiteral("familyKo")] = fo.value(QStringLiteral("familyKo")).toString();
     font[QStringLiteral("monoFamily")] = fo.value(QStringLiteral("monoFamily")).toString();
-    font[QStringLiteral("size")] = fo.value(QStringLiteral("size")).toInt();
-    font[QStringLiteral("sizeSmall")] = fo.value(QStringLiteral("sizeSmall")).toInt();
-    font[QStringLiteral("sizeTitle")] = fo.value(QStringLiteral("sizeTitle")).toInt();
+    font[QStringLiteral("size")] = qRound(fo.value(QStringLiteral("size")).toInt() * m_textScale);
+    font[QStringLiteral("sizeSmall")] = qRound(fo.value(QStringLiteral("sizeSmall")).toInt() * m_textScale);
+    font[QStringLiteral("sizeTitle")] = qRound(fo.value(QStringLiteral("sizeTitle")).toInt() * m_textScale);
+    font[QStringLiteral("scale")] = m_textScale;
     font[QStringLiteral("lineHeight")] = fo.value(QStringLiteral("lineHeight")).toDouble();
     out[QStringLiteral("font")] = font;
     QVariantMap assets;
@@ -248,6 +277,11 @@ bool ThemeManager::apply(const QString &id, bool persist)
         qCWarning(lcTheme) << "theme" << t.id << "wallpaper missing:" << t.wallpaper << "(default theme wallpaper will be used)";
     m_currentId = t.id;
     m_envOverride = false;
+    if (!m_accentId.isEmpty()) {
+        bool known = false;
+        for (const QVariant &a : t.accents) if (a.toMap().value(QStringLiteral("id")).toString() == m_accentId) known = true;
+        if (!known) m_accentId.clear();   // 다른 테마의 포인트 색은 넘기지 않는다
+    }
     if (persist)
         saveSettings();
     writeState(t);
@@ -297,6 +331,10 @@ void ThemeManager::saveSettings()
     s.beginGroup(QStringLiteral("appearance"));
     s.setValue(QStringLiteral("theme"), m_currentId);
     s.setValue(QStringLiteral("useThemeWallpaper"), m_useThemeWallpaper);
+    if (m_accentId.isEmpty())
+        s.remove(QStringLiteral("accent"));
+    else
+        s.setValue(QStringLiteral("accent"), m_accentId);
     if (m_userWallpaper.isEmpty())
         s.remove(QStringLiteral("wallpaper"));
     else
@@ -314,7 +352,11 @@ void ThemeManager::loadSettings()
     m_currentId = saved.isEmpty() ? defaultId() : saved;
     m_useThemeWallpaper = s.value(QStringLiteral("useThemeWallpaper"), true).toBool();
     m_userWallpaper = s.value(QStringLiteral("wallpaper")).toString();
+    m_accentId = s.value(QStringLiteral("accent")).toString();
     s.endGroup();
+    QSettings a(accessibilityConfigPath(), QSettings::IniFormat);
+    m_textScale = qBound(1.0, a.value(QStringLiteral("text/scale"), 1.0).toDouble(), 1.6);
+    m_thickFocus = a.value(QStringLiteral("focus/thick"), false).toBool();
 }
 
 void ThemeManager::reloadFromSettings()
@@ -324,11 +366,14 @@ void ThemeManager::reloadFromSettings()
     const QString before = m_currentId;
     const bool wBefore = m_useThemeWallpaper;
     const QString uBefore = m_userWallpaper;
+    const QString aBefore = m_accentId;
+    const double sBefore = m_textScale;
+    const bool tBefore = m_thickFocus;
     loadSettings();
     if (!theme(m_currentId).valid())
         m_currentId = defaultId();
-    if (m_currentId != before) {
-        qCInfo(lcTheme) << "theme changed externally:" << before << "→" << m_currentId;
+    if (m_currentId != before || aBefore != m_accentId || !qFuzzyCompare(sBefore, m_textScale) || tBefore != m_thickFocus) {
+        qCInfo(lcTheme) << "theme changed externally:" << before << "→" << m_currentId << "accent" << m_accentId << "textScale" << m_textScale;
         emit changed();
     }
     if (m_currentId != before || wBefore != m_useThemeWallpaper || uBefore != m_userWallpaper)
@@ -352,8 +397,53 @@ void ThemeManager::watchSettings()
     QDir().mkpath(dir);   // 설정 파일이 아직 없어도 디렉터리를 감시할 수 있게 만든다 (다른 프로세스가 처음 쓰는 경우)
     if (QFileInfo::exists(file) && !m_watcher->files().contains(file))
         m_watcher->addPath(file);
+    const QString acc = accessibilityConfigPath();
+    if (QFileInfo::exists(acc) && !m_watcher->files().contains(acc))
+        m_watcher->addPath(acc);
     if (QFileInfo::exists(dir) && !m_watcher->directories().contains(dir))
         m_watcher->addPath(dir);
+}
+
+void ThemeManager::setAccentId(const QString &id)
+{
+    QString v = id;
+    if (!v.isEmpty()) {
+        bool known = false;
+        for (const QVariant &a : current().accents) if (a.toMap().value(QStringLiteral("id")).toString() == v) known = true;
+        if (!known) { qCWarning(lcTheme) << "unknown accent" << v << "for theme" << m_currentId << "— using theme default"; v.clear(); }
+    }
+    if (m_accentId == v)
+        return;
+    m_accentId = v;
+    saveSettings();
+    emit changed();
+}
+
+QVariantList ThemeManager::accentsForQml() const
+{
+    QVariantList l;
+    for (const QVariant &a : current().accents) {
+        QVariantMap m = a.toMap();
+        m[QStringLiteral("current")] = m.value(QStringLiteral("id")).toString() == m_accentId;
+        l << m;
+    }
+    return l;
+}
+
+QString ThemeManager::themeWithAppearance(const QString &appearance) const
+{
+    if (current().appearance == appearance || (appearance == QLatin1String("light") && current().appearance.isEmpty()))
+        return m_currentId;
+    // 같은 계열(ID 접두 공통)을 우선, 없으면 그 밝기의 첫 테마
+    const QString family = m_currentId.section(QLatin1Char('-'), 0, 1);
+    QString first;
+    for (const ThemeInfo &t : m_themes) {
+        const QString ap = t.appearance.isEmpty() ? QStringLiteral("light") : t.appearance;
+        if (ap != appearance) continue;
+        if (t.id.startsWith(family)) return t.id;
+        if (first.isEmpty()) first = t.id;
+    }
+    return first;
 }
 
 void ThemeManager::setUseThemeWallpaper(bool v)

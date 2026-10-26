@@ -22,7 +22,8 @@ Rectangle {
     property int hPad: Theme.paddingLarge
     signal clicked()
 
-    implicitWidth: row.implicitWidth + hPad * 2
+    readonly property real contentWidth: row.implicitWidth + hPad * 2
+    implicitWidth: contentWidth
     implicitHeight: Theme.controlHeight
     radius: Theme.radius
     readonly property color fg: onDark ? Theme.panelText : Theme.text

@@ -50,4 +50,5 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/themes/ DESTINATION ${CMAKE_INSTALL_DATADI
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/design/assets/icons DESTINATION ${CMAKE_INSTALL_DATADIR}/hagra OPTIONAL)
 if(HAGRA_BUILD_SHELL)
   add_subdirectory(shell)
+  add_subdirectory(settings)
 endif()

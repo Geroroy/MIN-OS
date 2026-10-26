@@ -5,6 +5,8 @@ set(CMAKE_AUTORCC ON)
 qt_add_executable(hagra-shell
   src/main.cpp
   src/appindex.cpp     src/appindex.h
+  src/appiconprovider.cpp src/appiconprovider.h
+  src/launcherstate.cpp src/launcherstate.h
   src/power.cpp        src/power.h
   src/shellipc.cpp     src/shellipc.h
   src/toplevelmodel.cpp src/toplevelmodel.h
@@ -28,5 +30,9 @@ if(HAGRA_BUILD_TESTS)
     target_include_directories(tst_appindex PRIVATE src)
     target_link_libraries(tst_appindex PRIVATE Qt6::Core Qt6::Gui Qt6::Test)
     add_test(NAME shell.appindex COMMAND tst_appindex)
+    qt_add_executable(tst_launcherstate tests/tst_launcherstate.cpp src/launcherstate.cpp src/launcherstate.h)
+    target_include_directories(tst_launcherstate PRIVATE src)
+    target_link_libraries(tst_launcherstate PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME shell.launcherstate COMMAND tst_launcherstate)
   endif()
 endif()

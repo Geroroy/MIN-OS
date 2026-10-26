@@ -95,12 +95,51 @@ void AppIndex::rebuildVisible()
     emit countChanged();
 }
 
+// 호환 자모 ㄱ..ㅎ (U+3131..U+314E) 중 초성으로 쓰이는 19개 — 음절 초성 인덱스 순서
+static const char16_t kChosung[19] = { u'ㄱ', u'ㄲ', u'ㄴ', u'ㄷ', u'ㄸ', u'ㄹ', u'ㅁ', u'ㅂ', u'ㅃ', u'ㅅ', u'ㅆ', u'ㅇ', u'ㅈ', u'ㅉ', u'ㅊ', u'ㅋ', u'ㅌ', u'ㅍ', u'ㅎ' };
+
+bool AppIndex::isChosungOnly(const QString &needle)
+{
+    if (needle.isEmpty())
+        return false;
+    for (const QChar ch : needle) {
+        bool found = false;
+        for (char16_t c : kChosung) if (ch.unicode() == c) { found = true; break; }
+        if (!found) return false;
+    }
+    return true;
+}
+
+int AppIndex::chosungMatch(const QString &text, const QString &needle)
+{
+    if (!isChosungOnly(needle))
+        return 0;
+    // 음절 → 초성, 이미 자모면 그대로, 그 밖의 글자는 자리만 차지(U+0001). 공백은 단어 경계.
+    QString initials;
+    for (const QChar ch : text) {
+        const ushort u = ch.unicode();
+        if (u >= 0xAC00 && u <= 0xD7A3) initials.append(QChar(kChosung[(u - 0xAC00) / 588]));
+        else if (u >= 0x3131 && u <= 0x314E) initials.append(ch);
+        else if (ch.isSpace()) initials.append(QLatin1Char(' '));
+        else initials.append(QChar(0x01));
+    }
+    if (initials.startsWith(needle))
+        return 2;
+    for (const QString &word : initials.split(QLatin1Char(' '), Qt::SkipEmptyParts))
+        if (word.startsWith(needle))
+            return 2;   // 단어 시작 일치 ("하그라 설정" 에서 "ㅅㅈ")
+    return initials.contains(needle) ? 1 : 0;
+}
+
 bool AppIndex::matchesFilter(const AppEntry &e, const QString &needle, int *score)
 {
     const Qt::CaseSensitivity cs = Qt::CaseInsensitive;
     int s = 0;
     if (e.name.startsWith(needle, cs)) s = 100;
+    else if (e.nameUnlocalized.startsWith(needle, cs)) s = 95;
     else if (e.name.contains(needle, cs)) s = 80;
+    else if (e.nameUnlocalized.contains(needle, cs)) s = 75;
+    else if (int cm = chosungMatch(e.name, needle)) s = cm == 2 ? 90 : 70;
     else if (e.genericName.contains(needle, cs)) s = 60;
     else {
         for (const QString &k : e.keywords)
@@ -190,6 +229,7 @@ std::optional<AppEntry> AppIndex::parseDesktopFile(const QString &filePath, cons
     AppEntry e;
     e.id = QFileInfo(filePath).completeBaseName();
     e.name = localized(QStringLiteral("Name"));
+    e.nameUnlocalized = unescapeValue(kv.value(QStringLiteral("Name")));
     e.genericName = localized(QStringLiteral("GenericName"));
     e.comment = localized(QStringLiteral("Comment"));
     e.icon = kv.value(QStringLiteral("Icon"));
@@ -293,6 +333,40 @@ QStringList AppIndex::execToArgs(const QString &exec)
     if (hasToken) args << cur;
     args.removeAll(QString());
     return args;
+}
+
+QVariantMap AppIndex::entry(const QString &id) const
+{
+    QVariantMap m;
+    for (const AppEntry &e : m_all) {
+        if (e.id != id) continue;
+        m[QStringLiteral("appId")] = e.id;
+        m[QStringLiteral("name")] = e.name;
+        m[QStringLiteral("comment")] = e.comment.isEmpty() ? e.genericName : e.comment;
+        m[QStringLiteral("icon")] = e.icon;
+        m[QStringLiteral("terminal")] = e.terminal;
+        break;
+    }
+    return m;
+}
+
+bool AppIndex::hasApp(const QString &id) const
+{
+    for (const AppEntry &e : m_all) if (e.id == id) return true;
+    return false;
+}
+
+QString AppIndex::firstInCategory(const QString &category) const
+{
+    for (const AppEntry &e : m_all) if (e.categories.contains(category)) return e.id;
+    return {};
+}
+
+QStringList AppIndex::allIds() const
+{
+    QStringList ids;
+    for (const AppEntry &e : m_all) ids << e.id;
+    return ids;
 }
 
 QString AppIndex::terminalProgram() const

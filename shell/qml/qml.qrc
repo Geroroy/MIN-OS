@@ -8,5 +8,7 @@
     <file>TaskButton.qml</file>
     <file>PowerIcon.qml</file>
     <file>AppearanceWindow.qml</file>
+    <file>AppIcon.qml</file>
+    <file>LauncherRow.qml</file>
   </qresource>
 </RCC>

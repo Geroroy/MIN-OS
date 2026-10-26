@@ -6,11 +6,15 @@
 #include <QQmlContext>
 #include <QQuickStyle>
 #include <QLoggingCategory>
+#include <QProcess>
+#include <QStandardPaths>
 
 #include "hagralayershell/layershell.h"
 #include "hagralayershell/layerwindow.h"
 #include "hagratheme/thememanager.h"
 #include "appindex.h"
+#include "appiconprovider.h"
+#include "launcherstate.h"
 #include "power.h"
 #include "shellipc.h"
 #include "toplevelmodel.h"
@@ -36,8 +40,9 @@ int main(int argc, char *argv[])
     QCommandLineOption power(QStringLiteral("power"), QStringLiteral("Toggle the power menu"));
     QCommandLineOption quit(QStringLiteral("quit"), QStringLiteral("Ask the running shell to quit"));
     QCommandLineOption terminal(QStringLiteral("terminal"), QStringLiteral("Launch the default terminal"));
-    QCommandLineOption appearance(QStringLiteral("appearance"), QStringLiteral("Open the appearance (theme) settings window"));
-    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance });
+    QCommandLineOption appearance(QStringLiteral("appearance"), QStringLiteral("Open Settings → Appearance & Themes"));
+    QCommandLineOption settings(QStringLiteral("settings"), QStringLiteral("Open the Settings application (optional page name)"), QStringLiteral("page"), QString());
+    parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance, settings });
     parser.process(app);
 
     QString command;
@@ -47,6 +52,7 @@ int main(int argc, char *argv[])
     else if (parser.isSet(quit)) command = QStringLiteral("quit");
     else if (parser.isSet(terminal)) command = QStringLiteral("terminal");
     else if (parser.isSet(appearance)) command = QStringLiteral("appearance");
+    else if (parser.isSet(settings)) command = parser.value(settings).isEmpty() ? QStringLiteral("settings") : QStringLiteral("settings:") + parser.value(settings);
 
     // 이미 실행 중이면 명령만 전달하고 끝낸다.
     if (ShellIpc::sendToRunningInstance(command.isEmpty() ? QStringLiteral("ping") : command))
@@ -60,6 +66,9 @@ int main(int argc, char *argv[])
     ipc.listen();
     Power powerCtl;
     AppIndex apps;
+    LauncherState launcherState;
+    launcherState.seedDefaults(apps.allIds());
+    QObject::connect(&apps, &AppIndex::launched, &launcherState, &LauncherState::noteLaunch);
     ToplevelModel toplevels;
     HagraTheme::ThemeManager themeManager;   // 저장된 테마 선택 복원 (~/.config/hagra/theme.conf); 외부 변경 감시
 
@@ -69,8 +78,10 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "Power", &powerCtl);
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "Apps", &apps);
     qmlRegisterSingletonInstance("HagraShell", 1, 0, "Toplevels", &toplevels);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "LauncherState", &launcherState);
 
     QQmlApplicationEngine engine;
+    engine.addImageProvider(QStringLiteral("appicon"), new AppIconProvider);   // image://appicon/<Icon=>
     engine.addImportPath(QStringLiteral(HAGRA_QML_INSTALL_DIR));
     for (const QString &p : qEnvironmentVariable("HAGRA_QML_IMPORT_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts))
         engine.addImportPath(p);
@@ -81,6 +92,19 @@ int main(int argc, char *argv[])
 
     QObject::connect(&ipc, &ShellIpc::quitRequested, &app, &QGuiApplication::quit, Qt::QueuedConnection);
     QObject::connect(&ipc, &ShellIpc::launchTerminal, &apps, [&apps] { apps.launchCommand(apps.terminalProgram()); });
+    // 설정 앱: hagra-settings [--page NAME]. 설치되어 있지 않으면(개발 호스트) 셸 내장 모양 창으로 대체한다 (모양 페이지만).
+    QObject::connect(&ipc, &ShellIpc::openSettings, &ipc, [&ipc, &apps](const QString &page) {
+        const QString bin = qEnvironmentVariable("HAGRA_SETTINGS", QStringLiteral("hagra-settings"));
+        const QString exe = bin.contains(QLatin1Char('/')) ? bin : QStandardPaths::findExecutable(bin);
+        if (!exe.isEmpty()) {
+            QStringList args;
+            if (!page.isEmpty()) args << QStringLiteral("--page") << page;
+            if (QProcess::startDetached(exe, args))
+                return;
+        }
+        qWarning("hagra-settings not available; falling back to the built-in appearance window");
+        emit ipc.showAppearance();
+    });
     if (!command.isEmpty())
         ipc.dispatch(command);
 

@@ -15,6 +15,22 @@ STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/hagra
 mkdir -p "$STATE_DIR" 2>/dev/null && exec >>"$STATE_DIR/session.log" 2>&1
 echo "== hagra-session start $(date -Is) user=$(id -un) tty=$(tty 2>/dev/null)"
 
+# 사용자 설정 (hagra-settings 가 쓴다): 언어·지역, 커서. 다음 로그인부터 적용되는 항목들.
+CONF_HOME=${XDG_CONFIG_HOME:-$HOME/.config}/hagra
+if [ -r "$CONF_HOME/locale.conf" ]; then
+  while IFS='=' read -r k v; do
+    case "$k" in LANG|LC_TIME|LC_NUMERIC|LC_MONETARY|LC_MEASUREMENT|LC_PAPER) [ -n "$v" ] && export "$k=$v" ;; esac
+  done < "$CONF_HOME/locale.conf"
+  echo "locale: LANG=${LANG:-} LC_TIME=${LC_TIME:-}"
+fi
+if [ -r "$CONF_HOME/cursor.conf" ]; then
+  CUR_THEME=$(sed -n 's/^theme=//p' "$CONF_HOME/cursor.conf" | head -1)
+  CUR_SIZE=$(sed -n 's/^size=//p' "$CONF_HOME/cursor.conf" | head -1)
+  [ -n "$CUR_THEME" ] && export XCURSOR_THEME="$CUR_THEME"
+  [ -n "$CUR_SIZE" ] && export XCURSOR_SIZE="$CUR_SIZE"
+  echo "cursor: theme=${XCURSOR_THEME:-} size=${XCURSOR_SIZE:-}"
+fi
+
 # 소프트웨어 렌더링 판단:
 #  - 커널 명령행 hagra.render=software (강제) / hagra.render=gl (강제 GL)
 #  - 렌더 노드가 없음
@@ -55,6 +71,11 @@ for f in rc.xml menu.xml environment autostart themerc-override; do
   elif [ -e "$SYSCONF/$f" ]; then ln -sf "$SYSCONF/$f" "$CONF/$f"
   fi
 done
+# 키보드·마우스 설정(input.conf) → rc.xml/environment 렌더링 (사용자 재정의 파일이 없을 때만; hagra-settings 가 세션 중 다시 렌더링한다)
+export HAGRA_LABWC_CONF=$CONF HAGRA_LABWC_SYSCONF=$SYSCONF
+if [ -r "$CONF_HOME/input.conf" ] && command -v hagra-settings >/dev/null 2>&1; then
+  hagra-settings --render-session "$CONF" && echo "input settings rendered into $CONF"
+fi
 echo "labwc config dir: $CONF (user=$USERCONF theme-state=${THEME_STATE:-none})"
 
 # 세션 D-Bus (systemd --user + dbus-user-session 이 있으면 이미 설정되어 있다)

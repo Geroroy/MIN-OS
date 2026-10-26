@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+Name[ko]=설정
+GenericName=System Settings
+GenericName[ko]=시스템 설정
+Comment=Appearance & themes, display, sound, input, language, network, power, accessibility, about HAGRA
+Comment[ko]=모양과 테마, 디스플레이, 소리, 입력, 언어, 네트워크, 전원, 접근성, 하그라 정보
+Keywords=settings;preferences;theme;appearance;wallpaper;display;
+Keywords[ko]=설정;환경설정;테마;모양;배경;디스플레이;
+Exec=hagra-settings
+Icon=preferences-system
+Terminal=false
+Categories=Settings;System;
+StartupNotify=false
+OnlyShowIn=HAGRA;
