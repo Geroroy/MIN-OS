@@ -16,6 +16,7 @@
 #include <QQuickStyle>
 #include <QQuickWindow>
 #include <QTextStream>
+#include <cstring>
 
 #include "hagratheme/thememanager.h"
 #include "conffile.h"
@@ -60,8 +61,33 @@ static QString socketPath()
     return dir + QStringLiteral("/hagra-settings-") + qEnvironmentVariable("WAYLAND_DISPLAY", QStringLiteral("wayland-0")) + QStringLiteral(".sock");
 }
 
+// 창 없는 모드(--render-session, --apply)는 디스플레이 없이 QCoreApplication 으로 끝낸다 (hagra-session 이 labwc 시작 전에 호출한다).
+static int headlessMain(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    app.setApplicationName(QStringLiteral("hagra-settings"));
+    const QStringList args = app.arguments();
+    const int ri = args.indexOf(QStringLiteral("--render-session"));
+    if (ri >= 0) {
+        const QString dir = ri + 1 < args.size() ? args[ri + 1] : qEnvironmentVariable("HAGRA_LABWC_CONF");
+        QString err;
+        const bool ok = !dir.isEmpty() && InputBackend::renderInto(dir, qEnvironmentVariable("HAGRA_LABWC_SYSCONF", QStringLiteral("/etc/hagra/labwc")), InputBackend::load(), &err);
+        if (!ok) QTextStream(stderr) << "hagra-settings: render-session failed: " << (dir.isEmpty() ? QStringLiteral("no directory") : err) << '\n';
+        return ok ? 0 : 1;
+    }
+    DisplayBackend display;
+    const int n = display.applySaved();
+    InputBackend input;
+    const bool inputOk = input.applyToSession();
+    QTextStream(stdout) << "hagra-settings: applied saved settings: outputs " << n << " input " << (inputOk ? "ok" : "skipped") << '\n';
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
+    for (int i = 1; i < argc; ++i)
+        if (!strcmp(argv[i], "--render-session") || !strcmp(argv[i], "--apply"))
+            return headlessMain(argc, argv);
     if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") && !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) qputenv("QT_QPA_PLATFORM", "wayland");
     qputenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1");   // 창 장식은 labwc(SSD)
     QGuiApplication app(argc, argv);
@@ -81,20 +107,7 @@ int main(int argc, char *argv[])
     parser.addOptions({ pageOpt, applyOpt, renderOpt });
     parser.process(app);
 
-    if (parser.isSet(renderOpt)) {
-        QString err;
-        const bool ok = InputBackend::renderInto(parser.value(renderOpt), qEnvironmentVariable("HAGRA_LABWC_SYSCONF", QStringLiteral("/etc/hagra/labwc")), InputBackend::load(), &err);
-        if (!ok) QTextStream(stderr) << "hagra-settings: render-session failed: " << err << '\n';
-        return ok ? 0 : 1;
-    }
-    if (parser.isSet(applyOpt)) {
-        DisplayBackend display;
-        const int n = display.applySaved();
-        InputBackend input;
-        const bool inputOk = input.applyToSession();
-        qCInfo(lcSettings) << "applied saved settings: outputs" << n << "input" << inputOk;
-        return 0;
-    }
+    // --render-session / --apply 는 위의 headlessMain 이 처리했다 (여기서는 도움말 표시용으로만 등록)
 
     // 단일 인스턴스: 이미 열려 있으면 페이지 이름만 보낸다
     const QString page = parser.value(pageOpt);
