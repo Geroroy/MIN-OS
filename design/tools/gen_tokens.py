@@ -2,7 +2,7 @@
 """하그라 디자인 토큰 생성기.
 
 단일 원본 design/tokens/hagra.tokens.json 에서 다음을 생성한다.
-  libs/minui/qml/MinUI/Theme.qml     QML 앱 내부 UI (MinUI)
+  libs/hagraui/qml/HagraUI/Theme.qml     QML 앱 내부 UI (HagraUI)
   session/labwc/themerc-override     labwc 서버 측 창 장식·메뉴·OSD
   session/foot/foot.ini              foot 터미널 색상
 
@@ -28,7 +28,7 @@ COLOR_KEYS_NOTE = "색상·창 장식·치수·글꼴은 런타임에 ThemeManag
 
 
 def light_icons():
-    d = os.path.join(REPO, "libs", "minui", "qml", "MinUI", "assets")
+    d = os.path.join(REPO, "libs", "hagraui", "qml", "HagraUI", "assets")
     return sorted(f[:-len("-light.svg")] for f in os.listdir(d) if f.endswith("-light.svg"))
 
 
@@ -113,7 +113,7 @@ def theme_qml(t):
         "        if (t.displayName) themeName = t.displayName",
         "    }",
         "",
-        "    // 자산: 1) 현재 테마 팩 assets/<name>.svg  2) 모듈 assets/<name>.svg (libs/minui/qml/MinUI/assets, 모듈과 함께 설치)",
+        "    // 자산: 1) 현재 테마 팩 assets/<name>.svg  2) 모듈 assets/<name>.svg (libs/hagraui/qml/HagraUI/assets, 모듈과 함께 설치)",
         "    function asset(name) { var u = themeAssets[name]; return u ? u : Qt.resolvedUrl(\"assets/\" + name + \".svg\") }",
         "    // 외부 아이콘 디렉터리(선택): HAGRA_ICON_PATH / --icons. 없으면 빈 문자열 → MIcon 이 자리 표시자를 그린다.",
         "    property string iconBasePath: \"\"",
@@ -209,7 +209,7 @@ selection-foreground={c['selectionForeground']}
 
 
 TARGETS = {
-    "libs/minui/qml/MinUI/Theme.qml": theme_qml,
+    "libs/hagraui/qml/HagraUI/Theme.qml": theme_qml,
     "session/labwc/themerc-override": themerc,
     "session/foot/foot.ini": foot_ini,
 }

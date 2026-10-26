@@ -1,4 +1,4 @@
-# MIN OS ARM64(Android/Termux) 이미지를 GitHub 의 ARM64 러너에서 네이티브로 빌드하고,
+# 하그라 ARM64(Android/Termux) 이미지를 GitHub 의 ARM64 러너에서 네이티브로 빌드하고,
 # QEMU 부팅 테스트를 통과한 경우에만 Release "android-latest" 에 게시한다.
 # 휴대폰에서는 android/setup.sh 가 이 Release 를 내려받는다.
 name: Android ARM64 image
@@ -39,20 +39,20 @@ jobs:
             qemu-system-arm qemu-efi-aarch64 python3-pexpect python3-pil socat
 
       - name: Build ARM64 bundle (native arm64 chroot)
-        run: sudo image/build.sh --suite ubuntu-noble --arch arm64 --format disk --profile mobile --output out/minos-arm64
+        run: sudo image/build.sh --suite ubuntu-noble --arch arm64 --format disk --profile mobile --output out/hagra-arm64
 
-      - name: Boot test (QEMU TCG — boot, session, MIN Shell, terminal, reboot, poweroff)
+      - name: Boot test (QEMU TCG — boot, session, 하그라 셸, terminal, reboot, poweroff)
         # 사본으로 테스트한다: 배포 이미지는 한 번도 부팅되지 않은 상태(첫 부팅에서 machine-id 생성)로 유지
         run: |
-          sudo cp -a out/minos-arm64 out/minos-arm64-test
-          sudo python3 -I tests/image/boot_test.py out/minos-arm64-test --out out/boot-test-arm64 --timeout 2400
-          sudo rm -rf out/minos-arm64-test
+          sudo cp -a out/hagra-arm64 out/hagra-arm64-test
+          sudo python3 -I tests/image/boot_test.py out/hagra-arm64-test --out out/boot-test-arm64 --timeout 2400
+          sudo rm -rf out/hagra-arm64-test
 
       - name: Package
         run: |
           sudo chown -R "$USER" out
-          tar -C out --zstd -cf out/minos-android-arm64.tar.zst minos-arm64
-          (cd out && sha256sum minos-android-arm64.tar.zst > minos-android-arm64.tar.zst.sha256)
+          tar -C out --zstd -cf out/hagra-android-arm64.tar.zst hagra-arm64
+          (cd out && sha256sum hagra-android-arm64.tar.zst > hagra-android-arm64.tar.zst.sha256)
           ls -la out
 
       - name: Upload boot test artifacts
@@ -68,8 +68,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<NOTES
-          MIN OS ARM64 개발 이미지 (Android/Termux QEMU 용). 커밋 ${GITHUB_SHA::7} 에서 자동 빌드되었고,
-          GitHub ARM64 러너의 QEMU(TCG)에서 부팅·세션·MIN Shell·터미널·재부팅·종료 테스트를 통과했습니다.
+          하그라 ARM64 개발 이미지 (Android/Termux QEMU 용). 커밋 ${GITHUB_SHA::7} 에서 자동 빌드되었고,
+          GitHub ARM64 러너의 QEMU(TCG)에서 부팅·세션·하그라 셸·터미널·재부팅·종료 테스트를 통과했습니다.
 
           휴대폰(Termux)에서 설치·실행:
           \`\`\`
@@ -77,11 +77,11 @@ jobs:
           \`\`\`
           자세한 내용: docs/ANDROID_EMULATION.md
 
-          개발 이미지 계정: min / min (sudo), root / minos. VNC 는 127.0.0.1 에만 열립니다.
+          개발 이미지 계정: hagra / hagra (sudo), root / hagra. VNC 는 127.0.0.1 에만 열립니다.
           실기기(Galaxy S25 Ultra) 검증은 아직 수행되지 않았습니다.
           NOTES
           gh release delete android-latest --cleanup-tag -y || true
           gh release create android-latest --target "$GITHUB_SHA" --prerelease \
-            --title "MIN OS ARM64 (Android) — dev build ${GITHUB_SHA::7}" --notes-file notes.md \
-            out/minos-android-arm64.tar.zst out/minos-android-arm64.tar.zst.sha256 \
+            --title "하그라 ARM64 (Android) — dev build ${GITHUB_SHA::7}" --notes-file notes.md \
+            out/hagra-android-arm64.tar.zst out/hagra-android-arm64.tar.zst.sha256 \
             out/boot-test-arm64/03-terminal.png

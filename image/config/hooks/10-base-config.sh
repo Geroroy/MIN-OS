@@ -3,10 +3,10 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-echo "minos" > /etc/hostname
+echo "hagra" > /etc/hostname
 cat > /etc/hosts <<'H'
 127.0.0.1   localhost
-127.0.1.1   minos
+127.0.1.1   hagra
 ::1         localhost ip6-localhost ip6-loopback
 H
 
@@ -24,6 +24,6 @@ systemctl set-default graphical.target
 systemctl enable greetd.service NetworkManager.service >/dev/null 2>&1 || true
 # 커널 메시지로 콘솔이 어지럽혀지지 않도록
 mkdir -p /etc/sysctl.d
-echo 'kernel.printk = 3 3 3 3' > /etc/sysctl.d/20-minos-quiet.conf
+echo 'kernel.printk = 3 3 3 3' > /etc/sysctl.d/20-hagra-quiet.conf
 # live-boot 이 /etc/network/interfaces 를 쓰려고 한다 (ifupdown 없음) — 경고 방지용 빈 디렉터리
 mkdir -p /etc/network

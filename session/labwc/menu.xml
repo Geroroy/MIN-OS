@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 바탕 화면 우클릭 메뉴 -->
 <openbox_menu>
-  <menu id="root-menu" label="MIN">
+  <menu id="root-menu" label="하그라">
     <item label="Terminal"><action name="Execute"><command>foot</command></action></item>
-    <item label="Applications"><action name="Execute"><command>minos-shell --show-launcher</command></action></item>
+    <item label="Applications"><action name="Execute"><command>hagra-shell --show-launcher</command></action></item>
     <separator />
     <item label="Reload configuration"><action name="Reconfigure" /></item>
-    <item label="Power"><action name="Execute"><command>minos-shell --power</command></action></item>
+    <item label="Power"><action name="Execute"><command>hagra-shell --power</command></action></item>
   </menu>
 </openbox_menu>

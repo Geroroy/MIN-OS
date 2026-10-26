@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
-Q_LOGGING_CATEGORY(lcTheme, "minos.theme")
+Q_LOGGING_CATEGORY(lcTheme, "hagra.theme")
 
 namespace HagraTheme {
 
@@ -61,8 +61,8 @@ QStringList ThemeManager::searchDirs()
     for (const QString &p : qEnvironmentVariable("HAGRA_THEME_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts))
         dirs << p;
     dirs << QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QStringLiteral("/hagra/themes");
-#ifdef MINOS_THEME_INSTALL_DIR
-    dirs << QStringLiteral(MINOS_THEME_INSTALL_DIR);
+#ifdef HAGRA_THEME_INSTALL_DIR
+    dirs << QStringLiteral(HAGRA_THEME_INSTALL_DIR);
 #endif
     for (const QString &d : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
         dirs << d + QStringLiteral("/hagra/themes");
@@ -72,7 +72,7 @@ QStringList ThemeManager::searchDirs()
 
 QString ThemeManager::configFilePath()
 {
-    return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QStringLiteral("/minos/theme.conf");
+    return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QStringLiteral("/hagra/theme.conf");
 }
 
 QString ThemeManager::stateDir()
@@ -80,7 +80,7 @@ QString ThemeManager::stateDir()
     QString base = qEnvironmentVariable("XDG_STATE_HOME");
     if (base.isEmpty())
         base = QDir::homePath() + QStringLiteral("/.local/state");
-    return base + QStringLiteral("/minos/theme");
+    return base + QStringLiteral("/hagra/theme");
 }
 
 ThemeInfo ThemeManager::readPack(const QString &dir)
@@ -152,7 +152,7 @@ ThemeInfo ThemeManager::theme(const QString &id) const
 QString ThemeManager::defaultId() const
 {
     // 시스템 기본값 파일 > 팩의 default 표시 > 내장 기본
-    QSettings sys(QStringLiteral("/etc/minos/theme.conf"), QSettings::IniFormat);
+    QSettings sys(QStringLiteral("/etc/hagra/theme.conf"), QSettings::IniFormat);
     const QString fromSys = sys.value(QStringLiteral("appearance/theme")).toString();
     if (!fromSys.isEmpty() && theme(fromSys).valid())
         return fromSys;
@@ -431,19 +431,19 @@ void ThemeManager::registerQmlTypes(ThemeManager *mgr)
 
 bool ThemeManager::bindEngine(QQmlEngine *engine, ThemeManager *mgr)
 {
-    // MinUI.Theme 은 qmldir 의 composite singleton 이라 qmlTypeId 로 바로 찾을 수 없다.
+    // HagraUI.Theme 은 qmldir 의 composite singleton 이라 qmlTypeId 로 바로 찾을 수 없다.
     // 작은 QML 글루 객체를 엔진 안에서 만들어 Theme.applyTokens() 를 호출한다 (import 경로·캐시를 그대로 사용).
     auto *component = new QQmlComponent(engine, engine);
-    component->setData(QByteArrayLiteral("import QtQuick\nimport MinUI 1.0\nQtObject { function apply(t) { Theme.applyTokens(t) } }"),
+    component->setData(QByteArrayLiteral("import QtQuick\nimport HagraUI 1.0\nQtObject { function apply(t) { Theme.applyTokens(t) } }"),
                        QUrl::fromLocalFile(QStringLiteral("/hagratheme-bind.qml")));   // 알 수 없는 scheme 이면 Loading 에 머문다
-    if (component->isLoading()) {   // 모듈을 아직 읽는 중이면 짧게 기다린다 (보통 호스트 QML 이 이미 MinUI 를 import 했으므로 즉시 준비됨)
+    if (component->isLoading()) {   // 모듈을 아직 읽는 중이면 짧게 기다린다 (보통 호스트 QML 이 이미 HagraUI 를 import 했으므로 즉시 준비됨)
         QElapsedTimer t; t.start();
         while (component->isLoading() && t.elapsed() < 3000)
             QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
     }
     QObject *glue = component->isReady() ? component->create() : nullptr;
     if (!glue) {
-        qCWarning(lcTheme) << "cannot bind MinUI.Theme:" << component->errorString();
+        qCWarning(lcTheme) << "cannot bind HagraUI.Theme:" << component->errorString();
         delete component;
         return false;
     }

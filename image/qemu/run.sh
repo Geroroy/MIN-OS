@@ -1,9 +1,9 @@
 #!/bin/bash
-# MIN OS 이미지를 QEMU 에서 실행 (PC 개발용).  Android/Termux 에서는 android/start-minos.sh 를 사용한다.
+# 하그라 이미지를 QEMU 에서 실행 (PC 개발용).  Android/Termux 에서는 android/start-hagra.sh 를 사용한다.
 #   image/qemu/run.sh [옵션] TARGET
 # TARGET
 #   *.iso                      x86-64 live ISO (BIOS/UEFI)
-#   DIR (minos-image.conf 포함)  디스크 이미지 번들: qcow2 + vmlinuz + initrd (직접 커널 부팅, 기본 ARM64)
+#   DIR (hagra-image.conf 포함)  디스크 이미지 번들: qcow2 + vmlinuz + initrd (직접 커널 부팅, 기본 ARM64)
 #   *.qcow2                    디스크 이미지 (같은 디렉터리의 vmlinuz/initrd.img 사용)
 # 옵션
 #   --serial        시리얼 콘솔을 stdio 로 (디스플레이 없음, -serial mon:stdio)
@@ -15,8 +15,8 @@
 #   --res WxH       가상 디스플레이 해상도 (기본 1280x720)
 #   --mem MB / --smp N / --cpu MODEL
 set -euo pipefail
-SERIAL=0; UEFI_ISO=1; UEFI_DISK=0; MONITOR=""; DISPLAY_OPT=""; VNC=""; RES=${MINOS_RES:-1280x720}
-MEM=${MINOS_MEM:-2048}; SMP=${MINOS_SMP:-2}; CPU=${MINOS_CPU:-}; EXTRA=()
+SERIAL=0; UEFI_ISO=1; UEFI_DISK=0; MONITOR=""; DISPLAY_OPT=""; VNC=""; RES=${HAGRA_RES:-1280x720}
+MEM=${HAGRA_MEM:-2048}; SMP=${HAGRA_SMP:-2}; CPU=${HAGRA_CPU:-}; EXTRA=()
 while [ $# -gt 1 ]; do
   case "$1" in
     --serial) SERIAL=1; shift ;;
@@ -58,14 +58,14 @@ elif [[ "$TARGET" == *.qcow2 ]]; then
   MODE=disk; BUNDLE=$(dirname "$TARGET")
 fi
 if [ "$MODE" = disk ]; then
-  CONF=$BUNDLE/minos-image.conf
-  [ -f "$CONF" ] || { echo "minos-image.conf not found in $BUNDLE" >&2; exit 1; }
+  CONF=$BUNDLE/hagra-image.conf
+  [ -f "$CONF" ] || { echo "hagra-image.conf not found in $BUNDLE" >&2; exit 1; }
   # shellcheck disable=SC1090
   . "$CONF"
-  ARCH=${MINOS_ARCH:-arm64}
-  DISK=$BUNDLE/${MINOS_DISK:-minos-$ARCH.qcow2}
-  KERNEL=$BUNDLE/${MINOS_KERNEL:-vmlinuz}
-  INITRD=$BUNDLE/${MINOS_INITRD:-initrd.img}
+  ARCH=${HAGRA_ARCH:-arm64}
+  DISK=$BUNDLE/${HAGRA_DISK:-hagra-$ARCH.qcow2}
+  KERNEL=$BUNDLE/${HAGRA_KERNEL:-vmlinuz}
+  INITRD=$BUNDLE/${HAGRA_INITRD:-initrd.img}
   for f in "$DISK" "$KERNEL" "$INITRD"; do [ -f "$f" ] || { echo "missing: $f" >&2; exit 1; }; done
 fi
 
@@ -100,7 +100,7 @@ if [ "$MODE" = iso ]; then
     CODE=$(find_fw amd64 || true)
     if [ -n "$CODE" ]; then
       VARS=${CODE%/*}/OVMF_VARS_4M.fd; [ -f "$VARS" ] || VARS=${CODE%/*}/OVMF_VARS.fd
-      VARS_COPY=${MINOS_OVMF_VARS:-/tmp/minos-ovmf-vars-$$.fd}; cp "$VARS" "$VARS_COPY"
+      VARS_COPY=${HAGRA_OVMF_VARS:-/tmp/hagra-ovmf-vars-$$.fd}; cp "$VARS" "$VARS_COPY"
       ARGS+=(-drive if=pflash,format=raw,readonly=on,file="$CODE" -drive if=pflash,format=raw,file="$VARS_COPY")
     else
       echo "OVMF not found; falling back to BIOS boot" >&2
@@ -111,15 +111,15 @@ else
   if [ "$UEFI_DISK" = 1 ]; then
     CODE=$(find_fw "$ARCH" || true)
     [ -n "$CODE" ] || { echo "UEFI firmware for $ARCH not found (qemu-efi-aarch64 / ovmf)" >&2; exit 2; }
-    VARS_COPY=${MINOS_OVMF_VARS:-/tmp/minos-fw-vars-$$.fd}
+    VARS_COPY=${HAGRA_OVMF_VARS:-/tmp/hagra-fw-vars-$$.fd}
     truncate -s 64M "$VARS_COPY"
     if [ "$ARCH" = arm64 ]; then
       # AAVMF: pflash 는 64MB 로 패딩되어야 한다
-      CODE_PAD=/tmp/minos-fw-code-$$.fd; cp "$CODE" "$CODE_PAD"; truncate -s 64M "$CODE_PAD"; CODE=$CODE_PAD
+      CODE_PAD=/tmp/hagra-fw-code-$$.fd; cp "$CODE" "$CODE_PAD"; truncate -s 64M "$CODE_PAD"; CODE=$CODE_PAD
     fi
     ARGS+=(-drive if=pflash,format=raw,readonly=on,file="$CODE" -drive if=pflash,format=raw,file="$VARS_COPY")
   else
-    ARGS+=(-kernel "$KERNEL" -initrd "$INITRD" -append "${MINOS_CMDLINE:-root=LABEL=minos-root rw} $CONSOLE")
+    ARGS+=(-kernel "$KERNEL" -initrd "$INITRD" -append "${HAGRA_CMDLINE:-root=LABEL=hagra-root rw} $CONSOLE")
   fi
 fi
 

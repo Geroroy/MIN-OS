@@ -1,4 +1,4 @@
-// MIN Shell — 진입점
+// 하그라 셸 — 진입점
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QCommandLineParser>
 #include <QGuiApplication>
@@ -7,8 +7,8 @@
 #include <QQuickStyle>
 #include <QLoggingCategory>
 
-#include "minlayershell/layershell.h"
-#include "minlayershell/layerwindow.h"
+#include "hagralayershell/layershell.h"
+#include "hagralayershell/layerwindow.h"
 #include "hagratheme/thememanager.h"
 #include "appindex.h"
 #include "power.h"
@@ -17,14 +17,14 @@
 
 int main(int argc, char *argv[])
 {
-    MinLayerShell::prepareEnvironment();
+    HagraLayerShell::prepareEnvironment();
     // GPU가 없는 환경(QEMU TCG 등)에서는 세션 스크립트가 QT_QUICK_BACKEND=software 를 설정한다.
     QGuiApplication app(argc, argv);
-    app.setApplicationName(QStringLiteral("minos-shell"));
-    app.setApplicationVersion(QStringLiteral(MINOS_VERSION));
-    app.setOrganizationName(QStringLiteral("MIN OS"));
-    app.setOrganizationDomain(QStringLiteral("minos.local"));
-    app.setDesktopFileName(QStringLiteral("org.minos.shell"));
+    app.setApplicationName(QStringLiteral("hagra-shell"));
+    app.setApplicationVersion(QStringLiteral(HAGRA_VERSION));
+    app.setOrganizationName(QStringLiteral("하그라"));
+    app.setOrganizationDomain(QStringLiteral("hagra.local"));
+    app.setDesktopFileName(QStringLiteral("org.hagra.shell"));
     app.setQuitOnLastWindowClosed(false);
 
     QCommandLineParser parser;
@@ -61,29 +61,29 @@ int main(int argc, char *argv[])
     Power powerCtl;
     AppIndex apps;
     ToplevelModel toplevels;
-    HagraTheme::ThemeManager themeManager;   // 저장된 테마 선택 복원 (~/.config/minos/theme.conf); 외부 변경 감시
+    HagraTheme::ThemeManager themeManager;   // 저장된 테마 선택 복원 (~/.config/hagra/theme.conf); 외부 변경 감시
 
-    MinLayerShell::LayerWindow::registerQmlTypes();
+    HagraLayerShell::LayerWindow::registerQmlTypes();
     HagraTheme::ThemeManager::registerQmlTypes(&themeManager);
-    qmlRegisterSingletonInstance("MinShell", 1, 0, "Shell", &ipc);
-    qmlRegisterSingletonInstance("MinShell", 1, 0, "Power", &powerCtl);
-    qmlRegisterSingletonInstance("MinShell", 1, 0, "Apps", &apps);
-    qmlRegisterSingletonInstance("MinShell", 1, 0, "Toplevels", &toplevels);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Shell", &ipc);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Power", &powerCtl);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Apps", &apps);
+    qmlRegisterSingletonInstance("HagraShell", 1, 0, "Toplevels", &toplevels);
 
     QQmlApplicationEngine engine;
-    engine.addImportPath(QStringLiteral(MINOS_QML_INSTALL_DIR));
-    for (const QString &p : qEnvironmentVariable("MINOS_QML_IMPORT_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts))
+    engine.addImportPath(QStringLiteral(HAGRA_QML_INSTALL_DIR));
+    for (const QString &p : qEnvironmentVariable("HAGRA_QML_IMPORT_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts))
         engine.addImportPath(p);
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
     if (engine.rootObjects().isEmpty())
         return 1;
-    HagraTheme::ThemeManager::bindEngine(&engine, &themeManager);   // MinUI.Theme 에 현재 테마 토큰 적용 + 변경 시 재적용
+    HagraTheme::ThemeManager::bindEngine(&engine, &themeManager);   // HagraUI.Theme 에 현재 테마 토큰 적용 + 변경 시 재적용
 
     QObject::connect(&ipc, &ShellIpc::quitRequested, &app, &QGuiApplication::quit, Qt::QueuedConnection);
     QObject::connect(&ipc, &ShellIpc::launchTerminal, &apps, [&apps] { apps.launchCommand(apps.terminalProgram()); });
     if (!command.isEmpty())
         ipc.dispatch(command);
 
-    qInfo("minos-shell %s ready", MINOS_VERSION);
+    qInfo("hagra-shell %s ready", HAGRA_VERSION);
     return app.exec();
 }

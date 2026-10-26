@@ -9,13 +9,13 @@
 | 지표 | 수집 방법 |
 |---|---|
 | `boot_to_shell_s` | QEMU 시작 → root 시리얼 셸 프롬프트 |
-| `boot_to_shell_process_s` | QEMU 시작 → `minos-shell` 프로세스 존재 |
+| `boot_to_shell_process_s` | QEMU 시작 → `hagra-shell` 프로세스 존재 |
 | `systemd_startup_s` | 게스트 `systemd-analyze` (커널 + 사용자 공간) |
 | `mem_used_mb` | 게스트 `free -m` (세션 기동 후) |
 | `top_rss` | 게스트 RSS 상위 프로세스 |
 | `idle_top_cpu_line` | 게스트 `top` 유휴 CPU 행 |
 
-Termux 에서는 `start-minos.sh` 가 남기는 `logs/serial-*.log` 의 타임스탬프와 Android 쪽 `top`/배터리 통계를 쓴다.
+Termux 에서는 `start-hagra.sh` 가 남기는 `logs/serial-*.log` 의 타임스탬프와 Android 쪽 `top`/배터리 통계를 쓴다.
 
 ## 2. PC 측정값 (x86-64 호스트가 ARM64 를 TCG 로 에뮬레이션 — 참고용 하한)
 
@@ -24,10 +24,10 @@ Termux 에서는 `start-minos.sh` 가 남기는 `logs/serial-*.log` 의 타임�
 | 지표 | 값 |
 |---|---|
 | QEMU 시작 → root 셸 | 86 ~ 98 s (두 번 측정) |
-| QEMU 시작 → minos-shell 프로세스 | 93 ~ 105 s |
+| QEMU 시작 → hagra-shell 프로세스 | 93 ~ 105 s |
 | systemd-analyze | 19.5 s (kernel) + 64.0 s (userspace) = 83.5 s |
 | 게스트 메모리 사용 (세션 포함) | 164 MB / 1960 MB |
-| RSS 상위 | minos-shell 51 MB, labwc 27 MB, NetworkManager 17 MB, systemd 12 MB |
+| RSS 상위 | hagra-shell 51 MB, labwc 27 MB, NetworkManager 17 MB, systemd 12 MB |
 | 유휴 CPU (게스트 top) | ≈ 35 % 사용 (12.5 us + 22.2 sy) — TCG 에서 타이머/인터럽트 비용 |
 | 디스크 번들 | qcow2 1.06 GB(가상 6.1 GiB), vmlinuz 17 MB, initrd 17 MB |
 | 재부팅 → 2차 세션 | 통과 |
@@ -54,8 +54,8 @@ x86-64 호스트는 **다른 ISA 를 변환**하므로 가장 느린 경우다. 
 | `mobile` 프로필 | apt/man-db/e2scrub/fstrim/motd 타이머, NetworkManager-wait-online, ModemManager 마스크 | 부팅 대기·주기 작업 제거 |
 | 저널 휘발성 | `Storage=volatile`, 16 MB 상한 | 디스크 I/O·공간 절약 |
 | `DefaultTimeoutStopSec=10s` | 종료 지연 단축 | 종료 빠름 |
-| 소프트웨어 렌더링 고정 | `minos.render=software` → labwc pixman, Qt Quick software | GPU 없는 TCG 에서 GL 경로(llvmpipe) 회피 |
-| 블러·그림자·애니메이션 없음 | MIN 디자인 언어 자체 | CPU 렌더링 비용 최소 |
+| 소프트웨어 렌더링 고정 | `hagra.render=software` → labwc pixman, Qt Quick software | GPU 없는 TCG 에서 GL 경로(llvmpipe) 회피 |
+| 블러·그림자·애니메이션 없음 | 하그라 디자인 언어 자체 | CPU 렌더링 비용 최소 |
 | `quiet loglevel=3 systemd.show_status=0` | 콘솔 출력 억제 | 시리얼/fbcon 출력 비용 제거 |
 | virtio-blk + `cache=writeback,discard=unmap` | 호스트 페이지 캐시 활용, TRIM 으로 qcow2 축소 | 디스크 I/O |
 | virtio-input | USB 에뮬레이션보다 가벼움 | 입력 지연 |
@@ -71,7 +71,7 @@ x86-64 호스트는 **다른 ISA 를 변환**하므로 가장 느린 경우다. 
 | 2 GB / 2 vCPU / 960×540 | ☐ | ☐ | ☐ | |
 | 1.5 GB / 2 vCPU / 800×600 | ☐ | ☐ | ☐ | |
 
-측정 절차: `bash start-minos.sh --res …` 실행 시각과 VNC 에 패널이 나타난 시각, 그리고 1분 유휴 후 Termux 에서
+측정 절차: `bash start-hagra.sh --res …` 실행 시각과 VNC 에 패널이 나타난 시각, 그리고 1분 유휴 후 Termux 에서
 `top -n 1 | grep qemu` 를 기록한다.
 
 ## 5. 튜닝 가이드
@@ -79,7 +79,7 @@ x86-64 호스트는 **다른 ISA 를 변환**하므로 가장 느린 경우다. 
 - **vCPU**: MTTCG 는 vCPU 마다 호스트 스레드를 쓴다. S25 Ultra 는 8코어이므로 `--smp 3` 또는 `4` 가 UI 반응을 개선할 수 있다.
   단, big 코어 점유로 발열·배터리 소모가 커지고 Android 가 스로틀링할 수 있다. 2 → 3 → 4 순으로 시험한다.
 - **해상도**: 소프트웨어 렌더링 비용은 픽셀 수에 비례한다. 1280×720(0.92 MP) → 960×540(0.52 MP) 는 약 44 % 감소.
-  800×600 은 MIN 패널의 정보 밀도가 유지되는 최소 해상도다.
+  800×600 은 하그라 패널의 정보 밀도가 유지되는 최소 해상도다.
 - **메모리**: 게스트는 세션 기동 후 ≈ 170 MB 를 쓴다. `--mem 1536` 으로도 충분하며, 1024 MB 까지도 동작할 것으로 보이나
   브라우저 등 추가 앱 실행 시 부족하다. 값을 줄이면 Android 쪽 메모리 압박이 줄어 Termux 가 종료될 위험이 낮아진다.
 - **CPU 모델**: `cortex-a76` 기본. `max` 는 SVE 등 추가 기능을 켜 변환 비용이 커질 수 있다.

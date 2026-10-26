@@ -1,4 +1,4 @@
-// MIN Shell — 단일 인스턴스 IPC (QLocalServer). `minos-shell --toggle-launcher` 등이 실행 중 인스턴스로 전달된다.
+// 하그라 셸 — 단일 인스턴스 IPC (QLocalServer). `hagra-shell --toggle-launcher` 등이 실행 중 인스턴스로 전달된다.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include <QObject>

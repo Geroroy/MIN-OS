@@ -5,13 +5,13 @@
 
 시나리오
   1. ISO 로 부팅 (UEFI/OVMF, GRUB 메뉴를 시리얼로 조작: 'serial console debug' 항목) / 번들은 직접 커널 부팅
-  2. systemd 부팅 완료 → root 시리얼 셸 → greetd / labwc / minos-shell 동작 확인, Wayland 소켓 확인
+  2. systemd 부팅 완료 → root 시리얼 셸 → greetd / labwc / hagra-shell 동작 확인, Wayland 소켓 확인
   3. QEMU 모니터 screendump 로 화면 캡처 → 패널 픽셀 검사
   4. IPC 로 실행 메뉴·터미널 실행 → 프로세스/화면 확인
   5. reboot → 두 번째 부팅 확인
   6. poweroff → QEMU 종료 확인
-사용: sudo python3 -I tests/image/boot_test.py out/minos-dev-ubuntu-noble-amd64.iso [--out DIR] [--timeout SEC]
-      sudo python3 -I tests/image/boot_test.py out/minos-arm64 [--res 1280x720]
+사용: sudo python3 -I tests/image/boot_test.py out/hagra-dev-ubuntu-noble-amd64.iso [--out DIR] [--timeout SEC]
+      sudo python3 -I tests/image/boot_test.py out/hagra-arm64 [--res 1280x720]
 결과: 스크린샷, serial.log, metrics.json (부팅 시간·메모리·CPU)
 """
 import argparse
@@ -29,7 +29,7 @@ import pexpect
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(REPO, "tests", "shell"))
 
-PROMPT = "minos# "
+PROMPT = "hagra# "
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\r")
 
 
@@ -41,13 +41,13 @@ class Qemu:
         self.res = res
         self.uefi = uefi
         self.disk_mode = os.path.isdir(iso) or iso.endswith(".qcow2")
-        self.monitor = os.path.join(tempfile.mkdtemp(prefix="minos-qemu-"), "monitor.sock")
+        self.monitor = os.path.join(tempfile.mkdtemp(prefix="hagra-qemu-"), "monitor.sock")
         self.vars = os.path.join(os.path.dirname(self.monitor), "ovmf-vars.fd")
         self.log = open(os.path.join(out, "serial.log"), "wb")
         self.child = None
 
     def start(self):
-        env = dict(os.environ, MINOS_OVMF_VARS=self.vars)
+        env = dict(os.environ, HAGRA_OVMF_VARS=self.vars)
         cmd = [os.path.join(REPO, "image/qemu/run.sh"), "--serial", "--monitor", self.monitor, "--res", self.res]
         if self.uefi:
             cmd.append("--uefi")
@@ -71,7 +71,7 @@ class Qemu:
 
     def sh(self, cmd, timeout=60):
         """시리얼 셸에서 명령 실행 후 출력 반환"""
-        marker = "__MINOS_%d__" % int(time.time() * 1000)
+        marker = "__HAGRA_%d__" % int(time.time() * 1000)
         self.child.sendline(f"{cmd}; echo {marker}$?")
         self.child.expect(marker.encode() + rb"(\d+)", timeout=timeout)
         rc = int(self.child.match.group(1))
@@ -157,18 +157,18 @@ def main():
         q.wait_prompt()
 
         step("시스템 상태")
-        rc, out = q.sh("cat /etc/minos-release")
-        check("MINOS_NAME" in out, f"minos-release: {out.splitlines()[0] if out else out}")
+        rc, out = q.sh("cat /etc/hagra-release")
+        check("HAGRA_NAME" in out, f"hagra-release: {out.splitlines()[0] if out else out}")
         rc, out = q.sh("systemctl is-system-running --wait", timeout=300)
         print(f"   systemd state: {out}")
         check(out.strip() in ("running", "degraded"), "systemd reached running/degraded")
         if out.strip() == "degraded":
             print(q.sh("systemctl --failed --no-pager")[1])
 
-        step("세션: greetd → minos-session → labwc → minos-shell")
+        step("세션: greetd → hagra-session → labwc → hagra-shell")
         deadline = time.time() + 180
         while time.time() < deadline:
-            rc, out = q.sh("pgrep -c minos-shell")
+            rc, out = q.sh("pgrep -c hagra-shell")
             if rc == 0:
                 break
             time.sleep(5)
@@ -177,24 +177,24 @@ def main():
         check(out.strip() == "active", "greetd active")
         rc, out = q.sh("pgrep -a labwc")
         check(rc == 0, f"labwc running: {out}")
-        rc, out = q.sh("pgrep -a minos-shell")
-        check(rc == 0, f"minos-shell running: {out}")
+        rc, out = q.sh("pgrep -a hagra-shell")
+        check(rc == 0, f"hagra-shell running: {out}")
         rc, out = q.sh("ls /run/user/1000/ | grep -E '^wayland-[0-9]+$'")
         check(rc == 0, f"wayland socket: {out}")
         rc, out = q.sh("loginctl list-sessions --no-legend")
         print(f"   sessions: {out}")
         deadline = time.time() + 180
         while time.time() < deadline:
-            rc, out = q.sh("cat /run/user/1000/minos-shell.log")
-            if "minos-panel\" configured" in out or "ready" in out:
+            rc, out = q.sh("cat /run/user/1000/hagra-shell.log")
+            if "hagra-panel\" configured" in out or "ready" in out:
                 break
             time.sleep(5)
         print("   shell log:\n      " + out.replace("\n", "\n      "))
         check("configured" in out, "panel layer surface configured")
-        rc, out = q.sh("tail -5 /home/min/.local/state/minos/session.log")
+        rc, out = q.sh("tail -5 /home/hagra/.local/state/hagra/session.log")
         print("   session log:\n      " + out.replace("\n", "\n      "))
 
-        rc, out = q.sh("uname -m; cat /etc/minos/profile 2>/dev/null; free -m | head -2; systemd-analyze 2>/dev/null | head -1")
+        rc, out = q.sh("uname -m; cat /etc/hagra/profile 2>/dev/null; free -m | head -2; systemd-analyze 2>/dev/null | head -1")
         print("   system:\n      " + out.replace("\n", "\n      "))
         m = re.search(r"Mem:\s+(\d+)\s+(\d+)", out)
         if m:
@@ -216,16 +216,16 @@ def main():
         check_screenshot.check_panel(Image.open(png).convert("RGB"))
 
         step("실행 메뉴 (IPC)")
-        asmin = "sudo -u min env XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "
-        rc, out = q.sh(asmin + "minos-shell --toggle-launcher")
+        asmin = "sudo -u hagra env XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "
+        rc, out = q.sh(asmin + "hagra-shell --toggle-launcher")
         check(rc == 0, "toggle-launcher rc=0")
         time.sleep(4)
         png = q.screendump("02-launcher")
         check_screenshot.check_launcher(Image.open(png).convert("RGB"))
-        q.sh(asmin + "minos-shell --toggle-launcher")
+        q.sh(asmin + "hagra-shell --toggle-launcher")
 
         step("터미널 실행 (IPC)")
-        rc, out = q.sh(asmin + "minos-shell --terminal")
+        rc, out = q.sh(asmin + "hagra-shell --terminal")
         time.sleep(6)
         rc, out = q.sh("pgrep -a foot")
         check(rc == 0, f"foot running: {out}")
@@ -234,7 +234,7 @@ def main():
         q.sh("pkill foot")
 
         step("테마 전환: 깊은 단청 선택 (사용자 설정 저장, 셸·labwc·배경 즉시 반영)")
-        asmin_home = "sudo -u min env HOME=/home/min XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "
+        asmin_home = "sudo -u hagra env HOME=/home/hagra XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "
         deep_tokens = os.path.join(REPO, "build", "themes", "hagra-dancheong-deep", "tokens.json")
         light_tokens = os.path.join(REPO, "design", "tokens", "hagra.tokens.json")
         rc, out = q.sh(asmin_home + "hagra-theme list")
@@ -243,8 +243,8 @@ def main():
         rc, out = q.sh(asmin_home + "hagra-theme apply hagra-dancheong-deep")
         check(rc == 0 and out.strip().endswith("hagra-dancheong-deep"), f"apply deep theme: {out.strip()}")
         time.sleep(10)
-        rc, out = q.sh("cat /home/min/.config/minos/theme.conf")
-        check("theme=hagra-dancheong-deep" in out, "selection saved in ~/.config/minos/theme.conf")
+        rc, out = q.sh("cat /home/hagra/.config/hagra/theme.conf")
+        check("theme=hagra-dancheong-deep" in out, "selection saved in ~/.config/hagra/theme.conf")
         png = q.screendump("04-theme-deep")
         if os.path.exists(deep_tokens):
             check_screenshot.load_tokens(deep_tokens)
@@ -253,7 +253,7 @@ def main():
         else:
             print("   (build/themes 없음: 깊은 단청 픽셀 검사 건너뜀)")
 
-        step("전원: logind Reboot 경로 (minos-shell 와 동일한 D-Bus 호출)")
+        step("전원: logind Reboot 경로 (hagra-shell 와 동일한 D-Bus 호출)")
         if not args.skip_reboot:
             q.child.sendline("busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager Reboot b false")
             q.select_serial_entry()
@@ -266,7 +266,7 @@ def main():
             check(out.strip() in ("running", "degraded"), f"second boot: {out.strip()}")
             deadline = time.time() + 180
             while time.time() < deadline:
-                rc, out = q.sh("pgrep -a minos-shell")
+                rc, out = q.sh("pgrep -a hagra-shell")
                 if rc == 0:
                     break
                 time.sleep(5)
@@ -275,14 +275,14 @@ def main():
             step("테마 복원 확인: 재부팅 후 깊은 단청 유지 → 기본 테마로 복귀")
             deadline = time.time() + 120
             while time.time() < deadline:
-                rc, out = q.sh("cat /run/user/1000/minos-shell.log")
+                rc, out = q.sh("cat /run/user/1000/hagra-shell.log")
                 if "configured" in out:
                     break
                 time.sleep(5)
             rc, live = q.sh("findmnt -no FSTYPE / ; test -d /run/live && echo live")
             is_live = "overlay" in live or "live" in live   # live ISO: 홈 디렉터리가 휘발성 overlay 라 재부팅 후 설정이 남지 않는다 (설치 전 매체의 성질)
             rc, out = q.sh(asmin_home + "hagra-theme current")
-            rc, out2 = q.sh("tail -3 /home/min/.local/state/minos/session.log")
+            rc, out2 = q.sh("tail -3 /home/hagra/.local/state/hagra/session.log")
             print("   session log:\n      " + out2.replace("\n", "\n      "))
             time.sleep(3)
             if is_live:

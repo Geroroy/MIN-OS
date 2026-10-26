@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=하그라
+Comment=하그라 데스크톱 세션 (labwc + 하그라 셸)
+Exec=hagra-session
+Type=Application
+DesktopNames=HAGRA

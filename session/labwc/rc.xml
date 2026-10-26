@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- MIN OS labwc 설정. 시스템: /etc/minos/labwc/rc.xml, 사용자 재정의: ~/.config/minos/labwc/rc.xml -->
+<!-- 하그라 labwc 설정. 시스템: /etc/hagra/labwc/rc.xml, 사용자 재정의: ~/.config/hagra/labwc/rc.xml -->
 <labwc_config>
   <core>
     <decoration>server</decoration>
@@ -40,11 +40,11 @@
 
   <keyboard>
     <default />
-    <!-- MIN 단축키 (docs/DESIGN_LANGUAGE.md §6) -->
+    <!-- 하그라 단축키 (docs/DESIGN_LANGUAGE.md §6) -->
     <keybind key="W-Return"><action name="Execute" command="foot" /></keybind>
-    <keybind key="W-space"><action name="Execute" command="minos-shell --toggle-launcher" /></keybind>
-    <keybind key="W-e"><action name="Execute" command="minos-shell --show-launcher" /></keybind>
-    <keybind key="W-Escape"><action name="Execute" command="minos-shell --power" /></keybind>
+    <keybind key="W-space"><action name="Execute" command="hagra-shell --toggle-launcher" /></keybind>
+    <keybind key="W-e"><action name="Execute" command="hagra-shell --show-launcher" /></keybind>
+    <keybind key="W-Escape"><action name="Execute" command="hagra-shell --power" /></keybind>
     <keybind key="A-F4"><action name="Close" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>
     <keybind key="W-Up"><action name="ToggleMaximize" /></keybind>
@@ -60,7 +60,7 @@
     <default />
     <context name="Root">
       <mousebind button="Right" action="Press"><action name="ShowMenu" menu="root-menu" /></mousebind>
-      <mousebind button="Middle" action="Press"><action name="Execute" command="minos-shell --toggle-launcher" /></mousebind>
+      <mousebind button="Middle" action="Press"><action name="Execute" command="hagra-shell --toggle-launcher" /></mousebind>
     </context>
     <context name="TitleBar">
       <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize" /></mousebind>

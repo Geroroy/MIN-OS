@@ -16,8 +16,8 @@
 | 디스플레이 | Wayland | — |
 | 컴포지터·창 장식 | labwc (wlroots) 서버 측 장식(SSD), Openbox 호환 themerc | 0.7.1 / 0.8.x (Debian trixie) |
 | 앱·셸 UI | Qt 6 Quick/QML, C++ | **6.4.2** (Ubuntu 24.04) / 6.8 (Debian trixie). 6.4 에 없는 기능은 쓰지 않는다 |
-| 공통 부품 | MinUI (직접 작성한 QML 부품, Qt Quick Controls 미사용) | `libs/minui/qml/MinUI/` |
-| 셸 | minos-shell (패널·실행 메뉴·전원 메뉴, wlr-layer-shell) | `shell/qml/` |
+| 공통 부품 | HagraUI (직접 작성한 QML 부품, Qt Quick Controls 미사용) | `libs/hagraui/qml/HagraUI/` |
+| 셸 | hagra-shell (패널·실행 메뉴·전원 메뉴, wlr-layer-shell) | `shell/qml/` |
 | 터미널 | foot | 1.16 |
 | 렌더링 | GPU 가 없는 환경(QEMU, 휴대폰)은 **소프트웨어 렌더링**(labwc pixman, Qt Quick software) | — |
 
@@ -87,7 +87,7 @@
 |---|---|
 | 토큰 JSON | `design/tokens/hagra.tokens.json` |
 | 디자인 패키지 v1 (받은 그대로) | `design/hagra-dancheong-v1/` — 다음 버전은 `design/hagra-dancheong-v2/` 처럼 나란히 둔다 |
-| 실행용 SVG | `libs/minui/qml/MinUI/assets/` (구현 측이 패키지에서 복사·보강) |
+| 실행용 SVG | `libs/hagraui/qml/HagraUI/assets/` (구현 측이 패키지에서 복사·보강) |
 | 배경·로고 | `design/assets/wallpaper/`, `design/assets/brand/` |
 | 기준 이미지(대표 화면) | 패키지 `reference/` (현재 `hagra-dancheong-concept.png` 1672×941). 1×·2× 정확 배율본이 있으면 더 좋다 |
 | 부품 규격·상태 명세 | `design/reference/components.md` 또는 PDF |

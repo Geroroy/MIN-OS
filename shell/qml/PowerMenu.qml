@@ -1,12 +1,12 @@
 // 하그라 셸 — 전원 메뉴 (패널 위 오른쪽). 밝은 표면 + 2px 청록 경계 + 상단 연화 띠.
 import QtQuick
-import MinLayerShell 1.0
-import MinUI 1.0
-import MinShell 1.0
+import HagraLayerShell 1.0
+import HagraUI 1.0
+import HagraShell 1.0
 
 LayerWindow {
     id: menu
-    scope: "minos-power"
+    scope: "hagra-power"
     layer: LayerWindow.Overlay
     anchors: LayerWindow.AnchorRight | LayerWindow.AnchorBottom
     marginBottom: 0   // 패널 exclusive zone 위에 바로 붙는다

@@ -8,7 +8,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 
-Q_LOGGING_CATEGORY(lcPower, "minos.power")
+Q_LOGGING_CATEGORY(lcPower, "hagra.power")
 
 Power::Power(QObject *parent) : QObject(parent) {}
 

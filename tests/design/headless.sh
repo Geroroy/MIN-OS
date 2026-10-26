@@ -5,16 +5,16 @@
 #   hd_stop                           정리
 REPO=${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}
 BUILD=${BUILD:-$REPO/build}
-PREVIEW=$BUILD/tools/preview/minui-preview
-SHELL_BIN=$BUILD/shell/minos-shell
+PREVIEW=$BUILD/tools/preview/hagra-preview
+SHELL_BIN=$BUILD/shell/hagra-shell
 
 hd_start() {
   for t in labwc grim wlr-randr swaybg python3; do command -v $t >/dev/null || { echo "missing tool: $t"; exit 2; }; done
-  [ -x "$PREVIEW" ] || { echo "minui-preview not built: $PREVIEW (make shell)"; exit 2; }
+  [ -x "$PREVIEW" ] || { echo "hagra-preview not built: $PREVIEW (make shell)"; exit 2; }
   export XDG_RUNTIME_DIR=$(mktemp -d /tmp/hagra-design-XXXXXX); chmod 700 "$XDG_RUNTIME_DIR"
   export WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1
-  export QT_QUICK_BACKEND=software QT_LOGGING_RULES="minos.*=false"
-  export MINOS_QML_IMPORT_PATH=$REPO/libs/minui/qml XDG_CURRENT_DESKTOP=MIN MINOS_SHELL=none
+  export QT_QUICK_BACKEND=software QT_LOGGING_RULES="hagra.*=false"
+  export HAGRA_QML_IMPORT_PATH=$REPO/libs/hagraui/qml XDG_CURRENT_DESKTOP=HAGRA HAGRA_SHELL=none
   export HAGRA_ICON_PATH=$REPO/design/assets/icons
   export HAGRA_THEME_PATH=$BUILD/themes            # 테마 팩 (build_themes.py 조립본); HAGRA_THEME=<id> 로 캡처 테마 선택
   export HAGRA_THEME_NO_SESSION_RELOAD=1
@@ -34,5 +34,5 @@ hd_theme_suffix() { [ -n "${HAGRA_THEME:-}" ] && [ "$HAGRA_THEME" != hagra-danch
 hd_wallpaper() { "$BUILD/tools/theme/hagra-theme" wallpaper 2>/dev/null || echo "$REPO/session/wallpaper/hagra-dancheong.png"; }
 hd_wallpaper_fill() { "$BUILD/tools/theme/hagra-theme" wallpaper-fill 2>/dev/null || echo '#E3ECE6'; }
 hd_mode() { wlr-randr --output HEADLESS-1 --custom-mode "${1}@60" --scale "${2:-1}" >/dev/null 2>&1 || wlr-randr --output HEADLESS-1 --scale "${2:-1}" >/dev/null 2>&1; sleep 0.5; }
-hd_kill_clients() { pkill -P $$ -f "minui-preview|minos-shell|swaybg|foot" 2>/dev/null; sleep 0.3; }
+hd_kill_clients() { pkill -P $$ -f "hagra-preview|hagra-shell|swaybg|foot" 2>/dev/null; sleep 0.3; }
 hd_stop() { hd_kill_clients; [ -n "${HD_LABWC:-}" ] && kill "$HD_LABWC" 2>/dev/null; rm -rf "$XDG_RUNTIME_DIR"; }

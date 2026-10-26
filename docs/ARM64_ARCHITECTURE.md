@@ -1,7 +1,7 @@
-# MIN OS ARM64 아키텍처
+# 하그라 ARM64 아키텍처
 
-MIN OS는 x86-64(데스크톱 PC)와 ARM64(Android 스마트폰 위의 QEMU)를 같은 코드베이스로 지원한다.
-사용자 공간(MIN Shell, MinUI, 세션, 설정)은 아키텍처에 독립적이며, 아키텍처에 따라 달라지는 것은
+하그라는 x86-64(데스크톱 PC)와 ARM64(Android 스마트폰 위의 QEMU)를 같은 코드베이스로 지원한다.
+사용자 공간(하그라 셸, HagraUI, 세션, 설정)은 아키텍처에 독립적이며, 아키텍처에 따라 달라지는 것은
 **이미지 빌드(커널 패키지·미러·부트로더·이미지 포맷)**와 **QEMU 실행 옵션**뿐이다.
 
 ## 1. 아키텍처별 구성 요약
@@ -9,15 +9,15 @@ MIN OS는 x86-64(데스크톱 PC)와 ARM64(Android 스마트폰 위의 QEMU)를 
 | 항목 | x86-64 (PC) | ARM64 (Android/Termux QEMU) |
 |---|---|---|
 | 대상 머신 | 실제 PC, QEMU `q35` | QEMU `virt` (GICv3, PCIe) |
-| 이미지 포맷 | live ISO (squashfs + live-boot, BIOS+UEFI) | GPT 디스크 이미지 → `minos-arm64.qcow2` + `vmlinuz` + `initrd.img` 번들 |
+| 이미지 포맷 | live ISO (squashfs + live-boot, BIOS+UEFI) | GPT 디스크 이미지 → `hagra-arm64.qcow2` + `vmlinuz` + `initrd.img` 번들 |
 | 부팅 방식 | GRUB(BIOS/UEFI) → live-boot | **직접 커널 부팅**(`-kernel/-initrd`, 기본·검증됨) 또는 UEFI(AAVMF/edk2) → GRUB arm64-efi (검증됨, 약 20 s 느림) |
 | 커널 | Ubuntu `linux-image-virtual` / Debian `linux-image-amd64` | Ubuntu `linux-image-virtual`(+`linux-modules-extra`) / Debian `linux-image-arm64` |
 | 패키지 미러 | archive.ubuntu.com / deb.debian.org | ports.ubuntu.com / deb.debian.org |
-| 루트 식별 | squashfs (live) | `root=LABEL=minos-root` (ext4, `/dev/vda2`) |
+| 루트 식별 | squashfs (live) | `root=LABEL=hagra-root` (ext4, `/dev/vda2`) |
 | 콘솔 | `ttyS0` | `ttyAMA0` (PL011) |
 | 디스플레이 | virtio-vga / virtio-gpu | `virtio-gpu-pci` (2D, `xres/yres` 로 해상도 지정) |
 | 입력 | USB tablet/keyboard, virtio | `virtio-keyboard-pci`, `virtio-tablet-pci` (VNC 의 절대 좌표 포인터) |
-| 렌더링 | GPU 있으면 GLES, 없으면 pixman/software | 항상 소프트웨어 (`minos.render=software`) |
+| 렌더링 | GPU 있으면 GLES, 없으면 pixman/software | 항상 소프트웨어 (`hagra.render=software`) |
 | 프로필 | `default` | `mobile` (서비스·타이머 최소화, 저널 휘발성) |
 
 빌드 명령은 하나다. `image/build.sh --arch amd64|arm64 --format iso|disk --profile default|mobile`.
@@ -36,10 +36,10 @@ image/config/hooks/60-dev-image.sh     ttyS0 + ttyAMA0 시리얼 자동 로그�
 image/config/hooks/70-mobile.sh        mobile 프로필
 image/build.sh                         3/4단계: squashfs+ISO 또는 파티션+qcow2
 image/qemu/run.sh                      PC 에서 두 아키텍처 실행 (장치 모델 공통)
-android/start-minos.sh                 Termux 실행 스크립트 (같은 장치 모델)
+android/start-hagra.sh                 Termux 실행 스크립트 (같은 장치 모델)
 ```
 
-그 밖의 모든 코드(`shell/`, `libs/`, `session/`)는 아키텍처를 알지 못한다. MIN 컴포넌트는 **대상 아키텍처의 chroot 안에서**
+그 밖의 모든 코드(`shell/`, `libs/`, `session/`)는 아키텍처를 알지 못한다. 하그라 컴포넌트는 **대상 아키텍처의 chroot 안에서**
 빌드되므로(hook 40) 교차 컴파일 설정이 필요 없다. x86-64 호스트에서 ARM64 chroot 는 `qemu-user-static` + `binfmt_misc`
 로 투명하게 실행된다(빌드 시간은 네이티브 대비 약 10~20배).
 
@@ -47,8 +47,8 @@ android/start-minos.sh                 Termux 실행 스크립트 (같은 장치
 
 ```
 GPT
- ├─ p1  MINOS-ESP   128 MiB  FAT  /EFI/BOOT/BOOTAA64.EFI (GRUB standalone, UEFI 부팅용)
- └─ p2  minos-root  ≥ 6 GiB  ext4 (label minos-root)  전체 rootfs, /boot/vmlinuz, /boot/initrd.img, /boot/grub/grub.cfg
+ ├─ p1  HAGRA-ESP   128 MiB  FAT  /EFI/BOOT/BOOTAA64.EFI (GRUB standalone, UEFI 부팅용)
+ └─ p2  hagra-root  ≥ 6 GiB  ext4 (label hagra-root)  전체 rootfs, /boot/vmlinuz, /boot/initrd.img, /boot/grub/grub.cfg
 ```
 
 - loop 장치 없이 만들어진다: `mformat/mcopy`(ESP), `mke2fs -d`(루트), `sfdisk`(GPT), `dd conv=sparse`, `qemu-img convert`.
@@ -59,10 +59,10 @@ GPT
 ## 4. 부팅 흐름 (ARM64, 직접 커널 부팅)
 
 ```
-qemu-system-aarch64 -M virt -kernel vmlinuz -initrd initrd.img -append "root=LABEL=minos-root rw … console=ttyAMA0"
+qemu-system-aarch64 -M virt -kernel vmlinuz -initrd initrd.img -append "root=LABEL=hagra-root rw … console=ttyAMA0"
   → 커널 (Ubuntu generic 6.8, EFI zboot 형식: QEMU 가 직접 풀어 로드)
   → initramfs (initramfs-tools, virtio_blk/virtio_pci 모듈) → LABEL 로 루트 탐색 → ext4 마운트
-  → systemd → greetd(자동 로그인 min) → minos-session → labwc(pixman) → minos-shell(QT_QUICK_BACKEND=software)
+  → systemd → greetd(자동 로그인 hagra) → hagra-session → labwc(pixman) → hagra-shell(QT_QUICK_BACKEND=software)
   → virtio-gpu 스캔아웃 → QEMU VNC 서버 (127.0.0.1:5900) → Android VNC 클라이언트
 ```
 
@@ -70,8 +70,8 @@ qemu-system-aarch64 -M virt -kernel vmlinuz -initrd initrd.img -append "root=LAB
 - Ubuntu arm64 `vmlinuz` 는 gzip 으로 압축된 Image(EFI stub 포함)다. standalone GRUB 에 `gzio` 모듈이 없으면
   "plain image kernel not supported" 로 실패한다 → hook 55 의 모듈 목록에 `gzio` 포함.
 - virtio-gpu 는 렌더 노드(`renderD128`)를 제공하지만 3D 가속이 없다. "렌더 노드가 있으면 GL" 로 판단하면 EGL 이 llvmpipe 로
-  떨어져 TCG 에서 패널이 수십 초 동안 그려지지 않는다 → `minos-session` 이 가상 GPU 드라이버(virtio-pci, bochs, simpledrm 등)를
-  감지해 pixman/Qt software 로 전환하고, mobile 프로필의 GRUB 기본 항목은 `minos.render=software` 를 명시한다.
+  떨어져 TCG 에서 패널이 수십 초 동안 그려지지 않는다 → `hagra-session` 이 가상 GPU 드라이버(virtio-pci, bochs, simpledrm 등)를
+  감지해 pixman/Qt software 로 전환하고, mobile 프로필의 GRUB 기본 항목은 `hagra.render=software` 를 명시한다.
 
 ## 5. 결정 사항과 근거
 

@@ -6,7 +6,7 @@
 #include <QLocalSocket>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(lcIpc, "minos.ipc")
+Q_LOGGING_CATEGORY(lcIpc, "hagra.ipc")
 
 ShellIpc::ShellIpc(QObject *parent) : QObject(parent) {}
 
@@ -24,7 +24,7 @@ QString ShellIpc::socketPath()
     if (dir.isEmpty())
         dir = QStringLiteral("/tmp");
     const QString display = qEnvironmentVariable("WAYLAND_DISPLAY", QStringLiteral("wayland-0"));
-    return dir + QStringLiteral("/minos-shell-") + display + QStringLiteral(".sock");
+    return dir + QStringLiteral("/hagra-shell-") + display + QStringLiteral(".sock");
 }
 
 bool ShellIpc::sendToRunningInstance(const QString &command)

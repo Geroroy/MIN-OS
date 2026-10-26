@@ -14,7 +14,7 @@
 #include <QTextStream>
 #include <algorithm>
 
-Q_LOGGING_CATEGORY(lcApps, "minos.apps")
+Q_LOGGING_CATEGORY(lcApps, "hagra.apps")
 
 AppIndex::AppIndex(QObject *parent)
     : QAbstractListModel(parent)
@@ -64,7 +64,7 @@ void AppIndex::setFilter(const QString &filter)
 void AppIndex::refresh()
 {
     beginResetModel();
-    m_all = scan(applicationDirs(), qEnvironmentVariable("XDG_CURRENT_DESKTOP", QStringLiteral("MIN")));
+    m_all = scan(applicationDirs(), qEnvironmentVariable("XDG_CURRENT_DESKTOP", QStringLiteral("HAGRA")));
     endResetModel();
     rebuildVisible();
     qCInfo(lcApps) << "indexed" << m_all.size() << "applications";
@@ -207,7 +207,7 @@ std::optional<AppEntry> AppIndex::parseDesktopFile(const QString &filePath, cons
         if (!ok) return std::nullopt;
     }
     // OnlyShowIn / NotShowIn
-    const QString desktop = qEnvironmentVariable("XDG_CURRENT_DESKTOP", QStringLiteral("MIN"));
+    const QString desktop = qEnvironmentVariable("XDG_CURRENT_DESKTOP", QStringLiteral("HAGRA"));
     const QStringList desktops = desktop.split(QLatin1Char(':'), Qt::SkipEmptyParts);
     const QStringList onlyShowIn = kv.value(QStringLiteral("OnlyShowIn")).split(QLatin1Char(';'), Qt::SkipEmptyParts);
     const QStringList notShowIn = kv.value(QStringLiteral("NotShowIn")).split(QLatin1Char(';'), Qt::SkipEmptyParts);
@@ -297,9 +297,9 @@ QStringList AppIndex::execToArgs(const QString &exec)
 
 QString AppIndex::terminalProgram() const
 {
-    const QString env = qEnvironmentVariable("MINOS_TERMINAL");
+    const QString env = qEnvironmentVariable("HAGRA_TERMINAL");
     if (!env.isEmpty()) return env;
-    for (const char *cand : { "minos-terminal", "foot", "alacritty", "kitty", "weston-terminal", "xterm" })
+    for (const char *cand : { "hagra-terminal", "foot", "alacritty", "kitty", "weston-terminal", "xterm" })
         if (!QStandardPaths::findExecutable(QLatin1String(cand)).isEmpty())
             return QLatin1String(cand);
     return QStringLiteral("foot");

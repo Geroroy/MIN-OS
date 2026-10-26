@@ -5,10 +5,10 @@ add_library(hagratheme STATIC
   include/hagratheme/thememanager.h
 )
 target_include_directories(hagratheme PUBLIC include)
-target_compile_definitions(hagratheme PUBLIC MINOS_THEME_INSTALL_DIR="${CMAKE_INSTALL_FULL_DATADIR}/hagra/themes")
+target_compile_definitions(hagratheme PUBLIC HAGRA_THEME_INSTALL_DIR="${CMAKE_INSTALL_FULL_DATADIR}/hagra/themes")
 target_link_libraries(hagratheme PUBLIC Qt6::Core Qt6::Gui Qt6::Qml)
 
-if(MINOS_BUILD_TESTS)
+if(HAGRA_BUILD_TESTS)
   find_package(Qt6 COMPONENTS Test QUIET)
   if(Qt6Test_FOUND)
     qt_add_executable(tst_thememanager tests/tst_thememanager.cpp)

@@ -9,13 +9,13 @@
 ```
 design/tokens/hagra.tokens.json   ← 단일 원본 (JSON, hagra-dancheong-v1, status design-v1)
         │  python3 design/tools/gen_tokens.py        (--check: 어긋나면 실패)
-        ├─► libs/minui/qml/MinUI/Theme.qml           QML 앱 내부 UI (MinUI 싱글톤)
+        ├─► libs/hagraui/qml/HagraUI/Theme.qml           QML 앱 내부 UI (HagraUI 싱글톤)
         ├─► session/labwc/themerc-override          labwc 서버 측 창 장식·루트 메뉴·Alt+Tab OSD
         └─► session/foot/foot.ini                   foot 터미널 색상
 ```
 
 - 생성된 세 파일은 헤더에 "생성된 파일" 표시가 있고 직접 수정하지 않는다. `make tokens` 로 재생성, `make tokens-check` 로 검증한다.
-- 셸 패널(`shell/qml`)은 MinUI `Theme` 을 그대로 쓰므로 별도 반영이 필요 없다.
+- 셸 패널(`shell/qml`)은 HagraUI `Theme` 을 그대로 쓰므로 별도 반영이 필요 없다.
 - 적용 범위가 다른 이유: labwc 와 foot 은 QML 이 아니라 각자의 설정 파일을 읽는다. 생성기가 같은 값을 각 형식으로 써 준다.
   값이 어긋나면 `--check` 가 실패하므로 CI/`make test` 에서 잡는다.
 - 토큰 JSON 의 `_meta.status`: `design-v1` = 디자인 패키지 v1 의 값(원본 `design/hagra-dancheong-v1/tokens.json`, 구현을 위해 window/size/font 토큰을 보강). 터미널 팔레트는 아직 provisional.
@@ -25,7 +25,7 @@ design/tokens/hagra.tokens.json   ← 단일 원본 (JSON, hagra-dancheong-v1, s
 
 | 층 | 단위 | 비고 |
 |---|---|---|
-| QML (MinUI, 셸, 앱) | **논리 픽셀** (배율 1.0 기준) | Qt 가 Wayland 출력 배율(정수) 또는 `QT_SCALE_FACTOR` 를 곱해 실제 픽셀로 그린다 |
+| QML (HagraUI, 셸, 앱) | **논리 픽셀** (배율 1.0 기준) | Qt 가 Wayland 출력 배율(정수) 또는 `QT_SCALE_FACTOR` 를 곱해 실제 픽셀로 그린다 |
 | labwc themerc | **실제 픽셀을 출력 배율로 나눈 값**, 즉 논리 픽셀 | labwc 가 출력 배율을 곱한다. `border.width: 1` 은 2× 출력에서 2px |
 | labwc 글꼴 | **pt** (`<font size="9">`) | 배율과 DPI 를 labwc/pango 가 처리 |
 | foot | 글꼴 pt, 패딩 px(논리) | foot 이 출력 배율을 적용 |
@@ -34,7 +34,7 @@ design/tokens/hagra.tokens.json   ← 단일 원본 (JSON, hagra-dancheong-v1, s
 Qt 6.4 는 분수 배율 프로토콜(`wp-fractional-scale-v1`)이 없어 1.5× 출력에서는 컴포지터가 1× 또는 2× 버퍼를 확대한다(흐림).
 갤러리의 150% 캡처는 `QT_SCALE_FACTOR=1.5`(앱 논리 배율)로 배치를 검증하는 용도다.
 
-## 2. 공통 부품 (MinUI, `libs/minui/qml/MinUI/`)
+## 2. 공통 부품 (HagraUI, `libs/hagraui/qml/HagraUI/`)
 
 QML 로 직접 작성했다. Qt Quick Controls 를 쓰지 않는 이유와 제약:
 
@@ -47,31 +47,31 @@ QML 로 직접 작성했다. Qt Quick Controls 를 쓰지 않는 이유와 제�
 | 부품 | 파일 | 구현 주체 | 상태 지원 (기본/호버/눌림/선택/포커스/비활성/오류/진행) |
 |---|---|---|---|
 | 창 프레임 | labwc SSD (`session/labwc/themerc-override`) | **컴포지터** | 활성/비활성만. 호버는 버튼 배경. QML 은 관여 못 함. `MWindowFrameMock` 은 미리보기 모형 |
-| 버튼 | `MButton.qml` | MinUI | 전부 |
-| 입력칸 | `MTextField.qml` | MinUI | 전부 + 한글 조합 중 표시(`composing`) |
-| 검색창 | `MSearchField.qml` | MinUI | 입력칸과 동일 + 지우기 |
-| 메뉴 | `MMenu.qml` (앱 내) / labwc 루트 메뉴 / 셸 메뉴(layer-shell) | MinUI · 컴포지터 · 셸 | 호버/선택(현재)/비활성/구분선/체크. 창 경계 안에서만 |
-| 탭 | `MTabBar.qml` | MinUI | 기본/호버/현재/포커스/비활성 |
-| 체크박스 | `MCheckBox.qml` | MinUI | 전부(진행 제외) |
-| 라디오 | `MRadioButton.qml` + `MRadioGroup.qml` | MinUI | 전부(진행 제외) |
-| 선택 목록 | `MComboBox.qml` | MinUI | 버튼과 동일, 목록은 MMenu |
-| 목록 행 | `MListRow.qml` | MinUI | 기본/호버/선택/포커스/비활성 |
-| 스크롤바 | `MScrollBar.qml` | MinUI | 기본/호버/드래그 |
-| 툴팁 | `MToolTip.qml` | MinUI | 표시/숨김 (창 안) |
+| 버튼 | `MButton.qml` | HagraUI | 전부 |
+| 입력칸 | `MTextField.qml` | HagraUI | 전부 + 한글 조합 중 표시(`composing`) |
+| 검색창 | `MSearchField.qml` | HagraUI | 입력칸과 동일 + 지우기 |
+| 메뉴 | `MMenu.qml` (앱 내) / labwc 루트 메뉴 / 셸 메뉴(layer-shell) | HagraUI · 컴포지터 · 셸 | 호버/선택(현재)/비활성/구분선/체크. 창 경계 안에서만 |
+| 탭 | `MTabBar.qml` | HagraUI | 기본/호버/현재/포커스/비활성 |
+| 체크박스 | `MCheckBox.qml` | HagraUI | 전부(진행 제외) |
+| 라디오 | `MRadioButton.qml` + `MRadioGroup.qml` | HagraUI | 전부(진행 제외) |
+| 선택 목록 | `MComboBox.qml` | HagraUI | 버튼과 동일, 목록은 MMenu |
+| 목록 행 | `MListRow.qml` | HagraUI | 기본/호버/선택/포커스/비활성 |
+| 스크롤바 | `MScrollBar.qml` | HagraUI | 기본/호버/드래그 |
+| 툴팁 | `MToolTip.qml` | HagraUI | 표시/숨김 (창 안) |
 | 알림 | `MNotification.qml` | **셸 소유**(M2 에서 layer-shell 창) | 기본/긴급/동작 버튼 |
-| 대화상자 | `MDialogWindow.qml`(별도 창, labwc 장식) / `MDialogContent.qml` | MinUI + 컴포지터 | 기본 버튼/거부/파괴적 |
-| 진행 표시 | `MProgressBar.qml`, `MBusyBar.qml` | MinUI | 확정/불확정/오류 |
+| 대화상자 | `MDialogWindow.qml`(별도 창, labwc 장식) / `MDialogContent.qml` | HagraUI + 컴포지터 | 기본 버튼/거부/파괴적 |
+| 진행 표시 | `MProgressBar.qml`, `MBusyBar.qml` | HagraUI | 확정/불확정/오류 |
 | 앱 실행·전환 영역 | `shell/qml/Panel.qml`, `Launcher.qml` | **셸** | 활성 창 = 하단 막대 |
-| 아이콘 | `MIcon.qml` | MinUI | 모듈 `assets/<name>.svg` → 외부 아이콘 디렉터리 → 자리 표시자. 비활성은 흐림 |
-| 연화 띠 | `MOrnamentBand.qml` | MinUI (앱 내부 장식) | 가로 타일(108×18 SVG), `compact`(8px, 패널). 입력 없음. 자산 없으면 겹선 대체 |
-| 장식 프레임 | `MOrnamentFrame.qml` | MinUI (앱 내부 오버레이) | 청록 2px + 산호 1px 겹선 + 모서리 결구 4개. 활성/비활성(불투명도). SSD 가 아님 |
-| 장식 구분선 | `MOrnamentDivider.qml` | MinUI | 얇은 선 + 연꽃 포인트 (상태줄·사이드바·대화상자) |
+| 아이콘 | `MIcon.qml` | HagraUI | 모듈 `assets/<name>.svg` → 외부 아이콘 디렉터리 → 자리 표시자. 비활성은 흐림 |
+| 연화 띠 | `MOrnamentBand.qml` | HagraUI (앱 내부 장식) | 가로 타일(108×18 SVG), `compact`(8px, 패널). 입력 없음. 자산 없으면 겹선 대체 |
+| 장식 프레임 | `MOrnamentFrame.qml` | HagraUI (앱 내부 오버레이) | 청록 2px + 산호 1px 겹선 + 모서리 결구 4개. 활성/비활성(불투명도). SSD 가 아님 |
+| 장식 구분선 | `MOrnamentDivider.qml` | HagraUI | 얇은 선 + 연꽃 포인트 (상태줄·사이드바·대화상자) |
 
 ### 2.1 시스템 소유 UI 와 외부 앱
 
 | 범위 | 테마 적용 |
 |---|---|
-| 하그라 셸·하그라 앱(QML) | MinUI 토큰 100% |
+| 하그라 셸·하그라 앱(QML) | HagraUI 토큰 100% |
 | 창 장식·루트 메뉴·Alt+Tab | labwc themerc (토큰 생성) — 모든 창에 동일 적용(SSD) |
 | 터미널(foot) | foot.ini 색상(토큰 생성) |
 | 외부 Qt 앱 | 창 장식만 동일. 내부는 앱의 스타일. (후속: Qt 플랫폼 테마 플러그인으로 색상 제안 가능) |
@@ -108,8 +108,8 @@ y=52  └───────────────────────�
 ## 3. 갤러리
 
 ```sh
-make shell                                   # build/tools/preview/minui-preview 포함
-build/tools/preview/minui-preview libs/minui/gallery/Gallery.qml --state buttons [--scale 1.5]
+make shell                                   # build/tools/preview/hagra-preview 포함
+build/tools/preview/hagra-preview libs/hagraui/gallery/Gallery.qml --state buttons [--scale 1.5]
    # 섹션: buttons inputs selection lists feedback text ornament icons frame
 tests/design/capture-gallery.sh              # 9 섹션 × 100/150/200% → out/design/gallery/<섹션>-<배율>.png
 ```
@@ -121,9 +121,9 @@ tests/design/capture-gallery.sh              # 9 섹션 × 100/150/200% → out/
 
 ```sh
 tests/design/capture-scene.sh    # out/design/scene/scene-100-{default,menu,dialog}.png, scene-fhd-default.png(1920×1080), scene-200-default.png
-build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 직접 실행
+build/tools/preview/hagra-preview design/scenes/FilesScene.qml --state menu   # 직접 실행
 ```
-구성: 배경(swaybg, 사전 렌더링 `session/wallpaper/hagra-dancheong.png`) + 셸 패널(minos-shell, 실제 창 목록) + 비활성 창(`SettingsScene.qml`, 설정→모양 예제) + 활성 창(`FilesScene.qml`). 1920×1080 캡처에는 `NotesScene.qml`(긴 텍스트·탭)을 추가한다.
+구성: 배경(swaybg, 사전 렌더링 `session/wallpaper/hagra-dancheong.png`) + 셸 패널(hagra-shell, 실제 창 목록) + 비활성 창(`SettingsScene.qml`, 설정→모양 예제) + 활성 창(`FilesScene.qml`). 1920×1080 캡처에는 `NotesScene.qml`(긴 텍스트·탭)을 추가한다.
 창 장식·이동·크기 조절·창 제어는 labwc 가 실제로 처리한다(모형 아님). **파일 목록은 예제 데이터이며 실제 파일 작업은 없다.**
 실제 파일 관리자는 M3 에서 `files/` 에 구현하며, 이 장면의 레이아웃·부품을 그대로 가져간다.
 
@@ -190,9 +190,9 @@ build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 
 | 토큰 | `design/tokens/hagra.tokens.json` | (생성물만 설치) |
 | 디자인 패키지 (원본 보존) | `design/hagra-dancheong-v1/`(연한), `design/hagra-dancheong-v2/`(깊은) — tokens.json, assets/*.svg, wallpaper, reference, 문서 | — |
 | 테마 팩 소스 | `design/themes/<id>/{theme.json, tokens.json, preview.png}` (경로로 패키지 자산을 가리킴) → `build/themes/<id>/` 조립 | `/usr/share/hagra/themes/<id>/` |
-| 모듈 자산 (실행용) | `libs/minui/qml/MinUI/assets/<name>.svg` (패키지 사본 12 + 조작 기호 21, `assets/README.md`) | 모듈과 함께 `…/qt6/qml/MinUI/assets/` |
+| 모듈 자산 (실행용) | `libs/hagraui/qml/HagraUI/assets/<name>.svg` (패키지 사본 12 + 조작 기호 21, `assets/README.md`) | 모듈과 함께 `…/qt6/qml/HagraUI/assets/` |
 | 외부 아이콘(선택) | `design/assets/icons/<name>.svg` (`HAGRA_ICON_PATH`) | `/usr/share/hagra/icons/` |
-| 배경 | `session/wallpaper/hagra-dancheong.png` (패키지 wallpaper.png 사전 렌더링, 1920×1080) · 이전 `min-graphite.png` 유지 | `/usr/share/minos/wallpaper/` (`MINOS_WALLPAPER` 로 교체) |
+| 배경 | `session/wallpaper/hagra-dancheong.png` (패키지 wallpaper.png 사전 렌더링, 1920×1080) · 이전 `graphite.png` 유지 | `/usr/share/hagra/wallpaper/` (`HAGRA_WALLPAPER` 로 교체) |
 | 기준 이미지 | `design/hagra-dancheong-v1/reference/hagra-dancheong-concept.png` | — |
 | 캡처 결과 | `out/design/` (git 제외), 대표본은 `docs/screenshots/` | — |
 
@@ -203,9 +203,9 @@ build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 
 
 | 바꿈 | 바꾸지 않음 |
 |---|---|
-| 토큰 원본·생성기, MinUI 부품 17종 추가/확장, 미리보기 실행기, 갤러리, 대표 장면, 캡처 스크립트 | 부팅 파이프라인 구조, 세션 흐름, 셸 동작, 테스트 시나리오, x86/ARM64 공통 UI 경로 |
-| 사용자 노출 이름(GRUB 항목, `/etc/issue`, 세션 항목, 패널 브랜드 라벨, Android 안내) → 하그라/HAGRA | 내부 식별자(`minos-*`, `/etc/minos`, `MinUI`), 호스트명, 패키지 목록 |
-| 배경 이미지: MIN 워드마크 제거(임시 단색) | 배경 파일명·설치 경로 |
+| 토큰 원본·생성기, HagraUI 부품 17종 추가/확장, 미리보기 실행기, 갤러리, 대표 장면, 캡처 스크립트 | 부팅 파이프라인 구조, 세션 흐름, 셸 동작, 테스트 시나리오, x86/ARM64 공통 UI 경로 |
+| 사용자 노출 이름(GRUB 항목, `/etc/issue`, 세션 항목, 패널 브랜드 라벨, Android 안내) → 하그라/HAGRA | 내부 식별자(`hagra-*`, `/etc/hagra`, `HagraUI`), 호스트명, 패키지 목록 |
+| 배경 이미지: 하그라 워드마크 제거(임시 단색) | 배경 파일명·설치 경로 |
 
 ## 7. 테마 시스템 (H2, 2026-10-26)
 
@@ -214,14 +214,14 @@ build/tools/preview/minui-preview design/scenes/FilesScene.qml --state menu   # 
 ```
 design/themes/<id>/theme.json ──build_themes.py──► build/themes/<id>/{theme.json,tokens.json,assets/,wallpaper.png,preview.png,labwc/themerc}
                                                           │ cmake install → /usr/share/hagra/themes/<id>/
-~/.config/minos/theme.conf  [appearance] theme=<id>, useThemeWallpaper=, wallpaper=      (QSettings INI, ARCHITECTURE §2.6)
-~/.local/state/minos/theme/ {current, themerc-override, wallpaper, wallpaper-fill}     (ThemeManager 가 쓰는 관리 상태)
+~/.config/hagra/theme.conf  [appearance] theme=<id>, useThemeWallpaper=, wallpaper=      (QSettings INI, ARCHITECTURE §2.6)
+~/.local/state/hagra/theme/ {current, themerc-override, wallpaper, wallpaper-fill}     (ThemeManager 가 쓰는 관리 상태)
 libs/hagratheme  ThemeManager (C++)  ── registerQmlTypes → QML `import HagraTheme 1.0; ThemeManager`
-                                     ── bindEngine      → MinUI.Theme.applyTokens(tokens) 즉시 + changed() 마다
+                                     ── bindEngine      → HagraUI.Theme.applyTokens(tokens) 즉시 + changed() 마다
 tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | wallpaper | wallpaper-fill | state-dir | set-wallpaper | use-theme-wallpaper | tokens
 ```
 
-- **기본값과 보존**: 팩의 `default: true`(연한 단청) 또는 `/etc/minos/theme.conf` 가 기본. 저장된 선택이 없으면 기본. 설치·업데이트는 선택을 바꾸지 않는다.
+- **기본값과 보존**: 팩의 `default: true`(연한 단청) 또는 `/etc/hagra/theme.conf` 가 기본. 저장된 선택이 없으면 기본. 설치·업데이트는 선택을 바꾸지 않는다.
 - **복귀**: 알 수 없는 ID, 토큰 파싱 실패, 팩 삭제 → 기본 테마. 배경 파일만 없으면 테마는 유지하고 기본 테마 배경을 쓴다.
 - **미리보기 재정의**: `HAGRA_THEME=<id>` 환경 변수는 그 프로세스에서만 적용되고 저장하지 않는다 (캡처 스크립트가 사용).
 - **다른 설정과 분리**: theme.conf 의 `[appearance]` 그룹만 쓴다. 다른 그룹(예: `[sound]`, `[panel]`)은 건드리지 않는다 (단위 테스트 `otherSettingsUntouched`).
@@ -230,7 +230,7 @@ tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | 
 
 | 층 | 전환 방식 | 즉시? |
 |---|---|---|
-| MinUI 앱 내부(셸·미리보기·ThemeManager 를 바인딩한 앱) | `Theme.applyTokens()` — 색·창 장식 값·치수·글꼴·테마 자산(`Theme.asset()` 가 팩 assets/ 우선) | 즉시 (바인딩된 프로세스). 바인딩하지 않은 앱은 다음 실행부터 |
+| HagraUI 앱 내부(셸·미리보기·ThemeManager 를 바인딩한 앱) | `Theme.applyTokens()` — 색·창 장식 값·치수·글꼴·테마 자산(`Theme.asset()` 가 팩 assets/ 우선) | 즉시 (바인딩된 프로세스). 바인딩하지 않은 앱은 다음 실행부터 |
 | labwc 창 장식·루트 메뉴·OSD | 관리 `themerc-override` 재작성 → `labwc --reconfigure`(LABWC_PID) 또는 SIGHUP | 즉시 (labwc 0.7 이 테마를 다시 읽는다; 셸 테스트에서 `read theme` 2회 확인) |
 | 배경 | `hagra-theme wallpaper` 경로로 swaybg 재시작 | 즉시 |
 | foot 터미널 | 기본 테마의 foot.ini 만 설치 | 바뀌지 않음 (후속) |
@@ -238,9 +238,9 @@ tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | 
 
 주의: live ISO(x86-64 개발 이미지)는 홈 디렉터리가 휘발성 overlay 라 테마 선택을 포함한 어떤 사용자 설정도 재부팅 후 남지 않는다. 설치된 시스템과 ARM64 디스크 번들에서는 유지된다(부팅 테스트로 확인).
 
-세션 시작: `minos-session` 이 `hagra-theme sync` 로 상태 파일을 쓰고 labwc 설정 디렉터리를 `$XDG_RUNTIME_DIR/minos-labwc-<uid>/` 에 파일 단위로 조립한다
-(사용자 `~/.config/minos/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/minos/labwc/`). 예전처럼 사용자 디렉터리 전체를 두면 그대로 전부 우선한다.
-`autostart` 는 `MINOS_WALLPAPER`(개발·테스트) > `hagra-theme wallpaper` > 기본 파일 순으로 배경을 고른다.
+세션 시작: `hagra-session` 이 `hagra-theme sync` 로 상태 파일을 쓰고 labwc 설정 디렉터리를 `$XDG_RUNTIME_DIR/hagra-labwc-<uid>/` 에 파일 단위로 조립한다
+(사용자 `~/.config/hagra/labwc/<파일>` > 테마 관리 `themerc-override` > `/etc/hagra/labwc/`). 예전처럼 사용자 디렉터리 전체를 두면 그대로 전부 우선한다.
+`autostart` 는 `HAGRA_WALLPAPER`(개발·테스트) > `hagra-theme wallpaper` > 기본 파일 순으로 배경을 고른다.
 
 ### 7.3 역할 전경 토큰과 어두운 면
 
@@ -292,7 +292,7 @@ tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | 
 
 ### 7.4 설정 → 모양 → 테마 (실제 동작)
 
-`minos-shell --appearance` 또는 실행 메뉴의 "모양" 버튼이 `shell/qml/AppearanceWindow.qml` 을 연다 (labwc 장식의 일반 창).
+`hagra-shell --appearance` 또는 실행 메뉴의 "모양" 버튼이 `shell/qml/AppearanceWindow.qml` 을 연다 (labwc 장식의 일반 창).
 테마 카드(이름·미리보기·설명·ID·"기본"·"✓ 현재")를 클릭하거나 방향키+Space/Enter 로 고르면 저장·즉시 적용된다. "기본 테마로" 버튼, "테마 기본 배경 사용" 체크, 사용자 배경 경로 입력이 있다.
 설정 앱(M2)이 생기면 이 창의 내용을 그대로 옮긴다. `docs/screenshots/h2/appearance-*.png`.
 

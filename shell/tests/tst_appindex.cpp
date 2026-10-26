@@ -1,4 +1,4 @@
-// MIN Shell 단위 테스트 — .desktop 파싱 및 Exec 분해
+// 하그라 셸 단위 테스트 — .desktop 파싱 및 Exec 분해
 #include <QtTest>
 #include <QTemporaryDir>
 #include "appindex.h"
@@ -70,7 +70,7 @@ private slots:
         write(low.filePath("a.desktop"), "[Desktop Entry]\nName=A low\nExec=a\n");
         write(low.filePath("b.desktop"), "[Desktop Entry]\nName=B\nExec=b\nNoDisplay=true\n");
         write(low.filePath("c.desktop"), "[Desktop Entry]\nName=C\nExec=c\n");
-        const auto list = AppIndex::scan({ high.path(), low.path() }, "MIN");
+        const auto list = AppIndex::scan({ high.path(), low.path() }, "HAGRA");
         QCOMPARE(list.size(), 2);
         QCOMPARE(list[0].name, QStringLiteral("A high"));
         QCOMPARE(list[1].name, QStringLiteral("C"));

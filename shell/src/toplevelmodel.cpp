@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "toplevelmodel.h"
-#include "minlayershell/foreigntoplevel.h"
+#include "hagralayershell/foreigntoplevel.h"
 
-using MinLayerShell::Toplevel;
-using MinLayerShell::ToplevelManager;
+using HagraLayerShell::Toplevel;
+using HagraLayerShell::ToplevelManager;
 
 ToplevelModel::ToplevelModel(QObject *parent)
     : QAbstractListModel(parent)

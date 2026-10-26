@@ -1,7 +1,7 @@
 // 하그라 셸 — 모양 설정 창 (설정 → 모양 → 테마). 실제 동작: 테마 선택·저장·즉시 적용, 배경 선택.
 // 설정 앱 전체는 M2 에서 구현되며 그때 이 창의 내용을 가져간다. 창 장식은 labwc(SSD).
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 import HagraTheme 1.0
 
 Window {

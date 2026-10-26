@@ -85,7 +85,7 @@
 ## 5. 이름과 식별자
 
 - 사용자에게 보이는 이름: **하그라**. 영문이 필요한 곳(GRUB 메뉴, 로그, 영문 문서): HAGRA(임시).
-- 내부 식별자(`minos-shell`, `minos-session`, `/etc/minos`, `MinUI`, `minlayershell`)는 의존 관계(패키지명, 서비스, 경로, 테스트)가
+- 내부 식별자(`hagra-shell`, `hagra-session`, `/etc/hagra`, `HagraUI`, `hagralayershell`)는 의존 관계(패키지명, 서비스, 경로, 테스트)가
   얽혀 있어 유지한다. 변경은 컴포넌트 단위로 의존을 확인한 뒤 진행하며, 일괄 치환은 하지 않는다.
   (근거: `tests/`, `image/config/hooks/`, `session/` 이 경로와 바이너리 이름을 직접 참조한다.)
 

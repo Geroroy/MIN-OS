@@ -9,7 +9,7 @@
 //   hagra-theme state-dir            관리 상태 디렉터리 (themerc-override, wallpaper, current)
 //   hagra-theme set-wallpaper PATH   사용자 배경 지정 (테마 기본 배경 사용 해제)
 //   hagra-theme use-theme-wallpaper  테마 기본 배경 사용으로 되돌림
-//   hagra-theme tokens [ID]          토큰 JSON 출력 (MinUI.Theme.applyTokens 형식)
+//   hagra-theme tokens [ID]          토큰 JSON 출력 (HagraUI.Theme.applyTokens 형식)
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QCoreApplication>
 #include <QLoggingCategory>
@@ -23,7 +23,7 @@ using HagraTheme::ThemeManager;
 
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("minos.theme.debug=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("hagra.theme.debug=false"));
     QCoreApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("hagra-theme"));
     const QStringList args = app.arguments().mid(1);

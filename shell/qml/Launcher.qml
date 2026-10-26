@@ -1,13 +1,13 @@
 // 하그라 셸 — 응용 프로그램 실행 메뉴 (패널 위 왼쪽, overlay layer, 키보드 독점)
 // 밝은 표면 + 2px 청록 경계 + 상단 연화 띠. 문양은 입력 문자열 위에 놓이지 않는다 (DESIGN_SPEC "메뉴와 입력칸").
 import QtQuick
-import MinLayerShell 1.0
-import MinUI 1.0
-import MinShell 1.0
+import HagraLayerShell 1.0
+import HagraUI 1.0
+import HagraShell 1.0
 
 LayerWindow {
     id: launcher
-    scope: "minos-launcher"
+    scope: "hagra-launcher"
     layer: LayerWindow.Overlay
     anchors: LayerWindow.AnchorLeft | LayerWindow.AnchorBottom
     marginBottom: 0   // 패널의 exclusive zone 이 이미 공간을 비우므로 추가 여백 없음 (예전 값은 패널 높이를 두 번 더했다)

@@ -1,4 +1,4 @@
-// MIN Shell — 전원 제어 (logind D-Bus)
+// 하그라 셸 — 전원 제어 (logind D-Bus)
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include <QObject>

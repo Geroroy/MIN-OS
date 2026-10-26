@@ -1,6 +1,6 @@
-// MIN Shell — 루트. 패널·실행 메뉴·전원 메뉴 창을 소유하고 IPC 명령을 연결한다.
+// 하그라 셸 — 루트. 패널·실행 메뉴·전원 메뉴 창을 소유하고 IPC 명령을 연결한다.
 import QtQuick
-import MinShell 1.0
+import HagraShell 1.0
 
 Item {
     id: root

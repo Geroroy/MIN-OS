@@ -5,7 +5,7 @@
     "_note": "하그라 · 연한 단청 디자인 패키지 1.0(design/hagra-dancheong-v1/tokens.json)의 값을 저장소 단일 원본으로 옮긴 것. 단위: 색상 #RRGGBB(AA), 치수 QML 논리 픽셀(배율 1.0 기준), 글꼴 크기 px. 이전 Graphite 값은 git 이력(2026-10-24 이전)에 있다.",
     "source": "design/hagra-dancheong-v1/tokens.json (version 1.0)",
     "generated_targets": [
-      "libs/minui/qml/MinUI/Theme.qml",
+      "libs/hagraui/qml/HagraUI/Theme.qml",
       "session/labwc/themerc-override",
       "session/foot/foot.ini"
     ],

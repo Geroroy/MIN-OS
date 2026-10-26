@@ -1,4 +1,4 @@
-# MIN OS 기본 시스템 (Debian trixie / Ubuntu noble 공통 패키지 이름)
+# 하그라 기본 시스템 (Debian trixie / Ubuntu noble 공통 패키지 이름)
 # '#' 주석과 빈 줄은 무시된다.
 apt
 systemd

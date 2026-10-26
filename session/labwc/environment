@@ -1,6 +1,6 @@
-# labwc가 세션 환경에 주입하는 변수 (minos-session 에서도 설정하지만 단독 실행 대비)
-XDG_CURRENT_DESKTOP=MIN
-XDG_SESSION_DESKTOP=minos
+# labwc가 세션 환경에 주입하는 변수 (hagra-session 에서도 설정하지만 단독 실행 대비)
+XDG_CURRENT_DESKTOP=HAGRA
+XDG_SESSION_DESKTOP=hagra
 QT_QPA_PLATFORM=wayland
 QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 MOZ_ENABLE_WAYLAND=1

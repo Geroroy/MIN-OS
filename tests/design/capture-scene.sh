@@ -7,7 +7,7 @@
 set -euo pipefail
 . "$(dirname "$0")/headless.sh"
 OUT=${1:-$REPO/out/design/scene$(hd_theme_suffix)}; mkdir -p "$OUT"   # HAGRA_THEME=hagra-dancheong-deep → out/design/scene-deep
-[ -x "$SHELL_BIN" ] || { echo "minos-shell not built"; exit 2; }
+[ -x "$SHELL_BIN" ] || { echo "hagra-shell not built"; exit 2; }
 trap hd_stop EXIT
 hd_start 1280x720 1
 # labwc 창 장식도 테마에 맞춘다: 캡처용 설정 디렉터리의 themerc-override 를 테마 팩의 것으로 교체

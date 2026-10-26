@@ -1,6 +1,6 @@
 // 전원 아이콘: 1.5px 원호 + 세로선 (단색, text 색 상속)
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 
 Item {
     property color color: Theme.text

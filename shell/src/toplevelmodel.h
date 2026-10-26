@@ -1,10 +1,10 @@
-// MIN Shell — 작업 표시줄용 창 목록 모델 (wlr-foreign-toplevel-management)
+// 하그라 셸 — 작업 표시줄용 창 목록 모델 (wlr-foreign-toplevel-management)
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include <QAbstractListModel>
 #include <QList>
 
-namespace MinLayerShell { class Toplevel; class ToplevelManager; }
+namespace HagraLayerShell { class Toplevel; class ToplevelManager; }
 
 class ToplevelModel : public QAbstractListModel
 {
@@ -32,10 +32,10 @@ Q_SIGNALS:
     void availableChanged();
 
 private:
-    void add(MinLayerShell::Toplevel *t);
-    void remove(MinLayerShell::Toplevel *t);
-    void changed(MinLayerShell::Toplevel *t);
+    void add(HagraLayerShell::Toplevel *t);
+    void remove(HagraLayerShell::Toplevel *t);
+    void changed(HagraLayerShell::Toplevel *t);
 
-    QList<MinLayerShell::Toplevel *> m_items;
+    QList<HagraLayerShell::Toplevel *> m_items;
     bool m_available = false;
 };

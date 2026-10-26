@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 apt-get clean
-rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/minos-* /var/log/*.log /var/log/apt/* 
+rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin /tmp/hagra-* /var/log/*.log /var/log/apt/* 
 find /var/log -type f -exec truncate -s0 {} +
 # machine-id 는 첫 부팅 때 생성
 truncate -s0 /etc/machine-id

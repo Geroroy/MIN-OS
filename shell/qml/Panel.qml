@@ -3,9 +3,9 @@
 // 장식 띠는 입력을 받지 않고 콘텐츠 영역을 침범하지 않는다 (DESIGN_SPEC "하단 패널: 얇은 반복 띠").
 import QtQuick
 import QtQuick.Layouts
-import MinLayerShell 1.0
-import MinUI 1.0
-import MinShell 1.0
+import HagraLayerShell 1.0
+import HagraUI 1.0
+import HagraShell 1.0
 
 LayerWindow {
     id: panel
@@ -18,7 +18,7 @@ LayerWindow {
     readonly property int contentY: bandHeight + Theme.borderWidth
     readonly property int contentHeight: height - contentY
 
-    scope: "minos-panel"
+    scope: "hagra-panel"
     layer: LayerWindow.Bottom
     anchors: LayerWindow.AnchorLeft | LayerWindow.AnchorRight | LayerWindow.AnchorBottom
     exclusiveZone: Theme.panelHeight

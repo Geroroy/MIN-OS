@@ -17,10 +17,10 @@
 
 | 프로필 | 용도 | 미러 | 커널 |
 |---|---|---|---|
-| `debian-trixie` (기본) | **MIN OS 공식 대상.** Debian 13 Stable | `http://deb.debian.org/debian` | `linux-image-amd64` |
+| `debian-trixie` (기본) | **하그라 공식 대상.** Debian 13 Stable | `http://deb.debian.org/debian` | `linux-image-amd64` |
 | `ubuntu-noble` | Debian 미러가 차단된 CI/샌드박스에서 파이프라인 검증용 | `http://archive.ubuntu.com/ubuntu` | `linux-image-generic` |
 
-두 프로필은 **같은 스크립트, 같은 패키지 목록, 같은 MIN 컴포넌트 소스**를 사용한다. 프로필 파일은 미러·스위트·
+두 프로필은 **같은 스크립트, 같은 패키지 목록, 같은 하그라 컴포넌트 소스**를 사용한다. 프로필 파일은 미러·스위트·
 컴포넌트·커널 패키지 이름만 바꾼다. 따라서 ubuntu-noble에서 통과한 파이프라인은 debian-trixie에서도 동일한
 형태로 동작하되, 패키지 버전(Qt 6.4 vs 6.8, labwc 0.7 vs 0.8)에 따른 차이는 별도 확인이 필요하다.
 
@@ -38,13 +38,13 @@
 | `/dev/kvm` | 없음 | QEMU TCG 전용. 부팅 테스트는 느리지만 가능 |
 | Docker 데몬 | 없음 | 컨테이너 기반 빌드 불가 → chroot 기반 |
 
-**결론:** 샌드박스에서 검증되는 것은 "파이프라인과 MIN 컴포넌트가 Debian 계열 rootfs 위에서 동작한다"는 사실이다.
+**결론:** 샌드박스에서 검증되는 것은 "파이프라인과 하그라 컴포넌트가 Debian 계열 rootfs 위에서 동작한다"는 사실이다.
 실제 Debian trixie 이미지 빌드는 Debian 미러에 접근 가능한 개발 PC에서 `sudo make image`로 수행하고,
 그 결과를 `docs/MILESTONE_1.md`의 체크리스트로 확인한다.
 
 ## 4. 호스트와 대상의 Qt 버전 차이
 
-MIN 컴포넌트는 **대상 chroot 안에서** 빌드된다(`image/build.sh` 3단계). 호스트에서 `make shell`로 빌드한
+하그라 컴포넌트는 **대상 chroot 안에서** 빌드된다(`image/build.sh` 3단계). 호스트에서 `make shell`로 빌드한
 바이너리는 헤드리스 테스트 전용이며 이미지에 복사되지 않는다. 지원 범위는 Qt 6.4(Ubuntu 24.04) 이상이며,
 6.4에서 없는 API는 사용하지 않는다.
 

@@ -1,4 +1,4 @@
-// MIN Shell — 애플리케이션 색인 (freedesktop .desktop 스캔) 및 실행
+// 하그라 셸 — 애플리케이션 색인 (freedesktop .desktop 스캔) 및 실행
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 

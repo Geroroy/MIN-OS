@@ -1,6 +1,6 @@
 // 대표 장면의 비활성 창: 긴 텍스트·줄바꿈·탭·버튼을 보여주는 보조 창 (예제, 실제 메모 앱 아님)
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 
 Window {
     id: win

@@ -1,6 +1,6 @@
 // 작업 표시줄 창 항목: 아이콘 + 제목 + 닫기. 활성 창 = 선택 배경 + 굵은 제목 + 하단 3px 막대 (색 이외 단서), 최소화 = 흐린 기울임.
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 
 Rectangle {
     id: task
@@ -19,7 +19,7 @@ Rectangle {
         if (s.indexOf("foot") >= 0 || s.indexOf("term") >= 0) return "terminal"
         if (s.indexOf("files") >= 0) return "folder"
         if (s.indexOf("settings") >= 0) return "settings"
-        if (s.indexOf("hagra") >= 0 || s.indexOf("minos") >= 0 || s.indexOf("preview") >= 0) return "lotus"
+        if (s.indexOf("hagra") >= 0 || s.indexOf("hagra") >= 0 || s.indexOf("preview") >= 0) return "lotus"
         return "window"
     }
 

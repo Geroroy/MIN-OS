@@ -2,9 +2,9 @@
 // ※ 예제 데이터만 표시하는 미리보기이며 실제 파일 작업은 하지 않는다 (복사·삭제·마운트 없음). 실제 파일 관리자는 M3(files/).
 //    기준 시안: design/hagra-dancheong-v1/reference/hagra-dancheong-concept.png (파일 창).
 //    창 제목줄·외곽 경계는 labwc(SSD)가 그리고, 그 안쪽의 연화 띠·모서리 결구·창살은 앱 내부 장식(MOrnamentBand/Frame)이다.
-// 실행: minui-preview design/scenes/FilesScene.qml [--state menu|dialog]   캡처: tests/design/capture-scene.sh
+// 실행: hagra-preview design/scenes/FilesScene.qml [--state menu|dialog]   캡처: tests/design/capture-scene.sh
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 
 Window {
     id: win

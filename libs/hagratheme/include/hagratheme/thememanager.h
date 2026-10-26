@@ -1,9 +1,9 @@
 // 하그라 테마 관리자 — 테마 팩 레지스트리, 선택 저장/복원, 런타임 적용.
 //   테마 팩: <dir>/<id>/theme.json + tokens.json + assets/ + wallpaper.png + preview.png + labwc/themerc
-//   검색 경로: $HAGRA_THEME_PATH(:구분) → ~/.local/share/hagra/themes → /usr/share/hagra/themes (MINOS_THEME_INSTALL_DIR)
-//   선택 저장: ~/.config/minos/theme.conf [appearance] theme=, wallpaper=, useThemeWallpaper=   (docs/ARCHITECTURE.md §2.6)
-//   관리 상태: ~/.local/state/minos/theme/{current, themerc-override, wallpaper}  ← minos-session·autostart 가 읽는다
-//   런타임: 변경 시 changed() → 호스트가 MinUI.Theme.applyTokens(tokens()) 호출 (bindEngine). labwc 는 --reconfigure, 배경은 swaybg 재시작.
+//   검색 경로: $HAGRA_THEME_PATH(:구분) → ~/.local/share/hagra/themes → /usr/share/hagra/themes (HAGRA_THEME_INSTALL_DIR)
+//   선택 저장: ~/.config/hagra/theme.conf [appearance] theme=, wallpaper=, useThemeWallpaper=   (docs/ARCHITECTURE.md §2.6)
+//   관리 상태: ~/.local/state/hagra/theme/{current, themerc-override, wallpaper}  ← hagra-session·autostart 가 읽는다
+//   런타임: 변경 시 changed() → 호스트가 HagraUI.Theme.applyTokens(tokens()) 호출 (bindEngine). labwc 는 --reconfigure, 배경은 swaybg 재시작.
 //   다른 프로세스의 변경은 theme.conf 를 감시해 따라간다.
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
@@ -52,8 +52,8 @@ public:
 
     static QString builtinDefaultId();           // "hagra-dancheong-light"
     static QStringList searchDirs();
-    static QString configFilePath();             // ~/.config/minos/theme.conf
-    static QString stateDir();                   // ~/.local/state/minos/theme
+    static QString configFilePath();             // ~/.config/hagra/theme.conf
+    static QString stateDir();                   // ~/.local/state/hagra/theme
 
     void rescan();
     QVector<ThemeInfo> themes() const { return m_themes; }
@@ -64,7 +64,7 @@ public:
     QString currentName() const { return current().displayName; }
     QString defaultId() const;
 
-    /// MinUI.Theme.applyTokens() 형식: { themeId, displayName, color:{}, window:{}, size:{}, font:{}, assets:{name:url} }
+    /// HagraUI.Theme.applyTokens() 형식: { themeId, displayName, color:{}, window:{}, size:{}, font:{}, assets:{name:url} }
     QVariantMap tokens() const { return tokensFor(current()); }
     QVariantMap tokensFor(const ThemeInfo &t) const;
 
@@ -85,7 +85,7 @@ public:
     /// 실행 중 세션에 반영: labwc --reconfigure, swaybg 재시작. WAYLAND_DISPLAY 가 없으면 아무것도 하지 않는다.
     Q_INVOKABLE void reloadSession();
 
-    /// 호스트 연결: 엔진의 MinUI.Theme 싱글톤에 tokens() 를 적용하고 changed() 마다 다시 적용한다. QML 로드 후 호출.
+    /// 호스트 연결: 엔진의 HagraUI.Theme 싱글톤에 tokens() 를 적용하고 changed() 마다 다시 적용한다. QML 로드 후 호출.
     static void registerQmlTypes(ThemeManager *mgr);
     static bool bindEngine(QQmlEngine *engine, ThemeManager *mgr);
 

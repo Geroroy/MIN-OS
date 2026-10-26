@@ -1,7 +1,7 @@
 // 대표 장면의 보조 창: 설정 → 모양 (디자인 검증용 예제). 설정 앱은 M2 에서 구현되므로 여기의 조작은 저장되지 않는다.
 // 기준 시안: design/hagra-dancheong-v1/reference/hagra-dancheong-concept.png (설정 창, 비활성 상태 확인용).
 import QtQuick
-import MinUI 1.0
+import HagraUI 1.0
 
 Window {
     id: win

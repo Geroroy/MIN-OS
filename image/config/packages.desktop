@@ -1,4 +1,4 @@
-# MIN OS 데스크톱 세션 런타임
+# 하그라 데스크톱 세션 런타임
 labwc
 foot
 swaybg
@@ -9,7 +9,7 @@ libgl1-mesa-dri
 libegl1
 libgles2
 libgbm1
-# Qt 6 런타임 (MIN Shell / MinUI)
+# Qt 6 런타임 (하그라 셸 / HagraUI)
 qt6-wayland
 libqt6svg6
 libqt6dbus6

@@ -1,12 +1,12 @@
-# MIN OS 개발 이미지용 greetd 설정: 'min' 사용자로 자동 로그인 후 minos-session 실행.
-# 설치된 시스템에서는 initial_session 을 제거하고 MIN Greeter(M8) 또는 agreety 로 로그인한다.
+# 하그라 개발 이미지용 greetd 설정: 'hagra' 사용자로 자동 로그인 후 hagra-session 실행.
+# 설치된 시스템에서는 initial_session 을 제거하고 하그라 그리터(M8) 또는 agreety 로 로그인한다.
 [terminal]
 vt = 7
 
 [default_session]
-command = "agreety --cmd minos-session"
+command = "agreety --cmd hagra-session"
 user = "_greetd"
 
 [initial_session]
-command = "minos-session"
-user = "min"
+command = "hagra-session"
+user = "hagra"
