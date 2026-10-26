@@ -105,6 +105,13 @@ bash start-hagra.sh --stop               # 게스트에 전원 끄기 신호 →
 스크립트는 QEMU 설치·이미지·메모리·공간을 확인한 뒤 QEMU 를 실행하고, VNC 주소와 로그 경로를 출력한다.
 시리얼 콘솔 로그는 `logs/serial-<시각>.log` 에 저장된다(개발 이미지는 root 자동 로그인 셸이 열려 있어 디버깅에 쓸 수 있다: `--serial`).
 
+### 6.0 "아무것도 안 보인다"
+
+`hagra` 를 실행하면 Termux 화면은 QEMU 가 도는 동안 그대로 멈춘 것처럼 보인다. 정상이다. 화면은 **VNC 앱**에 나타난다.
+런처가 5초마다 부팅 단계("커널 부팅 중" → "시스템 서비스 시작 중" → "로그인·세션 시작됨")를 Termux 에 출력하므로 그것으로 진행을 확인한다.
+vnc:// 를 여는 앱이 없으면 런처가 알려 준다: F-Droid 에서 AVNC 를 설치하고 앱에서 `127.0.0.1:5900` 에 직접 접속한다.
+다른 Termux 세션(왼쪽 가장자리에서 밀어 열기)에서 `hagra --status` 와 `tail -5 ~/hagra-arm64/logs/serial-*.log` 로 상태를 볼 수 있다.
+
 ### 6.1 "Failed to find an available port: Address already in use"
 
 VNC 포트 5900 을 다른 프로그램이 쓰고 있을 때 QEMU 가 바로 종료된다. 흔한 원인은 이전 설치(`~/minos-arm64`, 이름 정리 전)에서 띄운 QEMU 가 아직 떠 있는 것이다.

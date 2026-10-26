@@ -169,12 +169,37 @@ say "VNC 접속: 127.0.0.1:$((5900 + VNC))   (Android VNC 클라이언트에서 
 say "시리얼 로그: $SERIAL_LOG   —   종료: 패널 전원 메뉴 → Shut down, 또는 bash $0 --stop"
 say "첫 부팅은 소프트웨어 에뮬레이션(TCG)이라 1~3분 걸릴 수 있습니다."
 START=$(date +%s)
-# VNC 앱 자동 열기: QEMU 가 VNC 포트를 연 뒤 vnc:// URL 을 Android 에 전달 (AVNC, bVNC 등이 처리)
-if [ "$OPEN" = 1 ] && command -v termux-open-url >/dev/null; then
+say "이 Termux 화면은 QEMU 가 돌아가는 동안 이대로 둡니다 (화면은 VNC 앱에 나타납니다). 부팅 진행은 아래에 표시됩니다."
+# VNC 앱 자동 열기: QEMU 가 VNC 포트를 연 뒤 vnc:// URL 을 Android 에 전달 (AVNC, bVNC 등이 처리).
+# vnc:// 를 여는 앱이 없으면 그 사실을 알려 준다 (termux-open-url 은 조용히 실패한다).
+VNC_URL="vnc://127.0.0.1:$((5900 + VNC))"
+if [ "$OPEN" = 1 ]; then
   ( for i in $(seq 1 30); do
       sleep 1
-      if [ -s "$PIDFILE" ]; then sleep 1; termux-open-url "vnc://127.0.0.1:$((5900 + VNC))" >/dev/null 2>&1 || true; break; fi
+      if [ -s "$PIDFILE" ]; then
+        sleep 1
+        if command -v am >/dev/null; then
+          out=$(am start -a android.intent.action.VIEW -d "$VNC_URL" 2>&1 || true)
+          case "$out" in *"No Activity found"*|*"Error"*)
+            say "vnc:// 를 여는 앱이 없습니다. F-Droid 에서 AVNC 를 설치한 뒤 앱에서 $VNC_URL 에 직접 접속하십시오 (https://f-droid.org/packages/com.gaurav.avnc/)";;
+          esac
+        elif command -v termux-open-url >/dev/null; then termux-open-url "$VNC_URL" >/dev/null 2>&1 || true
+        fi
+        break
+      fi
     done ) &
 fi
+# 부팅 진행 표시: 시리얼 로그를 5초마다 보고 단계가 바뀔 때만 한 줄 출력한다 (TCG 라 2~5분)
+( last=""; for i in $(seq 1 120); do
+    sleep 5
+    [ -s "$PIDFILE" ] || continue
+    if grep -q -E "hagra login:|hagra# |greetd|Started greetd|Reached target.*(Graphical|Multi-User)" "$SERIAL_LOG" 2>/dev/null; then
+      st="로그인·세션 시작됨 → VNC 앱에서 ${VNC_URL#vnc://} 에 접속하면 잠시 뒤 하그라 바탕화면이 보입니다"
+    elif grep -q -E "systemd\[1\]|Welcome to" "$SERIAL_LOG" 2>/dev/null; then st="시스템 서비스 시작 중…"
+    elif grep -q -E "Linux version|Booting Linux|Run /init" "$SERIAL_LOG" 2>/dev/null; then st="커널 부팅 중…"
+    else st="QEMU 실행됨, 커널 로딩 중… (시리얼 로그: $SERIAL_LOG)"; fi
+    [ "$st" = "$last" ] || { say "[$((i * 5))초] $st"; last=$st; }
+    case "$st" in 로그인*) break;; esac
+  done ) &
 "$QEMU" "${ARGS[@]}" 2>"$QEMU_LOG" || { say "QEMU 가 오류로 종료되었습니다. $QEMU_LOG:"; tail -20 "$QEMU_LOG"; exit 1; }
 say "가동 시간: $(( $(date +%s) - START ))초"
