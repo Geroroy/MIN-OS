@@ -233,6 +233,26 @@ def main():
         check_screenshot.check_foot(Image.open(png).convert("RGB"))
         q.sh("pkill foot")
 
+        step("테마 전환: 깊은 단청 선택 (사용자 설정 저장, 셸·labwc·배경 즉시 반영)")
+        asmin_home = "sudo -u min env HOME=/home/min XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "
+        deep_tokens = os.path.join(REPO, "build", "themes", "hagra-dancheong-deep", "tokens.json")
+        light_tokens = os.path.join(REPO, "design", "tokens", "hagra.tokens.json")
+        rc, out = q.sh(asmin_home + "hagra-theme list")
+        print("   themes:\n      " + out.replace("\n", "\n      "))
+        check("hagra-dancheong-deep" in out and "hagra-dancheong-light" in out, "both theme packs installed in the image")
+        rc, out = q.sh(asmin_home + "hagra-theme apply hagra-dancheong-deep")
+        check(rc == 0 and out.strip().endswith("hagra-dancheong-deep"), f"apply deep theme: {out.strip()}")
+        time.sleep(10)
+        rc, out = q.sh("cat /home/min/.config/minos/theme.conf")
+        check("theme=hagra-dancheong-deep" in out, "selection saved in ~/.config/minos/theme.conf")
+        png = q.screendump("04-theme-deep")
+        if os.path.exists(deep_tokens):
+            check_screenshot.load_tokens(deep_tokens)
+            check_screenshot.check_panel(Image.open(png).convert("RGB"))
+            check_screenshot.load_tokens(light_tokens)
+        else:
+            print("   (build/themes 없음: 깊은 단청 픽셀 검사 건너뜀)")
+
         step("전원: logind Reboot 경로 (minos-shell 와 동일한 D-Bus 호출)")
         if not args.skip_reboot:
             q.child.sendline("busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager Reboot b false")
@@ -251,6 +271,29 @@ def main():
                     break
                 time.sleep(5)
             check(rc == 0, f"second boot session: {out}")
+
+            step("테마 복원 확인: 재부팅 후 깊은 단청 유지 → 기본 테마로 복귀")
+            deadline = time.time() + 120
+            while time.time() < deadline:
+                rc, out = q.sh("cat /run/user/1000/minos-shell.log")
+                if "configured" in out:
+                    break
+                time.sleep(5)
+            rc, out = q.sh(asmin_home + "hagra-theme current")
+            check(out.strip().endswith("hagra-dancheong-deep"), f"theme restored after reboot: {out.strip()}")
+            rc, out = q.sh("tail -3 /home/min/.local/state/minos/session.log")
+            print("   session log:\n      " + out.replace("\n", "\n      "))
+            time.sleep(3)
+            png = q.screendump("05-theme-deep-restored")
+            if os.path.exists(deep_tokens):
+                check_screenshot.load_tokens(deep_tokens)
+                check_screenshot.check_panel(Image.open(png).convert("RGB"))
+                check_screenshot.load_tokens(light_tokens)
+            rc, out = q.sh(asmin_home + "hagra-theme reset")
+            check(out.strip().endswith("hagra-dancheong-light"), f"reset to default: {out.strip()}")
+            time.sleep(10)
+            png = q.screendump("06-theme-light-again")
+            check_screenshot.check_panel(Image.open(png).convert("RGB"))
 
         step("전원: PowerOff")
         q.child.sendline("busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager PowerOff b false")

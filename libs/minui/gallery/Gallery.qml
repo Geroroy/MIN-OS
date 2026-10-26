@@ -10,7 +10,7 @@ Window {
     readonly property string mixed: "보고서_2026년3분기_v2 Final (김민수) 10월23일.pdf"
     readonly property string longText: "하그라는 한국의 미감과 생활에 대한 이해를 바탕으로, 누구나 자기 일을 편안하게 해낼 수 있도록 만드는 운영체제입니다. This sentence mixes Hangul, Latin letters and digits 1234567890 to verify line wrapping, baseline alignment and glyph fallback across fonts at 100 %, 150 % and 200 % scale."
     title: "MinUI 갤러리 — " + section + " · 배율 " + Math.round(previewScale * 100) + "%"
-    width: 760; height: 420
+    width: 760; height: 470
     color: Theme.surface   // 본문 면. bg 는 바탕화면 색이라 어두운 테마에서 글자가 읽히지 않는다
     visible: true
 
@@ -20,7 +20,7 @@ Window {
 
         Row { spacing: Theme.paddingLarge
             MLabel { text: "MinUI · " + win.section; font.bold: true; font.pixelSize: Theme.fontSizeTitle }
-            MLabel { text: "토큰 " + Theme.tokenSet + " (" + Theme.tokenStatus + ") · 배율 " + Math.round(previewScale * 100) + "% · 논리 760×420"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
+            MLabel { text: "토큰 " + Theme.tokenSet + " (" + Theme.tokenStatus + ") · 배율 " + Math.round(previewScale * 100) + "% · 논리 760×470"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
         }
         MSeparator { width: parent.width }
 
@@ -169,7 +169,14 @@ Window {
                         MIcon { id: ai; name: modelData; size: 36; anchors.horizontalCenter: parent.horizontalCenter }
                         MLabel { text: ai.ready ? modelData : modelData + " ✗"; font.pixelSize: 9; color: ai.ready ? Theme.textMuted : Theme.danger; width: 43; horizontalAlignment: Text.AlignHCenter } } }
             }
-            MLabel { text: "띠는 가로 반복, 프레임은 겹선 + 모서리 결구. 자산은 모듈 assets/ 에서 로드 (설치 경로와 동일)."; muted: true; font.pixelSize: Theme.fontSizeSmall }
+            Row { spacing: Theme.paddingLarge   // 폴더 실루엣·종류 표시의 크기별 가독성 (24/32/48/72)
+                Repeater { model: [24, 32, 48, 72]; delegate: Row { required property int modelData; spacing: 4; anchors.bottom: parent.bottom
+                    MIcon { name: "folder-writing"; size: modelData; anchors.bottom: parent.bottom }
+                    MIcon { name: "folder-translation"; size: modelData; anchors.bottom: parent.bottom }
+                    MIcon { name: "document"; size: modelData; anchors.bottom: parent.bottom }
+                    MLabel { text: modelData + "px"; muted: true; font.pixelSize: 10; anchors.bottom: parent.bottom } } }
+            }
+            MLabel { text: "띠는 가로 반복, 프레임은 겹선 + 모서리 결구. 자산은 현재 테마 팩 assets/ → 모듈 assets/ 순으로 로드. 테마: " + Theme.themeName + " (" + Theme.themeId + ")"; muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width }
         }
         // ---- 조작 아이콘 ----
         Column { visible: win.section === "icons"; spacing: Theme.paddingLarge; width: parent.width

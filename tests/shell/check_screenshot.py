@@ -15,8 +15,6 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 _tok_path = os.environ.get("HAGRA_CHECK_TOKENS") or os.path.join(REPO, "design", "tokens", "hagra.tokens.json")
 if "--tokens" in sys.argv:
     _i = sys.argv.index("--tokens"); _tok_path = sys.argv[_i + 1]; del sys.argv[_i:_i + 2]
-with open(_tok_path, encoding="utf-8") as f:
-    TOK = json.load(f)
 
 
 def rgb(hexstr):
@@ -26,20 +24,28 @@ def rgb(hexstr):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-C = TOK["color"]
-SURFACE = rgb(C["surface"])
-PANEL = rgb(C.get("panel", C["surface"]))          # 패널 바탕 (역할 토큰; 없으면 surface)
-PANEL_DARK = (0.299 * PANEL[0] + 0.587 * PANEL[1] + 0.114 * PANEL[2]) < 128
-OCHRE = rgb(C.get("ochre", C["accent"]))
-BG = rgb(C["bg"])
-BORDER = rgb(C["border"])
-BORDER_STRONG = rgb(C["borderStrong"])
-ACCENT = rgb(C["accent"])
-SELECTION = rgb(C["selection"])
-S = TOK["size"]
-PANEL_H = S["panelHeight"]
-BAND_H = S["panelBandHeight"]
-BORDER_W = S["borderWidth"]
+def load_tokens(path):
+    """검사 기준 토큰을 바꾼다 (테마별 검사: 부팅 테스트가 깊은 단청 전환 뒤 호출)."""
+    global TOK, C, SURFACE, PANEL, PANEL_DARK, OCHRE, BG, BORDER, BORDER_STRONG, ACCENT, SELECTION, S, PANEL_H, BAND_H, BORDER_W
+    with open(path, encoding="utf-8") as f:
+        TOK = json.load(f)
+    C = TOK["color"]
+    SURFACE = rgb(C["surface"])
+    PANEL = rgb(C.get("panel", C["surface"]))          # 패널 바탕 (역할 토큰; 없으면 surface)
+    PANEL_DARK = (0.299 * PANEL[0] + 0.587 * PANEL[1] + 0.114 * PANEL[2]) < 128
+    OCHRE = rgb(C.get("ochre", C["accent"]))
+    BG = rgb(C["bg"])
+    BORDER = rgb(C["border"])
+    BORDER_STRONG = rgb(C["borderStrong"])
+    ACCENT = rgb(C["accent"])
+    SELECTION = rgb(C["selection"])
+    S = TOK["size"]
+    PANEL_H = S["panelHeight"]
+    BAND_H = S["panelBandHeight"]
+    BORDER_W = S["borderWidth"]
+
+
+load_tokens(_tok_path)
 LAUNCHER_W, LAUNCHER_H = 360, 440
 POWER_W = 240
 
