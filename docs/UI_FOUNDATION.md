@@ -41,7 +41,7 @@ QML 로 직접 작성했다. Qt Quick Controls 를 쓰지 않는 이유와 제�
 - 이유: 각진 형태·1px 테두리·상태 단서를 토큰 하나로 통제하고, Controls 의 스타일 계층(Basic/Fusion)과 애니메이션을 피하며,
   Qt 6.4 ~ 6.8 에서 동일하게 보이게 하기 위해서다. 의존성이 QtQuick 만으로 줄어 소프트웨어 렌더링 비용도 낮다.
 - 제약: Controls 가 제공하는 접근성 트리(`Accessible` 역할), 입력 메서드 힌트, 휠·터치 기본 처리를 직접 붙여야 한다.
-  현재 `Accessible.role` 은 붙이지 않았다 → 후속 과제. 키보드 탐색은 `activeFocusOnTab` + `Keys` 로 구현했다.
+  `Accessible.role/name` 과 press/toggle 동작은 P2(2026-10-26)에서 모든 조작 부품에 붙였다. 키보드 탐색은 `activeFocusOnTab` + `Keys` 로 구현했다.
 - 선택과 포커스는 독립이다: 선택 = `selection` 배경 + 왼쪽 3px 막대(또는 하단 막대), 포커스 = 1px 링(`focusRing`).
 
 | 부품 | 파일 | 구현 주체 | 상태 지원 (기본/호버/눌림/선택/포커스/비활성/오류/진행) |
@@ -61,6 +61,8 @@ QML 로 직접 작성했다. Qt Quick Controls 를 쓰지 않는 이유와 제�
 | 알림 | `MNotification.qml` | **셸 소유**(M2 에서 layer-shell 창) | 기본/긴급/동작 버튼 |
 | 대화상자 | `MDialogWindow.qml`(별도 창, labwc 장식) / `MDialogContent.qml` | HagraUI + 컴포지터 | 기본 버튼/거부/파괴적 |
 | 진행 표시 | `MProgressBar.qml`, `MBusyBar.qml` | HagraUI | 확정/불확정/오류 |
+| 슬라이더 | `MSlider.qml` (P2) | HagraUI | 기본/호버/끌기/포커스/비활성, ←/→·PageUp/Down·Home/End |
+| 앱 아이콘·실행 메뉴 행 | `shell/qml/AppIcon.qml`, `LauncherRow.qml` | **셸** | 아이콘 테마(hicolor) → 머리글자 타일 대체. 선택/포커스/머리글/즐겨찾기 표시 |
 | 앱 실행·전환 영역 | `shell/qml/Panel.qml`, `Launcher.qml` | **셸** | 활성 창 = 하단 막대 |
 | 아이콘 | `MIcon.qml` | HagraUI | 모듈 `assets/<name>.svg` → 외부 아이콘 디렉터리 → 자리 표시자. 비활성은 흐림 |
 | 연화 띠 | `MOrnamentBand.qml` | HagraUI (앱 내부 장식) | 가로 타일(108×18 SVG), `compact`(8px, 패널). 입력 없음. 자산 없으면 겹선 대체 |
@@ -290,11 +292,16 @@ tools/theme      hagra-theme CLI     list | current | apply ID | reset | sync | 
 
 비활성 글자는 의도적으로 4.5:1 미만(동작 차단을 함께 표시). 연한 단청의 "포커스 링/패널" 1.00:1 은 패널이 밝아 `focusRingOnDark` 가 쓰이지 않기 때문이다(밝은 면에서는 `focusRing` 5.20:1).
 
-### 7.4 설정 → 모양 → 테마 (실제 동작)
+### 7.4 테마 설정에 이르는 길 (P1, 2026-10-26)
 
-`hagra-shell --appearance` 또는 실행 메뉴의 "모양" 버튼이 `shell/qml/AppearanceWindow.qml` 을 연다 (labwc 장식의 일반 창).
-테마 카드(이름·미리보기·설명·ID·"기본"·"✓ 현재")를 클릭하거나 방향키+Space/Enter 로 고르면 저장·즉시 적용된다. "기본 테마로" 버튼, "테마 기본 배경 사용" 체크, 사용자 배경 경로 입력이 있다.
-설정 앱(M2)이 생기면 이 창의 내용을 그대로 옮긴다. `docs/screenshots/h2/appearance-*.png`.
+세 경로 모두 설정 앱 `hagra-settings` 의 "모양과 테마" 페이지를 연다 (`docs/screenshots/p1/`):
+
+1. **실행 메뉴** — 시작(하그라) → 바닥의 **설정** 버튼, 또는 **시스템** 탭 → 모양과 테마 / 배경 바꾸기 / 디스플레이 설정. 실행 메뉴는 앱 · 즐겨찾기 · 시스템 세 탭으로 나뉜다.
+2. **바탕 화면 우클릭** — **개인 설정** ▸ 배경 바꾸기 · 모양과 테마 · 디스플레이 설정 (`session/labwc/menu.xml`).
+3. **설정 앱** — 설정 → 모양과 테마 → 테마 카드(미리보기·설명·밝기·현재/기본 표시) 클릭 또는 방향키+Space. 밝게/어둡게, 포인트 색, 기본 테마로, 커서. 배경은 "배경" 페이지.
+
+셸 IPC: `hagra-shell --settings [페이지]` / `--appearance`. 설정 앱이 설치되지 않은 개발 호스트에서는 셸 내장 `AppearanceWindow.qml` 이 대신 열린다.
+변경은 즉시 저장·적용되며(`~/.config/hagra/theme.conf`), "기본 테마로" 가 되돌린다. 토큰·변형 규칙: `docs/DESIGN_TOKENS.md`.
 
 ### 7.5 새 테마 추가 방법
 

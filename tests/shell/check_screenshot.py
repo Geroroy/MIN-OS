@@ -121,8 +121,13 @@ def check_launcher(img):
         fail("launcher left border missing")
     if not row_mostly(img, y0, BORDER_STRONG, x0, x1, frac=0.8):
         fail(f"launcher top border not at y={y0}: popup not flush with panel?")
-    # 오른쪽 바깥은 launcher 색이 아니어야 함
-    if region_mostly(img, x1 + 5, y0 + 5, x1 + 100, y1 - 5, SURFACE, frac=0.5):
+    # 오른쪽 경계(2px borderStrong)가 x1-2..x1-1 에 있고 그 바깥에는 없어야 함 (배경이 surface 와 비슷한 어두운 테마도 판정 가능)
+    def col_mostly(x, color, frac=0.6):
+        hits = sum(1 for y in range(y0 + 4, y1 - 4) if close(img.getpixel((x, y)), color))
+        return hits / max(1, y1 - y0 - 8) >= frac
+    if not (col_mostly(x1 - 1, BORDER_STRONG) or col_mostly(x1 - 2, BORDER_STRONG)):
+        fail(f"launcher right border not at x={x1 - 1}: launcher not {LAUNCHER_W}px wide?")
+    if col_mostly(x1 + 3, BORDER_STRONG) or col_mostly(x1 + 8, BORDER_STRONG):
         fail(f"launcher wider than {LAUNCHER_W}px?")
     # 상단 장식 띠
     if row_frac_not(img, y0 + 2 + S["ornamentBandHeight"] // 2, [SURFACE, BG], x0 + 4, x1 - 4) < 0.3:

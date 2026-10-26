@@ -52,6 +52,11 @@ Window {
         // ---- 입력 ----
         Column { visible: win.section === "inputs"; spacing: Theme.paddingLarge; width: parent.width
             Row { spacing: Theme.paddingLarge
+                MSlider { width: 220; value: 45; valueText: "45%" }
+                MSlider { width: 220; value: 70; valueText: "비활성"; enabled: false }
+                MSlider { width: 160; from: -1; to: 1; stepSize: 0.1; value: 0.3; valueText: "+0.3" }
+            }
+            Row { spacing: Theme.paddingLarge
                 MTextField { placeholder: "기본 (자리 표시 문구)" }
                 MTextField { text: win.mixed; width: 220 }
                 MTextField { text: "포커스"; focus: win.section === "inputs"; width: 100 }
@@ -181,7 +186,8 @@ Window {
         // ---- 조작 아이콘 ----
         Column { visible: win.section === "icons"; spacing: Theme.paddingLarge; width: parent.width
             Grid { columns: 10; spacing: Theme.padding; width: parent.width
-                Repeater { model: ["home", "search", "download", "image", "trash", "file", "folder", "drive", "usb", "back", "forward", "up", "view-grid", "view-list", "terminal", "window", "power", "close", "apps", "error", "check"]
+                Repeater { model: ["home", "search", "download", "image", "trash", "file", "folder", "drive", "usb", "back", "forward", "up", "view-grid", "view-list", "terminal", "window", "power", "close", "apps", "error", "check",
+                                   "speaker", "speaker-muted", "keyboard", "mouse", "globe", "language", "network", "network-off", "ethernet", "bell", "bell-off", "battery", "battery-charging", "accessibility", "info", "display", "text-size", "cursor", "calendar", "star", "menu", "workspace", "reset", "refresh", "sun", "moon", "palette", "clock", "lock"]
                     delegate: Column { required property string modelData; spacing: 2; width: 48
                         MIcon { id: fi; name: modelData; anchors.horizontalCenter: parent.horizontalCenter }
                         MLabel { text: fi.ready ? modelData : modelData + " ✗"; font.pixelSize: 9; color: fi.ready ? Theme.textMuted : Theme.danger; width: 48; horizontalAlignment: Text.AlignHCenter } } }

@@ -29,6 +29,7 @@ struct ThemeInfo {
     QString wallpaper;
     QString preview;
     QString labwcThemerc;
+    QString footConfig;      // 테마별 터미널(foot) 설정; 비어 있으면 없음
     QString wallpaperFill;   // swaybg -c (배경 이미지 바깥 색)
     QString appearance;      // "light" | "dark" — 본문(surface) 밝기. 설정 앱의 밝게/어둡게 전환에 쓴다
     QVariantList accents;    // 포인트 색 변형 [{id, name, accent, accentText, focusRing, borderStrong?}] (테마 팩이 정의, 대비 검증 완료)

@@ -8,5 +8,42 @@
   "wallpaper": "../../../session/wallpaper/hagra-dancheong.png",
   "preview": "preview.png",
   "_note": "경로는 이 파일 기준 상대 경로. design/tools/build_themes.py 가 build/themes/<id>/ 에 자급 팩(theme.json, tokens.json, assets/, wallpaper.png, preview.png, labwc/themerc)으로 조립하고 CMake 가 /usr/share/hagra/themes/<id>/ 에 설치한다.",
-  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py"
+  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py",
+  "appearance": "light",
+  "accents": [
+    {
+      "id": "pine",
+      "name": "소나무",
+      "accent": "#2F5D4A",
+      "accentText": "#FFFFFF",
+      "focusRing": "#2F5D4A",
+      "name_en": "Pine"
+    },
+    {
+      "id": "vermilion",
+      "name": "주홍",
+      "accent": "#B8452F",
+      "accentText": "#FFFFFF",
+      "focusRing": "#B8452F",
+      "name_en": "Vermilion"
+    },
+    {
+      "id": "indigo",
+      "name": "군청",
+      "accent": "#2F4E8A",
+      "accentText": "#FFFFFF",
+      "focusRing": "#2F4E8A",
+      "name_en": "Indigo"
+    },
+    {
+      "id": "ochre",
+      "name": "황토",
+      "accent": "#8A6418",
+      "accentText": "#FFFFFF",
+      "focusRing": "#8A6418",
+      "name_en": "Ochre"
+    }
+  ],
+  "displayName_en": "Light Dancheong",
+  "description_en": "Bright ivory body with celadon title bars. The default HAGRA theme (design package v1)."
 }

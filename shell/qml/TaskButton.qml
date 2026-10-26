@@ -68,7 +68,7 @@ Rectangle {
             width: 22; height: 22
             anchors.verticalCenter: parent.verticalCenter
             onClicked: task.closeRequested()
-            MToolTip { text: "창 닫기" }
+            MToolTip { text: qsTr("창 닫기") }
         }
     }
     MouseArea {

@@ -62,13 +62,13 @@ bool PowerBackend::idleToolAvailable() const { return Proc::has(QStringLiteral("
 
 QString PowerBackend::idleReason() const
 {
-    return idleToolAvailable() ? QString() : QStringLiteral("유휴 시 화면 끄기·자동 절전은 swayidle 이 필요합니다. 이 이미지에는 포함되어 있지 않아 설정을 제공하지 않습니다 (설치: swayidle).");
+    return idleToolAvailable() ? QString() : tr("유휴 시 화면 끄기·자동 절전은 swayidle 이 필요합니다. 이 이미지에는 포함되어 있지 않아 설정을 제공하지 않습니다 (설치: swayidle).");
 }
 
 bool PowerBackend::action(const QString &name)
 {
     QDBusInterface login1(QStringLiteral("org.freedesktop.login1"), QStringLiteral("/org/freedesktop/login1"), QStringLiteral("org.freedesktop.login1.Manager"), QDBusConnection::systemBus());
-    if (!login1.isValid()) { emit failed(QStringLiteral("logind 에 연결할 수 없습니다")); return false; }
+    if (!login1.isValid()) { emit failed(tr("logind 에 연결할 수 없습니다")); return false; }
     QDBusReply<void> r = login1.call(name, true);
     if (!r.isValid()) { emit failed(r.error().message()); return false; }
     return true;

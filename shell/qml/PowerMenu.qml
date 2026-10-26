@@ -39,10 +39,10 @@ LayerWindow {
         Keys.onSpacePressed: run(entries[current].action)
         property int current: 0
         readonly property var entries: [
-            { label: "시스템 종료", action: "poweroff", icon: "power" },
-            { label: "다시 시작",   action: "reboot",   icon: "up" },
-            { label: "로그아웃",    action: "logout",   icon: "back" },
-            { label: "취소",        action: "cancel",   icon: "close" },
+            { label: qsTr("시스템 종료"), action: "poweroff", icon: "power" },
+            { label: qsTr("다시 시작"),   action: "reboot",   icon: "up" },
+            { label: qsTr("로그아웃"),    action: "logout",   icon: "back" },
+            { label: qsTr("취소"),        action: "cancel",   icon: "close" },
         ]
         function run(action) {
             menu.visible = false

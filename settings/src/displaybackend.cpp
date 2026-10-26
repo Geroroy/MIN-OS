@@ -77,13 +77,13 @@ QList<OutputInfo> DisplayBackend::parse(const QString &text)
 void DisplayBackend::refresh()
 {
     m_outputs.clear();
-    if (qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) { m_available = false; m_reason = QStringLiteral("Wayland 세션 밖에서 실행 중입니다 (WAYLAND_DISPLAY 없음)."); emit refreshed(); return; }
-    if (!Proc::has(QStringLiteral("wlr-randr"))) { m_available = false; m_reason = QStringLiteral("wlr-randr 가 설치되어 있지 않습니다. 디스플레이 설정은 wlr-output-management 클라이언트가 필요합니다."); emit refreshed(); return; }
+    if (qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) { m_available = false; m_reason = tr("Wayland 세션 밖에서 실행 중입니다 (WAYLAND_DISPLAY 없음)."); emit refreshed(); return; }
+    if (!Proc::has(QStringLiteral("wlr-randr"))) { m_available = false; m_reason = tr("wlr-randr 가 설치되어 있지 않습니다. 디스플레이 설정은 wlr-output-management 클라이언트가 필요합니다."); emit refreshed(); return; }
     const ProcResult r = Proc::run(QStringLiteral("wlr-randr"));
-    if (!r.ok()) { m_available = false; m_reason = QStringLiteral("wlr-randr 실행 실패: ") + (r.err.isEmpty() ? QString::number(r.code) : r.err.trimmed()); emit refreshed(); return; }
+    if (!r.ok()) { m_available = false; m_reason = tr("wlr-randr 실행 실패: ") + (r.err.isEmpty() ? QString::number(r.code) : r.err.trimmed()); emit refreshed(); return; }
     m_outputs = parse(r.out);
     m_available = !m_outputs.isEmpty();
-    m_reason = m_available ? QString() : QStringLiteral("컴포지터가 출력 정보를 주지 않았습니다.");
+    m_reason = m_available ? QString() : tr("컴포지터가 출력 정보를 주지 않았습니다.");
     emit refreshed();
 }
 
@@ -127,7 +127,7 @@ bool DisplayBackend::apply(const QString &output, const QString &mode, double sc
 {
     const ProcResult r = Proc::run(QStringLiteral("wlr-randr"), argsFor(output, mode, scale, transform, enabled), 6000);
     if (!r.ok()) {
-        const QString msg = r.err.trimmed().isEmpty() ? QStringLiteral("wlr-randr 종료 코드 %1").arg(r.code) : r.err.trimmed();
+        const QString msg = r.err.trimmed().isEmpty() ? tr("wlr-randr 종료 코드 %1").arg(r.code) : r.err.trimmed();
         qCWarning(lcDisplay) << "apply failed" << output << msg;
         emit error(msg);
         refresh();

@@ -42,7 +42,7 @@ void SoundBackend::refresh()
             }
         } else {
             m_available = false;
-            m_reason = QStringLiteral("wpctl 는 있지만 PipeWire 세션에 연결하지 못했습니다 (pipewire/wireplumber 사용자 서비스가 실행 중인지 확인). ") + v.err.trimmed();
+            m_reason = tr("wpctl 는 있지만 PipeWire 세션에 연결하지 못했습니다 (pipewire/wireplumber 사용자 서비스가 실행 중인지 확인). ") + v.err.trimmed();
         }
     } else if (Proc::has(QStringLiteral("pactl"))) {
         m_tool = QStringLiteral("pactl");
@@ -57,11 +57,11 @@ void SoundBackend::refresh()
             const ProcResult s = Proc::run(QStringLiteral("pactl"), { QStringLiteral("list"), QStringLiteral("short"), QStringLiteral("sinks") });
             if (s.ok()) m_sinks = parsePactlSinks(s.out);
         } else {
-            m_available = false; m_reason = QStringLiteral("pactl 가 오디오 서버에 연결하지 못했습니다. ") + v.err.trimmed();
+            m_available = false; m_reason = tr("pactl 가 오디오 서버에 연결하지 못했습니다. ") + v.err.trimmed();
         }
     } else {
         m_available = false; m_tool.clear();
-        m_reason = QStringLiteral("오디오 서버 제어 도구가 없습니다. 이 이미지에는 PipeWire(wireplumber) 가 포함되어 있지 않아 볼륨·장치 설정을 제공할 수 없습니다. 설치: pipewire pipewire-pulse wireplumber (명령 wpctl).");
+        m_reason = tr("오디오 서버 제어 도구가 없습니다. 이 이미지에는 PipeWire(wireplumber) 가 포함되어 있지 않아 볼륨·장치 설정을 제공할 수 없습니다. 설치: pipewire pipewire-pulse wireplumber (명령 wpctl).");
     }
     emit refreshed();
 }

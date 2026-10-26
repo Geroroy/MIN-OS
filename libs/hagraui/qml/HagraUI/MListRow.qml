@@ -20,6 +20,10 @@ Rectangle {
 
     width: parent ? parent.width : implicitWidth
     implicitHeight: Theme.rowHeight
+    Accessible.role: Accessible.ListItem
+    Accessible.name: text + (detail.length ? ", " + detail : "")
+    Accessible.selected: selected
+    Accessible.onPressAction: if (enabled) clicked(null)
     radius: Theme.radius
     color: !enabled ? "transparent" : selected ? Theme.selection
          : mouse.containsMouse ? (onDark ? Qt.rgba(Theme.sidebarText.r, Theme.sidebarText.g, Theme.sidebarText.b, 0.14) : Theme.surfaceRaised) : "transparent"

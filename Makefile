@@ -38,6 +38,7 @@ tokens:
 tokens-check:
 	python3 -I design/tools/gen_tokens.py --check
 	python3 -I design/tools/build_themes.py $(BUILD)/themes --check
+	python3 -I design/tools/contrast_check.py
 
 themes:   # 테마 팩 조립 (make shell 에도 포함됨): design/themes/<id> → build/themes/<id>
 	python3 -I design/tools/build_themes.py $(BUILD)/themes
@@ -47,6 +48,9 @@ design-captures: shell
 	tests/design/capture-scene.sh
 	HAGRA_THEME=hagra-dancheong-deep tests/design/capture-gallery.sh
 	HAGRA_THEME=hagra-dancheong-deep tests/design/capture-scene.sh
+	HAGRA_THEME=hagra-dancheong-night tests/design/capture-gallery.sh
+	HAGRA_THEME=hagra-dancheong-night tests/design/capture-scene.sh
+	tests/design/capture-settings.sh
 
 test-unit: shell
 	cd $(BUILD) && ctest --output-on-failure

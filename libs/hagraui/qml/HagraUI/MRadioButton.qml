@@ -14,6 +14,11 @@ Item {
     implicitWidth: mark.width + (label.visible ? Theme.paddingLarge + label.implicitWidth : 0)
     implicitHeight: Theme.controlHeight
     activeFocusOnTab: enabled
+    Accessible.role: Accessible.RadioButton
+    Accessible.name: text
+    Accessible.checkable: true
+    Accessible.checked: checked
+    Accessible.onPressAction: if (enabled && group) group.select(control)
     Keys.onSpacePressed: if (enabled && group) group.select(control)
 
     Rectangle {

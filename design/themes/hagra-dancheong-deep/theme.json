@@ -7,5 +7,34 @@
   "assets": "../../hagra-dancheong-v2/assets",
   "wallpaper": "../../hagra-dancheong-v2/assets/wallpaper.png",
   "preview": "preview.png",
-  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py"
+  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py",
+  "appearance": "light",
+  "accents": [
+    {
+      "id": "vermilion",
+      "name": "주홍",
+      "accent": "#A52E20",
+      "accentText": "#F2EADB",
+      "focusRing": "#A52E20",
+      "name_en": "Vermilion"
+    },
+    {
+      "id": "indigo",
+      "name": "군청",
+      "accent": "#203C7A",
+      "accentText": "#F2EADB",
+      "focusRing": "#203C7A",
+      "name_en": "Indigo"
+    },
+    {
+      "id": "ochre",
+      "name": "황토",
+      "accent": "#79541B",
+      "accentText": "#F2EADB",
+      "focusRing": "#79541B",
+      "name_en": "Ochre"
+    }
+  ],
+  "displayName_en": "Deep Dancheong",
+  "description_en": "Deep pine-green backdrop and panel with celadon, vermilion, indigo and ochre ornament. The body stays ivory (design package v2). Optional theme."
 }

@@ -23,6 +23,10 @@ Rectangle {
     border.color: !enabled ? Theme.border : error ? Theme.danger : input.activeFocus ? Theme.accent : (hover.hovered ? Theme.textMuted : Theme.borderStrong)
 
     activeFocusOnTab: enabled   // Tab 체인에 포함 (포커스는 안쪽 TextInput 으로 전달)
+    Accessible.role: Accessible.EditableText
+    Accessible.name: placeholder
+    Accessible.editable: !input.readOnly
+    Accessible.description: error && errorText.length ? errorText : ""
     function forceActiveFocus() { input.forceActiveFocus() }
     onActiveFocusChanged: if (activeFocus && !input.activeFocus) input.forceActiveFocus()
 

@@ -15,7 +15,9 @@ qt_add_executable(hagra-shell
 target_compile_definitions(hagra-shell PRIVATE
   HAGRA_QML_INSTALL_DIR="${HAGRA_QML_INSTALL_DIR}"
   HAGRA_VERSION="${PROJECT_VERSION}"
+  HAGRA_TRANSLATIONS_DIR="${CMAKE_INSTALL_PREFIX}/${HAGRA_TRANSLATIONS_INSTALL_DIR}"
 )
+hagra_add_translations(hagra-shell ${CMAKE_CURRENT_SOURCE_DIR}/i18n/hagra-shell_en.ts)
 target_link_libraries(hagra-shell PRIVATE
   hagralayershell hagratheme
   Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::DBus Qt6::Network

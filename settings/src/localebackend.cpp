@@ -28,7 +28,7 @@ QVariantList LocaleBackend::parseLocaleList(const QString &out)
         if (seen.contains(norm)) continue;
         seen << norm;
         const QLocale loc(norm.section(QLatin1Char('.'), 0, 0));
-        QString name = norm == QLatin1String("C.UTF-8") ? QStringLiteral("기본 (C.UTF-8)") : QLocale::languageToString(loc.language()) + QStringLiteral(" (") + QLocale::territoryToString(loc.territory()) + QLatin1Char(')');
+        QString name = norm == QLatin1String("C.UTF-8") ? tr("기본 (C.UTF-8)") : QLocale::languageToString(loc.language()) + QStringLiteral(" (") + QLocale::territoryToString(loc.territory()) + QLatin1Char(')');
         l << QVariantMap{ { QStringLiteral("code"), norm }, { QStringLiteral("name"), name } };
     }
     std::stable_sort(l.begin(), l.end(), [](const QVariant &a, const QVariant &b) {
@@ -76,7 +76,7 @@ static void writeConf(const QString &path, const QString &lang, const QString &t
     QDir().mkpath(QFileInfo(path).absolutePath());
     QFile f(path);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) return;
-    QString s = QStringLiteral("# hagra-settings: 언어·지역 (다음 로그인부터 적용; hagra-session 이 읽는다)\n");
+    QString s = QStringLiteral("# hagra-settings: locale (applied at next login; read by hagra-session)\n");
     if (!lang.isEmpty()) s += QStringLiteral("LANG=") + lang + QLatin1Char('\n');
     if (!time.isEmpty()) s += QStringLiteral("LC_TIME=") + time + QLatin1Char('\n');
     f.write(s.toUtf8());

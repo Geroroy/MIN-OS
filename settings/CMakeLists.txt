@@ -18,7 +18,9 @@ set(HAGRA_SETTINGS_BACKENDS
 )
 qt_add_executable(hagra-settings src/main.cpp ${HAGRA_SETTINGS_BACKENDS} qml/qml.qrc)
 target_include_directories(hagra-settings PRIVATE src)
-target_compile_definitions(hagra-settings PRIVATE HAGRA_QML_INSTALL_DIR="${HAGRA_QML_INSTALL_DIR}" HAGRA_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(hagra-settings PRIVATE HAGRA_QML_INSTALL_DIR="${HAGRA_QML_INSTALL_DIR}" HAGRA_VERSION="${PROJECT_VERSION}"
+  HAGRA_TRANSLATIONS_DIR="${CMAKE_INSTALL_PREFIX}/${HAGRA_TRANSLATIONS_INSTALL_DIR}")
+hagra_add_translations(hagra-settings ${CMAKE_CURRENT_SOURCE_DIR}/i18n/hagra-settings_en.ts)
 target_link_libraries(hagra-settings PRIVATE hagratheme Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::DBus Qt6::Network Qt6::Xml)
 install(TARGETS hagra-settings RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES org.hagra.settings.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)

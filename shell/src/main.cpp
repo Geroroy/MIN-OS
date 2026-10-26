@@ -6,6 +6,8 @@
 #include <QQmlContext>
 #include <QQuickStyle>
 #include <QLoggingCategory>
+#include <QLocale>
+#include <QTranslator>
 #include <QProcess>
 #include <QStandardPaths>
 
@@ -19,6 +21,27 @@
 #include "shellipc.h"
 #include "toplevelmodel.h"
 
+
+// 번역: 원문은 한국어. LANGUAGE/LC_MESSAGES/LANG 이 한국어가 아니면 <base>_<lang>.qm 을 찾는다 ($HAGRA_TRANSLATIONS → 설치 경로).
+static void hagraLoadTranslation(QCoreApplication &app, const QString &base)
+{
+    const QLocale locale;
+    if (locale.language() == QLocale::Korean) return;
+    static QTranslator translator;
+    QStringList dirs;
+    const QString env = qEnvironmentVariable("HAGRA_TRANSLATIONS");
+    if (!env.isEmpty()) dirs << env;
+    dirs << QStringLiteral(HAGRA_TRANSLATIONS_DIR);
+    for (const QString &d : dirs) {
+        if (translator.load(locale, base, QStringLiteral("_"), d)) {
+            app.installTranslator(&translator);
+            qInfo("%s: translation loaded: %s (%s)", qPrintable(base), qPrintable(translator.language()), qPrintable(d));
+            return;
+        }
+    }
+    qInfo("%s: no translation for %s — Korean UI", qPrintable(base), qPrintable(locale.name()));
+}
+
 int main(int argc, char *argv[])
 {
     HagraLayerShell::prepareEnvironment();
@@ -30,6 +53,7 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain(QStringLiteral("hagra.local"));
     app.setDesktopFileName(QStringLiteral("org.hagra.shell"));
     app.setQuitOnLastWindowClosed(false);
+    hagraLoadTranslation(app, QStringLiteral("hagra-shell"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("HAGRA desktop shell (panel, launcher, power menu)"));

@@ -9,6 +9,8 @@ OUT/<id>/ 에 자급 팩을 만든다:
   wallpaper.png   사전 렌더링 배경
   preview.png     설정 화면 미리보기 (저장소의 사전 렌더링 480×270, design/tools/make_previews.py)
   labwc/themerc   gen_tokens.py 의 themerc 생성 결과 (labwc 가 지원하는 키만)
+  foot/foot.ini   터미널 팔레트 (토큰에 terminal 이 있을 때). 셸이 foot -c <state>/foot.ini 로 띄운다
+  theme.json 에 appearance(light|dark) 와 accents(포인트 색 변형) 도 복사된다
 
 사용: python3 design/tools/build_themes.py OUT_DIR        (CMake 가 build/themes 로 호출)
       python3 design/tools/build_themes.py OUT_DIR --check (팩이 최신인지 확인; 아니면 1)
@@ -83,12 +85,18 @@ def build(out, check=False):
             changed.append(f"{tid}/preview.png")
         if write_if_changed(os.path.join(dst, "labwc", "themerc"), gen_tokens.themerc(tokens).encode("utf-8")):
             changed.append(f"{tid}/labwc/themerc")
+        if "terminal" in tokens and write_if_changed(os.path.join(dst, "foot", "foot.ini"), gen_tokens.foot_ini(tokens).encode("utf-8")):
+            changed.append(f"{tid}/foot/foot.ini")
         pack_meta = {
             "id": tid, "displayName": meta["displayName"], "description": meta.get("description", ""),
             "default": bool(meta.get("default", False)),
             "tokens": "tokens.json", "assets": "assets", "wallpaper": "wallpaper.png", "preview": "preview.png",
             "labwcThemerc": "labwc/themerc",
+            "footConfig": "foot/foot.ini" if "terminal" in tokens else "",
             "wallpaperFill": tokens["color"]["bg"],
+            "appearance": meta.get("appearance", "light"),
+            **{k: v for k, v in meta.items() if k.startswith("displayName_") or k.startswith("description_")},
+            "accents": meta.get("accents", []),
         }
         if write_if_changed(os.path.join(dst, "theme.json"), (json.dumps(pack_meta, ensure_ascii=False, indent=2) + "\n").encode("utf-8")):
             changed.append(f"{tid}/theme.json")

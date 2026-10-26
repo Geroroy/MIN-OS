@@ -3,7 +3,8 @@
 import os, sys
 from PIL import Image
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-PAIRS = {"hagra-dancheong-light": "out/design/scene/scene-100-default.png", "hagra-dancheong-deep": "out/design/scene-deep/scene-100-default.png"}
+PAIRS = {"hagra-dancheong-light": "out/design/scene/scene-100-default.png", "hagra-dancheong-deep": "out/design/scene-deep/scene-100-default.png",
+         "hagra-dancheong-night": "out/design/scene-night/scene-100-default.png"}
 for tid, src in PAIRS.items():
     s = os.path.join(REPO, src)
     if not os.path.exists(s):

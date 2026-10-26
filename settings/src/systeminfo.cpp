@@ -45,8 +45,8 @@ void SystemInfo::refresh()
 {
     QVariantMap m;
     const QVariantMap rel = readKeyValueFile(QStringLiteral("/etc/hagra-release"));
-    m[QStringLiteral("hagraName")] = rel.value(QStringLiteral("HAGRA_DISPLAY_NAME"), QStringLiteral("하그라"));
-    m[QStringLiteral("hagraVersion")] = rel.value(QStringLiteral("HAGRA_VERSION"), QStringLiteral(HAGRA_VERSION) + QStringLiteral(" (개발 호스트)"));
+    m[QStringLiteral("hagraName")] = rel.value(QStringLiteral("HAGRA_DISPLAY_NAME"), tr("하그라"));
+    m[QStringLiteral("hagraVersion")] = rel.value(QStringLiteral("HAGRA_VERSION"), QStringLiteral(HAGRA_VERSION) + tr(" (개발 호스트)"));
     m[QStringLiteral("hagraBase")] = rel.value(QStringLiteral("HAGRA_BASE"), QString());
     m[QStringLiteral("hagraBuildDate")] = rel.value(QStringLiteral("HAGRA_BUILD_DATE"), QString());
     const QVariantMap os = readKeyValueFile(QStringLiteral("/etc/os-release"));
@@ -68,7 +68,7 @@ void SystemInfo::refresh()
                 cpu = l.section(QLatin1Char(':'), 1).trimmed();
         }
     }
-    m[QStringLiteral("cpu")] = cpu.isEmpty() ? QStringLiteral("알 수 없음") : cpu;
+    m[QStringLiteral("cpu")] = cpu.isEmpty() ? tr("알 수 없음") : cpu;
     m[QStringLiteral("cores")] = cores > 0 ? cores : QThread::idealThreadCount();
     struct sysinfo si{};
     if (sysinfo(&si) == 0) {
@@ -83,9 +83,9 @@ void SystemInfo::refresh()
     m[QStringLiteral("live")] = root.fileSystemType() == "overlay" || QFile::exists(QStringLiteral("/run/live/medium"));
     m[QStringLiteral("qtVersion")] = QString::fromLatin1(qVersion());
     const ProcResult lw = Proc::run(QStringLiteral("labwc"), { QStringLiteral("--version") }, 2000);
-    m[QStringLiteral("compositor")] = lw.ok() ? lw.out.trimmed() : QStringLiteral("labwc (버전 확인 불가)");
+    m[QStringLiteral("compositor")] = lw.ok() ? lw.out.trimmed() : tr("labwc (버전 확인 불가)");
     m[QStringLiteral("session")] = qEnvironmentVariable("XDG_SESSION_TYPE", QStringLiteral("?")) + QStringLiteral(" / ") + qEnvironmentVariable("XDG_CURRENT_DESKTOP", QStringLiteral("?"));
-    m[QStringLiteral("renderer")] = qEnvironmentVariable("QT_QUICK_BACKEND").isEmpty() ? QStringLiteral("GPU (OpenGL)") : QStringLiteral("소프트웨어 (") + qEnvironmentVariable("QT_QUICK_BACKEND") + QLatin1Char(')');
+    m[QStringLiteral("renderer")] = qEnvironmentVariable("QT_QUICK_BACKEND").isEmpty() ? QStringLiteral("GPU (OpenGL)") : tr("소프트웨어 (") + qEnvironmentVariable("QT_QUICK_BACKEND") + QLatin1Char(')');
     QVariantList screens;
     for (QScreen *s : QGuiApplication::screens())
         screens << QStringLiteral("%1: %2×%3 @ %4x, %5 dpi").arg(s->name()).arg(s->size().width()).arg(s->size().height()).arg(s->devicePixelRatio()).arg(qRound(s->logicalDotsPerInch()));
@@ -109,7 +109,7 @@ QString SystemInfo::shellLogPath() const
 QString SystemInfo::readTail(const QString &path, int lines) const
 {
     QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) return QStringLiteral("(파일 없음: %1)").arg(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) return tr("(파일 없음: %1)").arg(path);
     QStringList all = QString::fromUtf8(f.readAll()).split(QLatin1Char('\n'));
     if (all.size() > lines) all = all.mid(all.size() - lines);
     return all.join(QLatin1Char('\n'));

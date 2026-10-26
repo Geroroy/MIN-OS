@@ -42,10 +42,10 @@ void NetworkBackend::refresh()
             if (!e.ip().isLoopback() && !e.ip().isLinkLocal()) addrs << e.ip().toString();
         QString kind;
         switch (i.type()) {
-        case QNetworkInterface::Wifi: kind = QStringLiteral("무선"); break;
-        case QNetworkInterface::Ethernet: kind = QStringLiteral("유선"); break;
-        case QNetworkInterface::Virtual: kind = QStringLiteral("가상"); break;
-        default: kind = QStringLiteral("기타");
+        case QNetworkInterface::Wifi: kind = tr("무선"); break;
+        case QNetworkInterface::Ethernet: kind = tr("유선"); break;
+        case QNetworkInterface::Virtual: kind = tr("가상"); break;
+        default: kind = tr("기타");
         }
         QFile op(QStringLiteral("/sys/class/net/%1/operstate").arg(i.name()));
         const QString state = op.open(QIODevice::ReadOnly) ? QString::fromUtf8(op.readAll()).trimmed() : QString();
@@ -57,10 +57,10 @@ void NetworkBackend::refresh()
     m_nm = Proc::has(QStringLiteral("nmcli"));
     if (m_nm) {
         const ProcResult r = Proc::run(QStringLiteral("nmcli"), { QStringLiteral("-t"), QStringLiteral("general"), QStringLiteral("status") }, 3000);
-        if (!r.ok()) { m_nm = false; m_reason = QStringLiteral("nmcli 가 NetworkManager 에 연결하지 못했습니다 (서비스 미실행?). ") + r.err.trimmed(); }
+        if (!r.ok()) { m_nm = false; m_reason = tr("nmcli 가 NetworkManager 에 연결하지 못했습니다 (서비스 미실행?). ") + r.err.trimmed(); }
         else m_reason.clear();
     } else {
-        m_reason = QStringLiteral("NetworkManager 가 설치되어 있지 않아 Wi-Fi 검색·연결 설정은 제공하지 않습니다. 아래는 커널이 보고하는 인터페이스 상태입니다 (읽기 전용). 설치: network-manager.");
+        m_reason = tr("NetworkManager 가 설치되어 있지 않아 Wi-Fi 검색·연결 설정은 제공하지 않습니다. 아래는 커널이 보고하는 인터페이스 상태입니다 (읽기 전용). 설치: network-manager.");
     }
     emit refreshed();
 }

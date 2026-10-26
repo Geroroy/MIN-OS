@@ -116,6 +116,19 @@ python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra
 grim -t png "$OUT/07-launcher-deep.png"
 python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra-dancheong-deep/tokens.json" "$OUT/07-launcher-deep.png" launcher
 "$SHELL_BIN" --toggle-launcher; sleep 0.5
+# 밤 단청(어두운 본문): 패널·실행 메뉴가 어두운 토큰으로 그려지고 터미널 팔레트 파일이 생긴다
+"$THEME_BIN" apply hagra-dancheong-night >/dev/null
+sleep 2.5
+grep -q 'applied theme tokens "hagra-dancheong-night"' "$OUT/shell-theme.log" || { echo "FAIL: shell did not pick up the night theme"; cat "$OUT/shell-theme.log"; exit 1; }
+grim -t png "$OUT/09-panel-night.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra-dancheong-night/tokens.json" "$OUT/09-panel-night.png" panel
+"$SHELL_BIN" --toggle-launcher; sleep 1
+grim -t png "$OUT/10-launcher-night.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" --tokens "$BUILD/themes/hagra-dancheong-night/tokens.json" "$OUT/10-launcher-night.png" launcher
+"$SHELL_BIN" --toggle-launcher; sleep 0.5
+[ -s "$("$THEME_BIN" state-dir)/foot.ini" ] || { echo "FAIL: per-theme foot.ini not written"; exit 1; }
+grep -q 'background=16302B' "$("$THEME_BIN" state-dir)/foot.ini" || { echo "FAIL: foot.ini is not the night palette"; exit 1; }
+"$THEME_BIN" apply hagra-dancheong-deep >/dev/null; sleep 2
 # 저장·복원: 새 프로세스가 같은 선택을 읽는다
 [ "$("$THEME_BIN" current)" = hagra-dancheong-deep ] || { echo "FAIL: theme selection not persisted"; exit 1; }
 grep -q 'window.active.title.bg.color: #28574A' "$("$THEME_BIN" state-dir)/themerc-override" || { echo "FAIL: managed themerc-override not written for deep theme"; exit 1; }
@@ -126,8 +139,20 @@ sleep 2.5
 grep -q 'applied theme tokens "hagra-dancheong-light"' "$OUT/shell-theme.log" || { echo "FAIL: shell did not return to the light theme"; cat "$OUT/shell-theme.log"; exit 1; }
 grim -t png "$OUT/08-panel-light-again.png"
 python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/08-panel-light-again.png" panel
-echo "ok: theme round trip light → deep → light (persisted, labwc reloaded, unknown id reverted)"
+echo "ok: theme round trip light → deep → night → deep → light (persisted, labwc reloaded, foot.ini, unknown id reverted)"
 "$SHELL_BIN" --quit; sleep 0.5
+
+# 영어 UI: LANG=en_US.UTF-8 로 띄우면 번역이 로드되고(로그 확인) 실행 메뉴가 같은 자리에 그려진다 (글자는 픽셀 검사 범위 밖)
+LANG=en_US.UTF-8 LANGUAGE=en HAGRA_TRANSLATIONS=$BUILD/translations "$SHELL_BIN" > "$OUT/shell-en.log" 2>&1 &
+SHELL_PID=$!
+for i in $(seq 1 40); do grep -q 'layer surface "hagra-panel" configured' "$OUT/shell-en.log" 2>/dev/null && break; sleep 0.5; done
+sleep 1
+grep -q 'translation loaded: en' "$OUT/shell-en.log" || { echo "FAIL: English translation not loaded"; cat "$OUT/shell-en.log"; exit 1; }
+"$SHELL_BIN" --toggle-launcher; sleep 1
+grim -t png "$OUT/11-launcher-en.png"
+python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/11-launcher-en.png" launcher
+"$SHELL_BIN" --quit; sleep 0.5
+echo "ok: English UI (hagra-shell_en.qm) loaded and launcher rendered"
 
 # 1920×1080 회귀: 첫 configure 가 QML 초기 폭과 다를 때 셸이 죽지 않고 패널이 전체 폭을 채워야 한다 (layerwindow 생성 중 resize 지연)
 if command -v wlr-randr >/dev/null; then

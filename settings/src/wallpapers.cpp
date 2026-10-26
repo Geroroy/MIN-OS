@@ -19,7 +19,7 @@ QStringList Wallpapers::searchDirs() const
     QStringList d;
     d << userDir();
     d << QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + QStringLiteral("/Wallpapers");
-    d << QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + QStringLiteral("/배경");
+    d << QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + tr("/배경");
     for (const QString &g : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
         d << g + QStringLiteral("/hagra/wallpaper") << g + QStringLiteral("/backgrounds");
     for (const QString &p : qEnvironmentVariable("HAGRA_WALLPAPER_PATH").split(QLatin1Char(':'), Qt::SkipEmptyParts)) d.prepend(p);
@@ -49,7 +49,7 @@ void Wallpapers::refresh()
     };
     HagraTheme::ThemeManager tm;   // 테마 팩 배경 (설정 저장 없음, 조회만)
     for (const auto &t : tm.themes())
-        add(t.wallpaper, t.displayName + QStringLiteral(" 테마 배경"), QStringLiteral("theme"));
+        add(t.wallpaper, t.displayName + tr(" 테마 배경"), QStringLiteral("theme"));
     for (const QString &dir : searchDirs()) {
         QDir d(dir);
         if (!d.exists()) continue;

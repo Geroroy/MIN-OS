@@ -28,6 +28,28 @@ if(HAGRA_BUILD_TESTS)
   enable_testing()   # add_test() 보다 먼저 호출되어야 ctest 가 테스트를 인식한다
 endif()
 
+# 번역: *_en.ts → *.qm (lrelease). Qt6LinguistTools 가 없으면 건너뛴다 (영문 UI 없이 한국어만).
+find_package(Qt6 COMPONENTS LinguistTools QUIET)
+set(HAGRA_TRANSLATIONS_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/hagra/translations")
+function(hagra_add_translations target)
+  if(NOT Qt6LinguistTools_FOUND)
+    message(STATUS "하그라: Qt6LinguistTools not found — ${target} translations skipped")
+    return()
+  endif()
+  set(qm_files)
+  foreach(ts ${ARGN})
+    get_filename_component(base ${ts} NAME_WE)
+    set(qm ${CMAKE_BINARY_DIR}/translations/${base}.qm)
+    add_custom_command(OUTPUT ${qm}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/translations
+      COMMAND Qt6::lrelease -silent ${ts} -qm ${qm}
+      DEPENDS ${ts} COMMENT "lrelease ${base}")
+    list(APPEND qm_files ${qm})
+  endforeach()
+  add_custom_target(${target}-translations ALL DEPENDS ${qm_files})
+  install(FILES ${qm_files} DESTINATION ${HAGRA_TRANSLATIONS_INSTALL_DIR})
+endfunction()
+
 add_subdirectory(libs/hagralayershell)
 add_subdirectory(libs/hagraui)
 add_subdirectory(libs/hagratheme)
@@ -38,6 +60,7 @@ add_subdirectory(tools/theme)
 # 런타임(ThemeManager)은 $HAGRA_THEME_PATH → ~/.local/share/hagra/themes → 설치 경로 순으로 찾는다.
 file(GLOB_RECURSE HAGRA_THEME_SOURCES CONFIGURE_DEPENDS
   ${CMAKE_SOURCE_DIR}/design/themes/*/theme.json ${CMAKE_SOURCE_DIR}/design/themes/*/tokens.json
+  ${CMAKE_SOURCE_DIR}/design/themes/*/preview.png ${CMAKE_SOURCE_DIR}/design/themes/*/wallpaper.png
   ${CMAKE_SOURCE_DIR}/design/tokens/hagra.tokens.json ${CMAKE_SOURCE_DIR}/design/hagra-dancheong-v*/assets/*)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/themes/.stamp
   COMMAND python3 -I ${CMAKE_SOURCE_DIR}/design/tools/build_themes.py ${CMAKE_BINARY_DIR}/themes

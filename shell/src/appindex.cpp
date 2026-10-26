@@ -401,6 +401,14 @@ bool AppIndex::launchCommand(const QString &command, bool inTerminal)
     e.name = command;
     e.exec = command;
     e.terminal = inTerminal;
+    // 기본 터미널이 foot 이고 테마 관리자가 테마별 foot.ini 를 써 두었으면 그것으로 띄운다 (테마 전환 시 새 터미널부터 팔레트 반영)
+    if (!inTerminal && QFileInfo(command).fileName() == QLatin1String("foot")) {
+        QString state = qEnvironmentVariable("XDG_STATE_HOME");
+        if (state.isEmpty()) state = QDir::homePath() + QStringLiteral("/.local/state");
+        const QString ini = state + QStringLiteral("/hagra/theme/foot.ini");
+        if (QFileInfo::exists(ini))
+            e.exec = command + QStringLiteral(" -c \"") + ini + QLatin1Char('"');
+    }
     return startEntry(e);
 }
 

@@ -21,7 +21,7 @@ LayerWindow {
 
     property int tab: 0                                   // 0 앱 · 1 즐겨찾기 · 2 시스템
     readonly property bool searching: search.text.length > 0
-    readonly property var tabNames: ["앱", "즐겨찾기", "시스템"]
+    readonly property var tabNames: [qsTr("앱"), qsTr("즐겨찾기"), qsTr("시스템")]
     readonly property string fileManagerId: Apps.firstInCategory("FileManager")
 
     function toggle() { visible = !visible }
@@ -60,14 +60,14 @@ LayerWindow {
     function buildFavModel() {
         var m = []
         var favs = LauncherState.favorites, rec = LauncherState.recent
-        m.push({ header: true, name: "즐겨찾기" })
+        m.push({ header: true, name: qsTr("즐겨찾기") })
         var nf = 0
         for (var i = 0; i < favs.length; ++i) { var e = Apps.entry(favs[i]); if (e.appId) { e.favorite = true; m.push(e); ++nf } }
-        if (nf === 0) m.push({ header: true, empty: true, name: "", hint: "즐겨찾기가 비어 있습니다 — 앱 목록에서 오른쪽 클릭 → 즐겨찾기에 추가" })
-        m.push({ header: true, name: "최근 실행" })
+        if (nf === 0) m.push({ header: true, empty: true, name: "", hint: qsTr("즐겨찾기가 비어 있습니다 — 앱 목록에서 오른쪽 클릭 → 즐겨찾기에 추가") })
+        m.push({ header: true, name: qsTr("최근 실행") })
         var nr = 0
         for (var j = 0; j < rec.length; ++j) { var r = Apps.entry(rec[j]); if (r.appId) { r.favorite = LauncherState.isFavorite(r.appId); m.push(r); ++nr } }
-        if (nr === 0) m.push({ header: true, empty: true, name: "", hint: "최근 실행한 앱이 없습니다" })
+        if (nr === 0) m.push({ header: true, empty: true, name: "", hint: qsTr("최근 실행한 앱이 없습니다") })
         return m
     }
     function firstSelectable(l) { for (var i = 0; i < l.model.length; ++i) if (!l.model[i].header) return i; return -1 }
@@ -122,8 +122,8 @@ LayerWindow {
                     id: search
                     anchors.fill: parent
                     anchors.margins: Theme.paddingLarge
-                    placeholder: "앱 검색 — 이름·설명·초성(ㅌㅁ)"
-                    Accessible.name: "응용 프로그램 검색"
+                    placeholder: qsTr("앱 검색 — 이름·설명·초성(ㅌㅁ)")
+                    Accessible.name: qsTr("응용 프로그램 검색")
                     onTextChanged: { Apps.filter = text; appList.currentIndex = 0; if (text.length) launcher.tab = 0 }
                     onAccepted: launcher.activateCurrent()
                 }
@@ -140,7 +140,7 @@ LayerWindow {
                     tabs: launcher.tabNames
                     currentIndex: launcher.tab
                     onActivated: (i) => launcher.setTab(i)
-                    Accessible.name: "실행 메뉴 구역"
+                    Accessible.name: qsTr("실행 메뉴 구역")
                 }
             }
 
@@ -181,10 +181,10 @@ LayerWindow {
                         visible: appList.count === 0
                         MIcon { name: Apps.totalCount === 0 ? "error" : "search"; size: Theme.iconSizeLarge; anchors.horizontalCenter: parent.horizontalCenter; color: Theme.textMuted }
                         MLabel { width: parent.width; horizontalAlignment: Text.AlignHCenter; font.bold: true; wrap: true
-                                 text: Apps.totalCount === 0 ? "설치된 응용 프로그램이 없습니다" : "'" + search.text + "' 과 일치하는 앱이 없습니다" }
+                                 text: Apps.totalCount === 0 ? qsTr("설치된 응용 프로그램이 없습니다") : "'" + search.text + qsTr("' 과 일치하는 앱이 없습니다") }
                         MLabel { width: parent.width; horizontalAlignment: Text.AlignHCenter; muted: true; wrap: true; font.pixelSize: Theme.fontSizeSmall
-                                 text: Apps.totalCount === 0 ? "applications/ 디렉터리에 .desktop 항목이 없습니다. 앱을 설치하면 여기에 나타납니다."
-                                                             : "다른 검색어를 써 보세요. 영문 이름이나 초성(예: ㅌㅁ)으로도 찾을 수 있습니다." }
+                                 text: Apps.totalCount === 0 ? qsTr("applications/ 디렉터리에 .desktop 항목이 없습니다. 앱을 설치하면 여기에 나타납니다.")
+                                                             : qsTr("다른 검색어를 써 보세요. 영문 이름이나 초성(예: ㅌㅁ)으로도 찾을 수 있습니다.") }
                     }
                 }
 
@@ -230,15 +230,15 @@ LayerWindow {
                     boundsBehavior: Flickable.StopAtBounds
                     model: {
                         var m = [
-                            { name: "설정", comment: "모든 설정 (hagra-settings)", symbol: "settings", action: "settings" },
-                            { name: "모양과 테마", comment: "테마 · 포인트 색 · 글자 크기 · 커서", symbol: "lotus", action: "settings:appearance" },
-                            { name: "배경 바꾸기", comment: "바탕 화면 배경 이미지", symbol: "image", action: "settings:wallpaper" },
-                            { name: "디스플레이 설정", comment: "해상도 · 배율 · 화면 배치", symbol: "window", action: "settings:display" },
-                            { name: "터미널", comment: Apps.terminalProgram(), symbol: "terminal", action: "terminal" },
+                            { name: qsTr("설정"), comment: qsTr("모든 설정 (hagra-settings)"), symbol: "settings", action: "settings" },
+                            { name: qsTr("모양과 테마"), comment: qsTr("테마 · 포인트 색 · 글자 크기 · 커서"), symbol: "lotus", action: "settings:appearance" },
+                            { name: qsTr("배경 바꾸기"), comment: qsTr("바탕 화면 배경 이미지"), symbol: "image", action: "settings:wallpaper" },
+                            { name: qsTr("디스플레이 설정"), comment: qsTr("해상도 · 배율 · 화면 배치"), symbol: "window", action: "settings:display" },
+                            { name: qsTr("터미널"), comment: Apps.terminalProgram(), symbol: "terminal", action: "terminal" },
                         ]
                         if (launcher.fileManagerId.length) { var fm = Apps.entry(launcher.fileManagerId); m.push({ name: fm.name, comment: fm.comment, symbol: "folder", appId: fm.appId }) }
-                        m.push({ name: "시스템 정보", comment: "하그라 버전 · 하드웨어 · 로그", symbol: "drive", action: "settings:about" })
-                        m.push({ name: "전원", comment: "종료 · 다시 시작 · 로그아웃", symbol: "power", action: "power" })
+                        m.push({ name: qsTr("시스템 정보"), comment: qsTr("하그라 버전 · 하드웨어 · 로그"), symbol: "drive", action: "settings:about" })
+                        m.push({ name: qsTr("전원"), comment: qsTr("종료 · 다시 시작 · 로그아웃"), symbol: "power", action: "power" })
                         return m
                     }
                     delegate: LauncherRow {
@@ -259,24 +259,24 @@ LayerWindow {
                 height: Theme.controlHeight + Theme.paddingLarge * 2
                 MButton {
                     id: settingsBtn
-                    text: "설정"; icon: "settings"
+                    text: qsTr("설정"); icon: "settings"
                     anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
                     anchors.verticalCenter: parent.verticalCenter
-                    Accessible.name: "설정 열기"
+                    Accessible.name: qsTr("설정 열기")
                     onClicked: launcher.openSettings("")
-                    MToolTip { text: "설정 — 모양과 테마, 디스플레이, 소리, 입력, 정보" }
+                    MToolTip { text: qsTr("설정 — 모양과 테마, 디스플레이, 소리, 입력, 정보") }
                 }
                 MLabel {
                     anchors.centerIn: parent; muted: true; font.pixelSize: Theme.fontSizeSmall
-                    text: launcher.searching ? Apps.count + " / " + Apps.totalCount + "개" : (launcher.tab === 0 ? "앱 " + Apps.totalCount + "개" : "")
+                    text: launcher.searching ? Apps.count + " / " + Apps.totalCount + qsTr("개") : (launcher.tab === 0 ? qsTr("앱 ") + Apps.totalCount + qsTr("개") : "")
                     Accessible.ignored: true
                 }
                 MButton {
                     id: powerBtn
-                    icon: "power"; text: "전원"
+                    icon: "power"; text: qsTr("전원")
                     anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
                     anchors.verticalCenter: parent.verticalCenter
-                    Accessible.name: "전원 메뉴"
+                    Accessible.name: qsTr("전원 메뉴")
                     onClicked: { launcher.visible = false; Shell.dispatch("power") }
                 }
             }
@@ -286,7 +286,7 @@ LayerWindow {
         MMenu {
             id: ctxMenu
             property string target: ""
-            items: [ { text: "실행" }, { text: LauncherState.isFavorite(target) ? "즐겨찾기에서 제거" : "즐겨찾기에 추가", shortcut: "F2" } ]
+            items: [ { text: qsTr("실행") }, { text: LauncherState.isFavorite(target) ? qsTr("즐겨찾기에서 제거") : qsTr("즐겨찾기에 추가"), shortcut: "F2" } ]
             onTriggered: (i) => { if (i === 0) launcher.launchId(target); else LauncherState.toggleFavorite(target) }
             onClosed: search.forceActiveFocus()
         }

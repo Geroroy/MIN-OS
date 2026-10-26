@@ -9,6 +9,7 @@ Item {
     property int delay: 600
     property Item target: parent
     visible: false
+    Accessible.ignored: true
     HoverHandler { id: hover; parent: tip.target }
     Timer { id: timer; interval: tip.delay; onTriggered: tip.show() }
     onTargetChanged: hover.parent = target

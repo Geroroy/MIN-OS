@@ -1,0 +1,40 @@
+{
+  "id": "hagra-dancheong-night",
+  "displayName": "밤 단청",
+  "description": "먹빛 소나무 녹색 본문과 분백 글자의 어두운 테마. 황토 포커스 링, 청자 강조. 밤이나 어두운 방에서 눈부심을 줄인다 (저장소 작성 v3).",
+  "default": false,
+  "appearance": "dark",
+  "tokens": "tokens.json",
+  "assets": "../../hagra-dancheong-v2/assets",
+  "wallpaper": "wallpaper.png",
+  "preview": "preview.png",
+  "accents": [
+    {
+      "id": "ochre",
+      "name": "황토",
+      "accent": "#EDC486",
+      "accentText": "#0F2622",
+      "focusRing": "#EDC486",
+      "name_en": "Ochre"
+    },
+    {
+      "id": "coral",
+      "name": "산호",
+      "accent": "#E8907A",
+      "accentText": "#0F2622",
+      "focusRing": "#E8907A",
+      "name_en": "Coral"
+    },
+    {
+      "id": "blue",
+      "name": "군청빛",
+      "accent": "#9DBAD0",
+      "accentText": "#0F2622",
+      "focusRing": "#9DBAD0",
+      "name_en": "Indigo blue"
+    }
+  ],
+  "_preview_note": "실제 세션 캡처(tests/design/capture-scene.sh, HAGRA_THEME=hagra-dancheong-night)의 480×270 축소본. 재생성: python3 design/tools/make_previews.py",
+  "displayName_en": "Night Dancheong",
+  "description_en": "Dark theme: ink pine-green body with ivory text, ochre focus ring and celadon accents. Reduces glare at night or in dim rooms (repository v3)."
+}

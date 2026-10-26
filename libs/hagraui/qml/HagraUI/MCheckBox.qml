@@ -13,6 +13,11 @@ Item {
     implicitWidth: box.width + (label.visible ? Theme.paddingLarge + label.implicitWidth : 0)
     implicitHeight: Theme.controlHeight
     activeFocusOnTab: enabled
+    Accessible.role: Accessible.CheckBox
+    Accessible.name: text
+    Accessible.checkable: true
+    Accessible.checked: checked
+    Accessible.onToggleAction: if (enabled) { checked = !checked; toggled(checked) }
     Keys.onSpacePressed: if (enabled) { checked = !checked; toggled(checked) }
 
     Rectangle {

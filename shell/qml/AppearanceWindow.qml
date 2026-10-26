@@ -6,7 +6,7 @@ import HagraTheme 1.0
 
 Window {
     id: win
-    title: "모양 설정 — " + Theme.brandName
+    title: qsTr("모양 설정 — ") + Theme.brandName
     width: 640; height: 520
     minimumWidth: 480; minimumHeight: 400
     color: Theme.surface
@@ -22,8 +22,8 @@ Window {
 
         Flickable { width: parent.width; height: parent.height - y; contentHeight: form.height + Theme.paddingLarge * 2; clip: true
             Column { id: form; x: Theme.paddingLarge; y: Theme.paddingLarge; width: parent.width - Theme.paddingLarge * 2; spacing: Theme.paddingLarge
-                MLabel { text: "테마"; font.pixelSize: Theme.fontSizeTitle; font.bold: true }
-                MLabel { text: "선택하면 바로 저장되고 셸·배경·창 장식에 적용됩니다. 재로그인 후에도 유지됩니다."; muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width }
+                MLabel { text: qsTr("테마"); font.pixelSize: Theme.fontSizeTitle; font.bold: true }
+                MLabel { text: qsTr("선택하면 바로 저장되고 셸·배경·창 장식에 적용됩니다. 재로그인 후에도 유지됩니다."); muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width }
 
                 // 테마 목록: 이름 · 미리보기 · 현재 선택 표시. 방향키/Space/Enter 로 선택.
                 Column { id: list; width: parent.width; spacing: Theme.padding
@@ -55,15 +55,15 @@ Window {
                                 Column { id: info; anchors.verticalCenter: parent.verticalCenter; spacing: 2; width: parent.width - 160 - Theme.paddingLarge * 2 - 90
                                     Row { spacing: Theme.padding
                                         MLabel { text: modelData.displayName; font.bold: true; font.pixelSize: Theme.fontSizeTitle; color: cur ? Theme.selectionText : Theme.text }
-                                        MLabel { visible: modelData.isDefault; text: "기본"; muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
+                                        MLabel { visible: modelData.isDefault; text: qsTr("기본"); muted: true; font.pixelSize: Theme.fontSizeSmall; anchors.verticalCenter: parent.verticalCenter }
                                     }
                                     MLabel { text: modelData.description; wrap: true; width: info.width; maximumLineCount: 2; elide: Text.ElideRight
                                              font.pixelSize: Theme.fontSizeSmall; color: cur ? Theme.selectionText : Theme.textMuted }
                                     MLabel { text: modelData.id; muted: true; font.pixelSize: 11; font.family: Theme.monoFamily; color: cur ? Theme.selectionText : Theme.textMuted }
                                 }
                                 Item { width: 90; height: parent.height
-                                    MLabel { anchors.centerIn: parent; visible: cur; text: "✓ 현재"; font.bold: true; color: Theme.selectionText }
-                                    MButton { anchors.centerIn: parent; visible: !cur; text: "선택"; onClicked: ThemeManager.apply(modelData.id) }
+                                    MLabel { anchors.centerIn: parent; visible: cur; text: qsTr("✓ 현재"); font.bold: true; color: Theme.selectionText }
+                                    MButton { anchors.centerIn: parent; visible: !cur; text: qsTr("선택"); onClicked: ThemeManager.apply(modelData.id) }
                                 }
                             }
                             MouseArea { id: hov; anchors.fill: parent; hoverEnabled: true; z: -1
@@ -71,23 +71,23 @@ Window {
                         }
                     }
                 }
-                MButton { text: "기본 테마로"; enabled: ThemeManager.currentId !== ThemeManager.defaultId; onClicked: ThemeManager.resetToDefault() }
+                MButton { text: qsTr("기본 테마로"); enabled: ThemeManager.currentId !== ThemeManager.defaultId; onClicked: ThemeManager.resetToDefault() }
                 MLabel { muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width
-                         text: ThemeManager.sessionReloadSupported ? "창 장식(labwc)은 재구성 명령으로 즉시 갱신됩니다. 이미 실행 중인 다른 앱은 다음 실행부터 새 테마를 씁니다."
-                                                                   : "세션 밖에서 실행 중: 창 장식·배경은 다음 로그인부터 적용됩니다." }
+                         text: ThemeManager.sessionReloadSupported ? qsTr("창 장식(labwc)은 재구성 명령으로 즉시 갱신됩니다. 이미 실행 중인 다른 앱은 다음 실행부터 새 테마를 씁니다.")
+                                                                   : qsTr("세션 밖에서 실행 중: 창 장식·배경은 다음 로그인부터 적용됩니다.") }
                 MOrnamentDivider { width: parent.width; height: 20 }
 
-                MLabel { text: "배경"; font.pixelSize: Theme.fontSizeTitle; font.bold: true }
-                MCheckBox { id: useTheme; text: "테마 기본 배경 사용"; checked: ThemeManager.useThemeWallpaper
+                MLabel { text: qsTr("배경"); font.pixelSize: Theme.fontSizeTitle; font.bold: true }
+                MCheckBox { id: useTheme; text: qsTr("테마 기본 배경 사용"); checked: ThemeManager.useThemeWallpaper
                             onToggled: (c) => { if (ThemeManager.useThemeWallpaper !== c) ThemeManager.useThemeWallpaper = c } }
                 Row { spacing: Theme.padding; width: parent.width
-                    MTextField { id: wallField; width: parent.width - applyWall.width - Theme.padding; placeholder: "사용자 배경 이미지 경로 (PNG/JPG)"
+                    MTextField { id: wallField; width: parent.width - applyWall.width - Theme.padding; placeholder: qsTr("사용자 배경 이미지 경로 (PNG/JPG)")
                                  text: win.wallpaperDraft; enabled: !useTheme.checked; onAccepted: applyWall.clicked() }
-                    MButton { id: applyWall; text: "적용"; enabled: !useTheme.checked && wallField.text.length > 0
+                    MButton { id: applyWall; text: qsTr("적용"); enabled: !useTheme.checked && wallField.text.length > 0
                               onClicked: ThemeManager.userWallpaper = wallField.text }
                 }
-                MLabel { text: "현재 배경: " + ThemeManager.effectiveWallpaper; muted: true; font.pixelSize: Theme.fontSizeSmall; width: parent.width; elide: Text.ElideMiddle }
-                MLabel { text: "테마를 바꿔도 사용자 지정 배경은 유지됩니다. 키보드·패널·소리 등 다른 설정은 바뀌지 않습니다."; muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width }
+                MLabel { text: qsTr("현재 배경: ") + ThemeManager.effectiveWallpaper; muted: true; font.pixelSize: Theme.fontSizeSmall; width: parent.width; elide: Text.ElideMiddle }
+                MLabel { text: qsTr("테마를 바꿔도 사용자 지정 배경은 유지됩니다. 키보드·패널·소리 등 다른 설정은 바뀌지 않습니다."); muted: true; font.pixelSize: Theme.fontSizeSmall; wrap: true; width: parent.width }
             }
         }
     }

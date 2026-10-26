@@ -10,6 +10,8 @@ Item {
     implicitHeight: Theme.controlHeight + Theme.padding / 2
     implicitWidth: row.implicitWidth
     activeFocusOnTab: enabled
+    Accessible.role: Accessible.PageTabList
+    Accessible.name: tabs.length ? tabs[Math.max(0, Math.min(tabs.length - 1, currentIndex))] : ""
     Keys.onLeftPressed: if (currentIndex > 0) { currentIndex--; activated(currentIndex) }
     Keys.onRightPressed: if (currentIndex < tabs.length - 1) { currentIndex++; activated(currentIndex) }
 

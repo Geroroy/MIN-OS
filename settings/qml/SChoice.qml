@@ -22,7 +22,7 @@ Row {
             enabled: choice.enabled && modelData.enabled !== false
             activeFocusOnTab: false
             onClicked: { choice.forceActiveFocus(); choice.selected(modelData.id) }
-            Accessible.name: text + (highlighted ? " (선택됨)" : "")
+            Accessible.name: text + (highlighted ? qsTr(" (선택됨)") : "")
         }
     }
     Rectangle { visible: choice.activeFocus; anchors.fill: parent; anchors.margins: -(Theme.focusRingWidth + 2); color: "transparent"; z: 5

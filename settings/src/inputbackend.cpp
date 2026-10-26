@@ -125,7 +125,7 @@ QString InputBackend::renderEnvironment(const QString &envText, const QVariantMa
         if (!line.startsWith(QLatin1String("XKB_DEFAULT_LAYOUT=")) && !line.startsWith(QLatin1String("XKB_DEFAULT_VARIANT=")) && !line.startsWith(QLatin1String("XKB_DEFAULT_OPTIONS=")))
             out << line;
     while (!out.isEmpty() && out.last().trimmed().isEmpty()) out.removeLast();
-    out << QStringLiteral("# hagra-settings: 키보드 배치 (input.conf)");
+    out << tr("# hagra-settings: 키보드 배치 (input.conf)");
     out << QStringLiteral("XKB_DEFAULT_LAYOUT=") + v.value(QStringLiteral("keyboard/layout"), QStringLiteral("us")).toString();
     const QString variant = v.value(QStringLiteral("keyboard/variant")).toString();
     if (!variant.isEmpty()) out << QStringLiteral("XKB_DEFAULT_VARIANT=") + variant;

@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QLocale>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -108,12 +109,21 @@ ThemeInfo ThemeManager::readPack(const QString &dir)
     t.id = o.value(QStringLiteral("id")).toString();
     t.displayName = o.value(QStringLiteral("displayName")).toString(t.id);
     t.description = o.value(QStringLiteral("description")).toString();
+    // 현지화: displayName_<lang> / description_<lang> (예: _en). 한국어 원문이 기본.
+    const QString lang = QLocale().name().section(QLatin1Char('_'), 0, 0);
+    if (lang != QLatin1String("ko")) {
+        const QString dn = o.value(QStringLiteral("displayName_") + lang).toString();
+        const QString ds = o.value(QStringLiteral("description_") + lang).toString();
+        if (!dn.isEmpty()) t.displayName = dn;
+        if (!ds.isEmpty()) t.description = ds;
+    }
     t.dir = dir;
     t.tokensPath = rel(QStringLiteral("tokens"), QStringLiteral("tokens.json"));
     t.assetsDir = rel(QStringLiteral("assets"), QStringLiteral("assets"));
     t.wallpaper = rel(QStringLiteral("wallpaper"), QStringLiteral("wallpaper.png"));
     t.preview = rel(QStringLiteral("preview"), QStringLiteral("preview.png"));
     t.labwcThemerc = rel(QStringLiteral("labwcThemerc"), QStringLiteral("labwc/themerc"));
+    t.footConfig = rel(QStringLiteral("footConfig"), QString());
     t.wallpaperFill = o.value(QStringLiteral("wallpaperFill")).toString(QStringLiteral("#000000"));
     t.appearance = o.value(QStringLiteral("appearance")).toString(QStringLiteral("light"));
     for (const QJsonValue &a : o.value(QStringLiteral("accents")).toArray())
@@ -321,6 +331,12 @@ bool ThemeManager::writeState(const ThemeInfo &t)
         qCWarning(lcTheme) << "theme" << t.id << "has no labwc themerc:" << t.labwcThemerc;
     ok = write(QStringLiteral("themerc-override"), themerc) && ok;
     ok = write(QStringLiteral("wallpaper"), effectiveWallpaper().toUtf8() + '\n') && ok;
+    // 터미널 팔레트: 테마에 foot.ini 가 있으면 상태 디렉터리에 복사 (셸이 foot -c 로 띄운다; 이미 열린 터미널은 바뀌지 않는다)
+    QFile foot(t.footConfig);
+    if (!t.footConfig.isEmpty() && foot.open(QIODevice::ReadOnly))
+        ok = write(QStringLiteral("foot.ini"), foot.readAll()) && ok;
+    else
+        QFile::remove(stateDir() + QStringLiteral("/foot.ini"));
     ok = write(QStringLiteral("wallpaper-fill"), t.wallpaperFill.toUtf8() + '\n') && ok;
     return ok;
 }
@@ -422,8 +438,11 @@ void ThemeManager::setAccentId(const QString &id)
 QVariantList ThemeManager::accentsForQml() const
 {
     QVariantList l;
+    const QString lang = QLocale().name().section(QLatin1Char('_'), 0, 0);
     for (const QVariant &a : current().accents) {
         QVariantMap m = a.toMap();
+        if (lang != QLatin1String("ko") && m.contains(QStringLiteral("name_") + lang))
+            m[QStringLiteral("name")] = m.value(QStringLiteral("name_") + lang);
         m[QStringLiteral("current")] = m.value(QStringLiteral("id")).toString() == m_accentId;
         l << m;
     }

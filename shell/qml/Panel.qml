@@ -54,7 +54,7 @@ LayerWindow {
             Layout.rightMargin: Theme.padding
             Layout.alignment: Qt.AlignVCenter
             onClicked: panel.launcherRequested()
-            MToolTip { text: "실행 메뉴 (" + Theme.brandName + ")" }
+            MToolTip { text: qsTr("실행 메뉴 (") + Theme.brandName + ")" }
         }
         MSeparator { vertical: true; Layout.preferredHeight: Theme.controlHeight; Layout.alignment: Qt.AlignVCenter; color: panel.dark ? Theme.panelMuted : Theme.border }
 
@@ -87,11 +87,11 @@ LayerWindow {
             horizontalAlignment: Text.AlignHCenter
             textColor: Theme.panelText
             property bool showFull: false
-            readonly property var ko: Qt.locale("ko_KR")
+            readonly property var ko: Qt.locale()   // 시스템 로케일 (LANG); 형식 문자열은 번역 파일에서 언어별로 바뀐다
             function refresh() {
                 var now = new Date()
-                text = showFull ? now.toLocaleString(ko, "yyyy년 M월 d일 (ddd) AP h:mm:ss")
-                                : now.toLocaleString(ko, "M월 d일 (ddd) AP h:mm")
+                text = showFull ? now.toLocaleString(ko, qsTr("yyyy년 M월 d일 (ddd) AP h:mm:ss"))
+                                : now.toLocaleString(ko, qsTr("M월 d일 (ddd) AP h:mm"))
             }
             Component.onCompleted: refresh()
             onShowFullChanged: refresh()
@@ -113,7 +113,7 @@ LayerWindow {
             Layout.rightMargin: Theme.padding
             Layout.alignment: Qt.AlignVCenter
             onClicked: panel.powerRequested()
-            MToolTip { text: "전원" }
+            MToolTip { text: qsTr("전원") }
         }
     }
 }

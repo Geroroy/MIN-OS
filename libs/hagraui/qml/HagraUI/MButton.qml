@@ -39,6 +39,11 @@ Rectangle {
                 : (danger ? Theme.danger : (defaultButton ? Theme.accent : Theme.borderStrong))
 
     activeFocusOnTab: enabled
+    Accessible.role: Accessible.Button
+    Accessible.name: text.length ? text : icon
+    Accessible.checkable: highlighted
+    Accessible.checked: highlighted
+    Accessible.onPressAction: if (enabled) clicked()
     Keys.onReturnPressed: if (enabled) clicked()
     Keys.onEnterPressed: if (enabled) clicked()
     Keys.onSpacePressed: if (enabled) clicked()
