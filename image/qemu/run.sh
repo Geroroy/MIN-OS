@@ -81,7 +81,7 @@ if [ "$ARCH" = arm64 ]; then
   CONSOLE="console=tty1 console=ttyAMA0,115200"
 else
   # TCG(KVM 없음) 기본 CPU 는 AVX 없는 Nehalem-v2: "max" 가 내보내는 AVX2 의 마스크 load(vpmaskmov)를 QEMU 8.2 TCG 가
-  # 잘못 에뮬레이트해 Qt 의 그림 경로가 segfault 한다 (하그라 브라우저에서 재현, 실제 CPU·KVM 에서는 정상). KVM 은 위에서 host.
+  # 잘못 에뮬레이트해 Qt 의 그림 경로가 segfault 한다 (보그라에서 재현, 실제 CPU·KVM 에서는 정상). KVM 은 위에서 host.
   QEMU=qemu-system-x86_64; CPU=${CPU:-Nehalem-v2}
   # -vga none: q35 의 기본 VGA 를 끄고 virtio-gpu 하나만 둔다 (두 출력이 생기면 screendump 가 빈 화면을 찍는다)
   ARGS=(-machine q35 -accel "$ACCEL" -cpu "$CPU" -smp "$SMP" -m "$MEM" -vga none)

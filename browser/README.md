@@ -1,6 +1,6 @@
-# 하그라 브라우저 (hagra-browser)
+# 보그라 (Bogra, `hagra-browser`)
 
-하그라의 기본 웹 브라우저. Qt WebEngine(Chromium 엔진)을 HagraUI 부품과 테마로 감쌌다. 사용법은 `docs/USER_GUIDE.md` §5.1.
+하그라의 기본 웹 브라우저 **보그라**. 명령·앱 ID 는 다른 하그라 구성 요소와 같은 규칙(`hagra-browser`, `org.hagra.browser`)을 쓴다. Qt WebEngine(Chromium 엔진)을 HagraUI 부품과 테마로 감쌌다. 사용법은 `docs/USER_GUIDE.md` §5.1.
 
 | 파일 | 역할 |
 |---|---|

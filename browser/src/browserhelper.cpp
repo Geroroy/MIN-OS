@@ -276,7 +276,7 @@ bool BrowserHelper::notify(const QString &title, const QString &body) const
 {
     QDBusMessage m = QDBusMessage::createMethodCall(QStringLiteral("org.freedesktop.Notifications"), QStringLiteral("/org/freedesktop/Notifications"),
                                                     QStringLiteral("org.freedesktop.Notifications"), QStringLiteral("Notify"));
-    m << QCoreApplication::translate("BrowserHelper", "하그라 브라우저") << 0u << QStringLiteral("org.hagra.browser") << title << body
+    m << QCoreApplication::translate("BrowserHelper", "보그라") << 0u << QStringLiteral("org.hagra.browser") << title << body
       << QStringList() << QVariantMap() << -1;
     return QDBusConnection::sessionBus().send(m);
 }

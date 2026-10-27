@@ -23,8 +23,7 @@ Rectangle {
         Row {
             anchors.horizontalCenter: parent.horizontalCenter; spacing: Theme.padding
             Image { source: Theme.asset("lotus"); width: 40; height: 40; sourceSize: Qt.size(80, 80); anchors.verticalCenter: parent.verticalCenter; smooth: true }
-            MLabel { text: Theme.brandName; font.pixelSize: 32; font.bold: true; anchors.verticalCenter: parent.verticalCenter
-                     Accessible.name: qsTr("하그라 브라우저") }
+            MLabel { text: qsTr("보그라"); font.pixelSize: 32; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
         }
         MSearchField {
             id: search

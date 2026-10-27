@@ -1,4 +1,4 @@
-// 하그라 브라우저 — QML 에 노출되는 도우미: 주소 입력 해석, 검색 엔진, 시작 페이지의 자주 가는 곳, 저장 경로, 데스크톱 알림.
+// 보그라 — QML 에 노출되는 도우미: 주소 입력 해석, 검색 엔진, 시작 페이지의 자주 가는 곳, 저장 경로, 데스크톱 알림.
 //   설정: ~/.config/hagra/browser.conf   [browser] search=<id> · shortcuts=<제목>\t<주소> 목록
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once

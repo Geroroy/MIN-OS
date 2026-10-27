@@ -5,7 +5,7 @@
   <menu id="root-menu" label="하그라">
     <item label="응용 프로그램 (Super+Space)"><action name="Execute"><command>hagra-shell --show-launcher</command></action></item>
     <item label="터미널 (Super+Enter)"><action name="Execute"><command>hagra-shell --terminal</command></action></item>
-    <item label="웹 브라우저 (Super+B)"><action name="Execute"><command>hagra-browser</command></action></item>
+    <item label="보그라 웹 브라우저 (Super+B)"><action name="Execute"><command>hagra-browser</command></action></item>
     <separator />
     <menu id="personalize-menu" label="개인 설정">
       <item label="배경 바꾸기"><action name="Execute"><command>hagra-shell --settings wallpaper</command></action></item>

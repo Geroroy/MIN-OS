@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-  <!-- 하그라 브라우저 앱 아이콘: 청자 바탕의 지구본 + 분백 경위선 + 산호 연화 점 (설정 아이콘과 같은 단청 색) -->
+  <!-- 보그라 앱 아이콘: 청자 바탕의 지구본 + 분백 경위선 + 산호 연화 점 (설정 아이콘과 같은 단청 색) -->
   <circle cx="48" cy="48" r="40" fill="#EDC486" stroke="#3E746D" stroke-width="2"/>
   <circle cx="48" cy="48" r="33" fill="#91B9A5" stroke="#3E746D" stroke-width="2"/>
   <g fill="none" stroke="#FAF6EA" stroke-width="3" stroke-linecap="round">

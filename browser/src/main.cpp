@@ -1,4 +1,4 @@
-// hagra-browser — 하그라 브라우저 진입점 (Qt WebEngine + HagraUI)
+// hagra-browser — 보그라 진입점 (Qt WebEngine + HagraUI)
 //   hagra-browser [주소|파일 ...]   창 열기. 이미 실행 중이면 그 창에 새 탭으로 연다 (단일 인스턴스 소켓 "open:<주소>")
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QCommandLineParser>
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     hagraLoadTranslation(app, QStringLiteral("hagra-browser"));
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral("HAGRA Browser"));
+    parser.setApplicationDescription(QStringLiteral("Bogra — HAGRA web browser"));
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral("url"), QStringLiteral("Addresses or files to open in new tabs"), QStringLiteral("[url...]"));

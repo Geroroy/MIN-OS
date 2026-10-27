@@ -1,4 +1,4 @@
-# 하그라 브라우저 — hagra-browser (Qt6 WebEngine Quick + HagraUI + HagraTheme). Qt6WebEngineQuick 이 없으면 건너뛴다.
+# 보그라 — hagra-browser (Qt6 WebEngine Quick + HagraUI + HagraTheme). Qt6WebEngineQuick 이 없으면 건너뛴다.
 find_package(Qt6 6.4 COMPONENTS WebEngineQuick QUIET)
 if(NOT Qt6WebEngineQuick_FOUND)
   message(WARNING "하그라: Qt6WebEngineQuick not found (qt6-webengine-dev) — hagra-browser skipped")

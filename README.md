@@ -83,7 +83,7 @@ MIN-OS/                       ← GitHub 저장소 이름(이전 이름). OS·�
 │   └── hagraui/                HagraUI: QML 공통 부품 모듈 (생성된 Theme + 부품 20종, gallery/ 갤러리)
 ├── files/                    하그라 파일 (파일 관리자)          — M3
 ├── settings/                 하그라 설정 (설정)              — M4
-├── browser/                  하그라 브라우저 (hagra-browser: Qt WebEngine + HagraUI, 기본 웹 브라우저)
+├── browser/                  보그라 (hagra-browser: Qt WebEngine + HagraUI, 기본 웹 브라우저)
 ├── terminal/                 하그라 터미널 (터미널)            — M5
 ├── installer/                하그라 설치기 (설치기)           — M6
 └── tests/
@@ -118,7 +118,7 @@ Galaxy S25 Ultra 실기기 검증은 아직 수행되지 않았다. `DEVELOPMENT
 - **설정 앱** `hagra-settings`: 모양과 테마·배경·디스플레이·소리·키보드와 마우스·언어와 지역·네트워크·알림·전원·접근성·정보. 백엔드가 없는 기능은 이유를 보여 준다.
 - **테마 3종**: 연한 단청(기본) · 깊은 단청 · 밤 단청(어두움) + 포인트 색 변형 (`docs/DESIGN_TOKENS.md`). 영어/한국어 UI.
 - **패널**: 표시기·알림 서버·달력·창 메뉴·위/아래 위치·출력별 패널. 작업 공간 4개.
-- **웹 브라우저** `hagra-browser` (2026-10-27): Qt WebEngine 위의 하그라 UI — 탭 · 주소/검색 통합 표시줄(구글·네이버·다음·덕덕고·빙) · 시작 페이지의 자주 가는 곳(★) · 찾기·확대 · 내려받기 · 사이트 권한 묻기 · 알림 센터 연동. 기본 http/https 처리기이고 Super+B, 실행 메뉴 즐겨찾기 첫 칸, 바탕 화면 우클릭에서 연다. (`docs/USER_GUIDE.md` §5.1, 검사: `tests/design/capture-browser.sh`)
+- **웹 브라우저 보그라(Bogra)** `hagra-browser` (2026-10-27): Qt WebEngine 위의 하그라 UI — 탭 · 주소/검색 통합 표시줄(구글·네이버·다음·덕덕고·빙) · 시작 페이지의 자주 가는 곳(★) · 찾기·확대 · 내려받기 · 사이트 권한 묻기 · 알림 센터 연동. 기본 http/https 처리기이고 Super+B, 실행 메뉴 즐겨찾기 첫 칸, 바탕 화면 우클릭에서 연다. (`docs/USER_GUIDE.md` §5.1, 검사: `tests/design/capture-browser.sh`)
 - 문서: `docs/USER_GUIDE.md` · `docs/INSTALL.md` · `docs/KNOWN_ISSUES.md` · `docs/RELEASE_CHECKLIST.md` · `docs/RELEASE_READINESS.md`. QA: `tests/qa/run-all.sh`.
 
 ## 빠른 시작

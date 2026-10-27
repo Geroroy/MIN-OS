@@ -1,4 +1,4 @@
-// 하그라 브라우저 — 창: 연화 띠 · 탭 막대 · 도구 막대(뒤로·앞으로·새로 고침·처음·주소·★·메뉴) · 알림 막대 · 웹 콘텐츠 · 내려받기 막대.
+// 보그라 — 창: 연화 띠 · 탭 막대 · 도구 막대(뒤로·앞으로·새로 고침·처음·주소·★·메뉴) · 알림 막대 · 웹 콘텐츠 · 내려받기 막대.
 // 창 장식은 labwc(SSD). 단일 인스턴스 소켓 명령: "open:<주소>"(새 탭) | "raise".
 import QtQuick
 import QtWebEngine
@@ -12,7 +12,7 @@ Window {
     minimumWidth: 480; minimumHeight: 360
     color: Theme.surface
     visible: true
-    title: (current ? current.displayTitle : qsTr("새 탭")) + " — " + qsTr("하그라 브라우저")
+    title: (current ? current.displayTitle : qsTr("새 탭")) + " — " + qsTr("보그라")
 
     property var tabs: []
     property int currentIndex: -1

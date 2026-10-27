@@ -94,7 +94,7 @@ QML 모듈 `HagraUI`. 모든 하그라 애플리케이션이 공유하는 디자
 | 앱 | 언어 | 핵심 백엔드 |
 |---|---|---|
 | 하그라 파일 | C++/Qt6/QML | QAbstractItemModel, 작업 큐 스레드, udisks2(D-Bus), 휴지통 spec |
-| 하그라 브라우저 (`browser/`) | C++/Qt6/QML + Qt WebEngine | WebEngineView(탭마다 하나)·WebEngineProfile(영구 쿠키·디스크 캐시 `~/.local/share/hagra/browser`), 단일 인스턴스 소켓, `org.freedesktop.Notifications`, `hagra-mimeapps.list`(기본 http/https 처리기) |
+| 보그라 (`browser/`) | C++/Qt6/QML + Qt WebEngine | WebEngineView(탭마다 하나)·WebEngineProfile(영구 쿠키·디스크 캐시 `~/.local/share/hagra/browser`), 단일 인스턴스 소켓, `org.freedesktop.Notifications`, `hagra-mimeapps.list`(기본 http/https 처리기) |
 | 하그라 설정 | C++/Qt6/QML + `hagra-settingsd`(Rust) | wlr-output-management, PipeWire, NetworkManager, logind |
 | 하그라 터미널 | C++/Qt6 | libvterm, QQuickPaintedItem, pty(forkpty) |
 | 하그라 설치기 | Rust 백엔드 + Qt6/QML 프런트엔드 | sfdisk/libparted, mkfs, unsquashfs, grub-install, systemd-firstboot |

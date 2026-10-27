@@ -236,7 +236,7 @@ def main():
 
         step("웹 브라우저 실행 (세션 환경으로 로컬 페이지 열기)")
         page = base64.b64encode('<!doctype html><meta charset="utf-8"><title>HAGRA boot page</title>'
-                                '<h1>하그라 브라우저</h1><script>document.title += " js-ok"</script>'.encode()).decode()
+                                '<h1>보그라</h1><script>document.title += " js-ok"</script>'.encode()).decode()
         q.sh(f"echo {page} | base64 -d > /tmp/hagra-browser-test.html; chmod 644 /tmp/hagra-browser-test.html")
         # hagra-shell 의 환경(WAYLAND_DISPLAY·QT_QUICK_BACKEND·LANG …)을 그대로 써서 실행 메뉴로 연 것과 같은 조건으로 띄운다
         sess_env = ("$(tr '\\0' '\\n' < /proc/$(pgrep -o -u hagra hagra-shell)/environ"

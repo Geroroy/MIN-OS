@@ -1,4 +1,4 @@
-// 하그라 브라우저 도우미 단위 테스트 — 주소 입력 해석, 검색 엔진·자주 가는 곳 저장(임시 HOME), Accept-Language.
+// 보그라 도우미 단위 테스트 — 주소 입력 해석, 검색 엔진·자주 가는 곳 저장(임시 HOME), Accept-Language.
 #include <QtTest>
 #include <QTemporaryDir>
 #include "browserhelper.h"

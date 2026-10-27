@@ -42,8 +42,8 @@
     </message>
     <message>
         <location filename="../src/browserhelper.cpp" line="279" />
-        <source>하그라 브라우저</source>
-        <translation>HAGRA Browser</translation>
+        <source>보그라</source>
+        <translation>Bogra</translation>
     </message>
 </context>
 <context>
@@ -78,8 +78,8 @@
     </message>
     <message>
         <location filename="../qml/Main.qml" line="15" />
-        <source>하그라 브라우저</source>
-        <translation>HAGRA Browser</translation>
+        <source>보그라</source>
+        <translation>Bogra</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="43" />
@@ -432,27 +432,27 @@
 <context>
     <name>StartPage</name>
     <message>
-        <location filename="../qml/StartPage.qml" line="27" />
-        <source>하그라 브라우저</source>
-        <translation>HAGRA Browser</translation>
+        <location filename="../qml/StartPage.qml" line="26" />
+        <source>보그라</source>
+        <translation>Bogra</translation>
     </message>
     <message>
-        <location filename="../qml/StartPage.qml" line="32" />
+        <location filename="../qml/StartPage.qml" line="31" />
         <source>%1에서 검색하거나 주소 입력</source>
         <translation>Search %1 or enter address</translation>
     </message>
     <message>
-        <location filename="../qml/StartPage.qml" line="33" />
+        <location filename="../qml/StartPage.qml" line="32" />
         <source>검색 또는 주소</source>
         <translation>Search or address</translation>
     </message>
     <message>
-        <location filename="../qml/StartPage.qml" line="37" />
+        <location filename="../qml/StartPage.qml" line="36" />
         <source>주소 표시줄의 ★ 단추로 자주 가는 곳을 여기에 추가합니다.</source>
         <translation>Use the ★ button in the address bar to add frequent sites here.</translation>
     </message>
     <message>
-        <location filename="../qml/StartPage.qml" line="69" />
+        <location filename="../qml/StartPage.qml" line="68" />
         <source>자주 가는 곳에서 빼기</source>
         <translation>Remove from Frequent Sites</translation>
     </message>

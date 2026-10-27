@@ -178,11 +178,12 @@
 | P4 | 셸 감시 루프 · 종료 순서 · fcitx5 통합(패키지·환경·자동 시작) · 저장 설정 복원(--apply) · 유휴 측정(CPU 0.03 %, RSS 68 MiB) · debian/ 패키징 | ☑ 호스트 / ☐ 이미지 안 fcitx5 실제 조합 미검증 |
 | P5 | QA 실행기(`tests/qa/run-all.sh`, 12 자동 검사 PASS) · 사용자 안내·설치·알려진 문제·점검표 · 릴리스 준비 보고 `docs/RELEASE_READINESS.md` · x86-64 ISO 빌드(477 MB)·QEMU 부팅 테스트 PASS · .deb PASS | ☑ 실기기·한글 조합·trixie 프로필은 NOT TESTED (보고서 §2) |
 
-## B1 — 하그라 브라우저  ◐  (2026-10-27; 구현·호스트 검증 완료, 실기기·ARM64 미검증)
+## B1 — 보그라  ◐  (2026-10-27; 구현·호스트 검증 완료, 실기기·ARM64 미검증)
 
 요청: "브라우저 넣어줘". 기존 앱(설정)과 같은 방식(Qt6/QML + HagraUI + HagraTheme)으로 엔진만 Qt WebEngine 을 쓴다. 배포판 패키지(qt6-webengine)라 Debian/Ubuntu 양쪽·amd64/arm64 에서 같은 코드가 빌드된다 (Ubuntu 의 firefox/chromium 은 snap 전환 패키지라 chroot 이미지에 넣을 수 없다).
 
 - `browser/`: 탭 · 주소/검색 통합 표시줄 · 시작 페이지(자주 가는 곳) · 찾기 · 확대 · 내려받기 · 권한 묻기 · 문맥 메뉴 · 전체 화면 · 단일 인스턴스 · 알림 센터 연동 · 영어 번역 · 앱 아이콘
+- 이름: **보그라(Bogra)** (2026-10-27 지정). 명령·앱 ID 는 `hagra-browser`·`org.hagra.browser` 유지
 - 세션: 기본 http/https 처리기(`hagra-mimeapps.list`), `BROWSER`, Super+B, 바탕 화면 메뉴, 실행 메뉴 즐겨찾기 첫 칸, labwc 기본 Alt+방향키 해제
 - 이미지: `qt6-webengine-dev`(빌드), `qml6-module-qtwebengine`·`-controlsdelegates`·`qtquick-dialogs`·`qt-labs-folderlistmodel`(런타임)
 
