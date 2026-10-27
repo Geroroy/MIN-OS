@@ -14,9 +14,10 @@
 #   --bios          ISO 를 BIOS 로 부팅 (기본 UEFI)
 #   --res WxH       가상 디스플레이 해상도 (기본 1280x720)
 #   --mem MB / --smp N / --cpu MODEL
+#   --gpu virtio|std  가상 그래픽 (기본 virtio). std = QEMU 표준 VGA (bochs-drm 드라이버; virtio 가 없는 가상 머신 경로 시험용)
 set -euo pipefail
 SERIAL=0; UEFI_ISO=1; UEFI_DISK=0; MONITOR=""; DISPLAY_OPT=""; VNC=""; RES=${HAGRA_RES:-1280x720}
-MEM=${HAGRA_MEM:-2048}; SMP=${HAGRA_SMP:-2}; CPU=${HAGRA_CPU:-}; EXTRA=()
+MEM=${HAGRA_MEM:-2048}; SMP=${HAGRA_SMP:-2}; CPU=${HAGRA_CPU:-}; GPU=${HAGRA_GPU:-virtio}; EXTRA=()
 while [ $# -gt 1 ]; do
   case "$1" in
     --serial) SERIAL=1; shift ;;
@@ -29,6 +30,7 @@ while [ $# -gt 1 ]; do
     --mem) MEM=$2; shift 2 ;;
     --smp) SMP=$2; shift 2 ;;
     --cpu) CPU=$2; shift 2 ;;
+    --gpu) GPU=$2; shift 2 ;;
     --) shift; EXTRA=("$@"); set -- "${@: -1}" ;;
     *) break ;;
   esac
@@ -90,8 +92,12 @@ fi
 command -v "$QEMU" >/dev/null || { echo "$QEMU not installed (qemu-system-arm / qemu-system-x86)" >&2; exit 2; }
 
 # ---- 장치 모델 (Android 실행 스크립트와 동일) ----
-ARGS+=(-device "virtio-gpu-pci,xres=$XRES,yres=$YRES"
-       -device virtio-keyboard-pci -device virtio-tablet-pci
+case "$GPU" in
+  virtio) ARGS+=(-device "virtio-gpu-pci,xres=$XRES,yres=$YRES") ;;
+  std) ARGS+=(-device "VGA,xres=$XRES,yres=$YRES") ;;   # QEMU 의 vmware-svga 는 vmwgfx 가 지원하지 않는 구형이라 시험용으로 쓰지 않는다
+  *) echo "unknown --gpu $GPU (virtio|std)" >&2; exit 2 ;;
+esac
+ARGS+=(-device virtio-keyboard-pci -device virtio-tablet-pci
        -device virtio-net-pci,netdev=n0,romfile= -netdev user,id=n0
        -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0
        -rtc base=utc)
@@ -134,5 +140,5 @@ else
   ARGS+=(-display "${DISPLAY_OPT:-gtk}" -serial stdio)
 fi
 [ -n "$MONITOR" ] && ARGS+=(-monitor "unix:$MONITOR,server,nowait")
-echo "$QEMU (accel=$ACCEL cpu=$CPU mem=${MEM}M smp=$SMP res=$RES mode=$MODE) $TARGET" >&2
+echo "$QEMU (accel=$ACCEL cpu=$CPU mem=${MEM}M smp=$SMP gpu=$GPU res=$RES mode=$MODE) $TARGET" >&2
 exec "$QEMU" "${ARGS[@]}" "${EXTRA[@]}"

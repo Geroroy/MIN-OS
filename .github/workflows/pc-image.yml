@@ -1,0 +1,91 @@
+# 하그라 x86-64 PC 라이브 ISO 를 GitHub 의 x86-64 러너에서 빌드하고,
+# QEMU 부팅 테스트(KVM)를 통과한 경우에만 Release "pc-latest" 에 게시한다.
+# Windows·macOS 사용자는 이 ISO 를 내려받아 VirtualBox / VMware / Hyper-V 에 넣는다 (docs/INSTALL.md §1.1).
+name: PC x86-64 ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ccr-0dc4d66d-j60c3m]
+    paths:
+      - "image/**"
+      - "session/**"
+      - "shell/**"
+      - "settings/**"
+      - "browser/**"
+      - "libs/**"
+      - "tools/**"
+      - "design/**"
+      - "CMakeLists.txt"
+      - "tests/image/**"
+      - "tests/shell/check_screenshot.py"
+      - ".github/workflows/pc-image.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pc-image
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build and test tools
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            mmdebstrap ubuntu-keyring rsync squashfs-tools xorriso grub-common grub-pc-bin grub-efi-amd64-bin \
+            mtools dosfstools zstd qemu-system-x86 qemu-utils ovmf python3-pexpect python3-pil socat
+          # KVM: 호스트 러너는 /dev/kvm 을 제공한다 (없으면 run.sh 가 TCG 로 내려간다)
+          ls -la /dev/kvm || true
+
+      - name: Build ISO
+        run: sudo image/build.sh --suite ubuntu-noble --arch amd64 --output out/hagra-pc-amd64.iso
+
+      - name: Boot test (QEMU — boot, session, shell, terminal, settings, browser, theme, reboot, poweroff)
+        run: sudo python3 -I tests/image/boot_test.py out/hagra-pc-amd64.iso --out out/boot-test-pc --timeout 1800
+
+      - name: Boot test with standard VGA graphics (bochs-drm — non-virtio display path)
+        run: sudo env HAGRA_GPU=std python3 -I tests/image/boot_test.py out/hagra-pc-amd64.iso --out out/boot-test-pc-std --timeout 1800 --skip-reboot
+
+      - name: Package
+        run: |
+          sudo chown -R "$USER" out
+          (cd out && sha256sum hagra-pc-amd64.iso > hagra-pc-amd64.iso.sha256)
+          ls -la out
+
+      - name: Upload boot test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boot-test-pc
+          path: |
+            out/boot-test-pc
+            out/boot-test-pc-std
+          if-no-files-found: ignore
+
+      - name: Publish release pc-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<NOTES
+          하그라 x86-64 PC 라이브 ISO (개발 이미지). 커밋 ${GITHUB_SHA::7} 에서 자동 빌드되었고,
+          GitHub x86-64 러너의 QEMU 에서 부팅·세션·셸·터미널·설정·보그라·테마·재부팅·종료 테스트와
+          표준 VGA 그래픽(bochs) 부팅 테스트를 통과했습니다. VirtualBox·VMware·Hyper-V 에서는 아직 직접 시험하지 않았습니다.
+
+          - Windows: VirtualBox 에서 새 가상 머신 → 이 ISO, 그래픽 컨트롤러 VMSVGA, EFI 사용. 자세한 내용: docs/INSTALL.md §1.1
+          - 리눅스: \`image/qemu/run.sh hagra-pc-amd64.iso\`
+          - USB 부팅: Rufus / balenaEtcher 로 USB 에 쓰기 (실기기 미검증)
+
+          개발 이미지 계정: hagra / hagra (자동 로그인, sudo), root / hagra. 라이브 매체라 재부팅하면 변경이 사라집니다.
+          NOTES
+          gh release delete pc-latest --cleanup-tag -y || true
+          gh release create pc-latest --target "$GITHUB_SHA" --prerelease \
+            --title "하그라 x86-64 PC ISO — dev build ${GITHUB_SHA::7}" --notes-file notes.md \
+            out/hagra-pc-amd64.iso out/hagra-pc-amd64.iso.sha256 \
+            out/boot-test-pc/01-desktop.png out/boot-test-pc/03b-browser.png
