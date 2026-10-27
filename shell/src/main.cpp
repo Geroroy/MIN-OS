@@ -74,8 +74,11 @@ int main(int argc, char *argv[])
     QCommandLineOption notificationsOpt(QStringLiteral("notifications"), QStringLiteral("Toggle the notification center"));
     QCommandLineOption calendarOpt(QStringLiteral("calendar"), QStringLiteral("Toggle the calendar popup"));
     QCommandLineOption audioOpt(QStringLiteral("audio"), QStringLiteral("Toggle the volume popup"));
-    QCommandLineOption settings(QStringLiteral("settings"), QStringLiteral("Open the Settings application (optional page name)"), QStringLiteral("page"), QString());
+    // --settings [PAGE]: 값이 있는 QCommandLineOption 은 값을 반드시 요구하므로(`--settings` 만 쓰면 "Missing value" 오류 — 바탕 화면
+    // 메뉴·Super+I 가 이 형태다) 플래그로 두고 페이지 이름은 위치 인자로 받는다.
+    QCommandLineOption settings(QStringLiteral("settings"), QStringLiteral("Open the Settings application (optional page name as the next argument)"));
     parser.addOptions({ toggleLauncher, showLauncher, power, quit, terminal, appearance, settings, notificationsOpt, calendarOpt, audioOpt });
+    parser.addPositionalArgument(QStringLiteral("page"), QStringLiteral("Settings page for --settings"), QStringLiteral("[page]"));
     parser.process(app);
 
     QString command;
@@ -88,7 +91,10 @@ int main(int argc, char *argv[])
     else if (parser.isSet(notificationsOpt)) command = QStringLiteral("notifications");
     else if (parser.isSet(calendarOpt)) command = QStringLiteral("calendar");
     else if (parser.isSet(audioOpt)) command = QStringLiteral("audio");
-    else if (parser.isSet(settings)) command = parser.value(settings).isEmpty() ? QStringLiteral("settings") : QStringLiteral("settings:") + parser.value(settings);
+    else if (parser.isSet(settings)) {
+        const QString page = parser.positionalArguments().value(0);
+        command = page.isEmpty() ? QStringLiteral("settings") : QStringLiteral("settings:") + page;
+    }
 
     // 이미 실행 중이면 명령만 전달하고 끝낸다.
     if (ShellIpc::sendToRunningInstance(command.isEmpty() ? QStringLiteral("ping") : command))

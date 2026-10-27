@@ -26,6 +26,9 @@ export HAGRA_QML_IMPORT_PATH=$REPO/libs/hagraui/qml
 export XDG_CURRENT_DESKTOP=HAGRA
 export HAGRA_TERMINAL=foot
 export HAGRA_SHELL=none   # autostart 의 셸 실행은 건너뛰고 테스트가 직접 실행한다
+# 설정 앱 대역: 셸이 무엇을 실행했는지 기록만 한다 (--settings [PAGE] 명령줄·IPC 경로 검증)
+export HAGRA_SETTINGS=$XDG_RUNTIME_DIR/hagra-settings-stub
+printf '#!/bin/sh\necho "$*" >> "%s/settings-calls.log"\n' "$XDG_RUNTIME_DIR" > "$HAGRA_SETTINGS"; chmod +x "$HAGRA_SETTINGS"
 unset WAYLAND_DISPLAY DISPLAY
 # 테마: 사용자 설정을 건드리지 않도록 HOME 을 임시로, 테마 팩은 빌드 디렉터리에서
 export HOME=$XDG_RUNTIME_DIR/home; mkdir -p "$HOME"; unset XDG_CONFIG_HOME XDG_STATE_HOME HAGRA_THEME
@@ -94,6 +97,13 @@ grim -t png "$OUT/03-power.png"
 python3 -I "$REPO/tests/shell/check_screenshot.py" "$OUT/03-power.png" power
 "$SHELL_BIN" --power
 sleep 0.5
+
+# 설정 열기: `hagra-shell --settings` (바탕 화면 메뉴·Super+I) 와 `--settings PAGE` (개인 설정 메뉴) 둘 다 설정 앱을 실행해야 한다
+"$SHELL_BIN" --settings || { echo "FAIL: hagra-shell --settings rc=$?"; exit 1; }
+"$SHELL_BIN" --settings wallpaper || { echo "FAIL: hagra-shell --settings wallpaper rc=$?"; exit 1; }
+sleep 1
+[ "$(cat "$XDG_RUNTIME_DIR/settings-calls.log" 2>/dev/null)" = "$(printf '\n--page wallpaper')" ] || { echo "FAIL: settings app calls:"; cat "$XDG_RUNTIME_DIR/settings-calls.log" 2>/dev/null; exit 1; }
+echo "ok: --settings and --settings wallpaper launch the settings app (hagra-settings, hagra-settings --page wallpaper)"
 
 # exclusive zone: foot 을 최대화하면 패널 영역을 침범하지 않아야 한다 (foreign-toplevel 창 목록도 함께 검사)
 foot --app-id hagra-test-foot > "$OUT/foot.log" 2>&1 &

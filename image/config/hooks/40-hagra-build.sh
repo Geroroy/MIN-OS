@@ -18,7 +18,13 @@ echo "== removing build dependencies"
 apt-mark auto $BUILD_PKGS >/dev/null
 apt-get autoremove -y --purge >/tmp/hagra-autoremove.log 2>&1 || { tail -20 /tmp/hagra-autoremove.log; exit 1; }
 rm -rf /tmp/hagra-build
-# 런타임 자가 점검
+# 런타임 자가 점검. 먼저 공유 라이브러리: 빌드 의존성을 지운 뒤에도 모든 하그라 실행 파일·플러그인이 링크되어야 한다
+# (예: hagra-settings 의 libQt6Xml 은 qt6-base-dev 가 끌어오지만 런타임 패키지 libqt6xml6 은 따로 적어야 한다)
+missing=0
+for f in /usr/bin/hagra-* $(find /usr/lib -path '*/qt6/qml/Hagra*' -name '*.so'); do
+  if ldd "$f" 2>/dev/null | grep -q 'not found'; then echo "MISSING LIBRARIES: $f"; ldd "$f" | grep 'not found'; missing=1; fi
+done
+[ "$missing" = 0 ] || { echo "add the runtime packages above to image/config/packages.desktop"; exit 1; }
 test -x /usr/bin/hagra-shell
 test -x /usr/bin/hagra-settings
 test -x /usr/bin/hagra-theme

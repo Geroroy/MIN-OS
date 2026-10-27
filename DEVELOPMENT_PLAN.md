@@ -196,7 +196,16 @@
 - QEMU 부팅 테스트 PASS (새 단계: 세션 환경으로 브라우저 실행 → file:// 페이지 25 s(TCG) 안에 불러옴·JS 동작, RSS 418 MB; `docs/screenshots/b1/boot-x86-browser.png`)
 - 부팅 테스트가 찾은 문제 2건 수정: ① `20-users.sh` 가 `~/.local` 을 root 소유로 만들어 `~/.local/share` 를 쓸 수 없던 기존 결함 (브라우저는 이제 저장소를 못 쓰면 메모리 전용 프로필로 동작)
   ② KVM 없는 QEMU `-cpu max` 의 AVX2 에뮬레이션 결함으로 Qt 그림 경로 segfault → `run.sh` TCG 기본 CPU 를 Nehalem-v2 로 (KNOWN_ISSUES #18)
-- 미검증: ARM64 번들(CI 가 다음 푸시에서 빌드·부팅 테스트), 실기기 GPU 가속, trixie 프로필
+- ARM64 번들: CI 부팅 테스트 PASS (보그라 단계 19.3 s, RSS 404 MB), Release android-latest 270aa1f
+- 미검증: 실기기 GPU 가속, trixie 프로필
+
+### B1 후속 — 휴대폰(Termux) 실행에서 "설정에 들어갈 수 없음" (2026-10-27)
+공개된 ARM64 이미지를 내려받아 QEMU 에서 재현. 원인 두 가지, 둘 다 이미지 빌드 시점부터 있던 결함:
+1. `hagra-settings` 가 `libQt6Xml.so.6` 없음으로 실행 실패 — 런타임 패키지 `libqt6xml6` 가 `packages.desktop` 에 없었다 (빌드 의존성 `qt6-base-dev` 가 끌어왔다가 autoremove 로 지워짐). 실행 메뉴의 설정 단추·시스템 탭 등 **모든** 경로가 막혀 있었다.
+   → `libqt6xml6` 추가 + `40-hagra-build.sh` 가 autoremove 뒤 모든 `hagra-*` 실행 파일·QML 플러그인을 `ldd` 로 검사해 빠진 라이브러리가 있으면 빌드 실패.
+2. `hagra-shell --settings` (바탕 화면 메뉴 "설정", Super+I) 가 "Missing value after '--settings'" 로 종료 — 값 있는 QCommandLineOption 은 값이 필수.
+   → 플래그 + 위치 인자(`--settings [PAGE]`)로 변경. `tests/shell/run.sh` 에 두 형태 검사 추가.
+- `tests/image/boot_test.py` 에 설정 앱 단계 추가(`hagra-shell --settings` → 프로세스 → 소켓 → 창 작업 표시줄 항목). x86-64 QEMU: 소켓 1.2 s, 창 확인 PASS.
 
 ## M2 — 하그라 셸 완성  ☐
 

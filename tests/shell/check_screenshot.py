@@ -156,7 +156,8 @@ def check_power(img):
     print("ok: power menu at bottom-right")
 
 
-def check_foot(img):
+def check_window(img, what="terminal"):
+    """앱 창이 떠 있는 화면: 패널은 여전히 보이고(exclusive zone) 작업 표시줄에 활성 창 항목이 있어야 한다."""
     w, h = img.size
     # 패널은 여전히 보여야 함 (exclusive zone) — 띠·경계·바탕
     check_panel_frame(img)
@@ -165,8 +166,12 @@ def check_foot(img):
     mark = OCHRE if PANEL_DARK else ACCENT
     found = any(close(img.getpixel((x, y)), mark) for y in ys for x in range(100, 460, 2))
     if not found:
-        fail("no active task indicator in panel (foreign-toplevel)")
-    print("ok: panel visible with terminal running, task indicator present")
+        fail(f"no active task indicator in panel (foreign-toplevel) with {what} running")
+    print(f"ok: panel visible with {what} running, task indicator present")
+
+
+def check_foot(img):
+    check_window(img, "terminal")
 
 
 def check_notification(img):

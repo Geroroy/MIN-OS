@@ -234,6 +234,26 @@ def main():
         check_screenshot.check_foot(Image.open(png).convert("RGB"))
         q.sh("pkill foot")
 
+        step("설정 앱 (바탕 화면 메뉴·Super+I 와 같은 `hagra-shell --settings` 경로)")
+        rc, out = q.sh(asmin + "hagra-shell --settings")
+        check(rc == 0, f"hagra-shell --settings rc={rc} {out.strip()}")
+        t_settings = time.time()
+        deadline = time.time() + 180
+        while time.time() < deadline and q.sh("pgrep -x hagra-settings")[0] != 0:
+            time.sleep(3)
+        rc, out = q.sh("pgrep -a hagra-settings")
+        check(rc == 0, f"hagra-settings running: {out}")
+        # 단일 인스턴스 소켓은 QML 창을 만들기 직전에 열린다 → 그 뒤 잠시 기다려 창(작업 표시줄 항목)을 확인한다
+        deadline = time.time() + 180
+        while time.time() < deadline and q.sh("test -S /run/user/1000/hagra-settings-wayland-0.sock")[0] != 0:
+            time.sleep(3)
+        metrics["settings_window_s"] = round(time.time() - t_settings, 1)
+        print(f"   settings socket after {metrics['settings_window_s']}s")
+        time.sleep(20)
+        png = q.screendump("03a-settings")
+        check_screenshot.check_window(Image.open(png).convert("RGB"), "settings")
+        q.sh("pkill -x hagra-settings; sleep 2; true")
+
         step("웹 브라우저 실행 (세션 환경으로 로컬 페이지 열기)")
         page = base64.b64encode('<!doctype html><meta charset="utf-8"><title>HAGRA boot page</title>'
                                 '<h1>보그라</h1><script>document.title += " js-ok"</script>'.encode()).decode()

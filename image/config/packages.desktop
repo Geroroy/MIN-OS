@@ -14,6 +14,7 @@ qt6-wayland
 libqt6svg6
 libqt6dbus6
 libqt6network6
+libqt6xml6
 libqt6quickcontrols2-6
 qml6-module-qtquick
 qml6-module-qtquick-controls
