@@ -20,6 +20,7 @@ class BrowserHelper : public QObject
     Q_PROPERTY(QVariantList shortcuts READ shortcuts NOTIFY shortcutsChanged)
     Q_PROPERTY(QString storagePath READ storagePath CONSTANT)
     Q_PROPERTY(QString cachePath READ cachePath CONSTANT)
+    Q_PROPERTY(bool storageWritable READ storageWritable CONSTANT)
     Q_PROPERTY(QString downloadDir READ downloadDir CONSTANT)
     Q_PROPERTY(QString acceptLanguage READ acceptLanguage CONSTANT)
 public:
@@ -46,6 +47,8 @@ public:
 
     QString storagePath() const;
     QString cachePath() const;
+    /// 프로필·캐시 디렉터리를 만들고 쓸 수 있는지. 아니면 QML 은 메모리 전용(사생활 보호) 프로필로 돈다.
+    bool storageWritable() const;
     QString downloadDir() const;
     QString acceptLanguage() const;
 

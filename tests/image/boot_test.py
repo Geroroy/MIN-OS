@@ -246,11 +246,14 @@ def main():
                        "setsid -f hagra-browser /tmp/hagra-browser-test.html > /tmp/hagra-browser.log 2>&1")
         check(rc == 0, "hagra-browser started")
         deadline = time.time() + max(240, args.timeout // 4)
+        alive = True
         while time.time() < deadline:
             rc, out = q.sh("cat /tmp/hagra-browser.log")
-            if "loaded file:///tmp/hagra-browser-test.html" in out or "load failed" in out or q.sh("pgrep -c hagra-browser")[0] != 0:
+            alive = q.sh("pgrep -x hagra-browser")[0] == 0
+            if "loaded file:///tmp/hagra-browser-test.html" in out or "load failed" in out or not alive:
                 break
             time.sleep(5)
+        print(f"   browser process alive: {alive}")
         metrics["browser_page_s"] = round(time.time() - t_browser, 1)
         print("   browser log:\n      " + out.replace("\n", "\n      "))
         check("loaded file:///tmp/hagra-browser-test.html" in out, f"browser loaded local page ({metrics['browser_page_s']}s)")

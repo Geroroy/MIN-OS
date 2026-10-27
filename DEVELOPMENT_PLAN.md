@@ -178,6 +178,25 @@
 | P4 | 셸 감시 루프 · 종료 순서 · fcitx5 통합(패키지·환경·자동 시작) · 저장 설정 복원(--apply) · 유휴 측정(CPU 0.03 %, RSS 68 MiB) · debian/ 패키징 | ☑ 호스트 / ☐ 이미지 안 fcitx5 실제 조합 미검증 |
 | P5 | QA 실행기(`tests/qa/run-all.sh`, 12 자동 검사 PASS) · 사용자 안내·설치·알려진 문제·점검표 · 릴리스 준비 보고 `docs/RELEASE_READINESS.md` · x86-64 ISO 빌드(477 MB)·QEMU 부팅 테스트 PASS · .deb PASS | ☑ 실기기·한글 조합·trixie 프로필은 NOT TESTED (보고서 §2) |
 
+## B1 — 하그라 브라우저  ◐  (2026-10-27; 구현·호스트 검증 완료, 실기기·ARM64 미검증)
+
+요청: "브라우저 넣어줘". 기존 앱(설정)과 같은 방식(Qt6/QML + HagraUI + HagraTheme)으로 엔진만 Qt WebEngine 을 쓴다. 배포판 패키지(qt6-webengine)라 Debian/Ubuntu 양쪽·amd64/arm64 에서 같은 코드가 빌드된다 (Ubuntu 의 firefox/chromium 은 snap 전환 패키지라 chroot 이미지에 넣을 수 없다).
+
+- `browser/`: 탭 · 주소/검색 통합 표시줄 · 시작 페이지(자주 가는 곳) · 찾기 · 확대 · 내려받기 · 권한 묻기 · 문맥 메뉴 · 전체 화면 · 단일 인스턴스 · 알림 센터 연동 · 영어 번역 · 앱 아이콘
+- 세션: 기본 http/https 처리기(`hagra-mimeapps.list`), `BROWSER`, Super+B, 바탕 화면 메뉴, 실행 메뉴 즐겨찾기 첫 칸, labwc 기본 Alt+방향키 해제
+- 이미지: `qt6-webengine-dev`(빌드), `qml6-module-qtwebengine`·`-controlsdelegates`·`qtquick-dialogs`·`qt-labs-folderlistmodel`(런타임)
+
+### B1 검증 기록
+- ctest 6/6 (새 `browser.helper`: 주소 해석 17가지·검색 엔진·자주 가는 곳 저장·Accept-Language)
+- `tests/design/capture-browser.sh` PASS ×3 (연한·밤 단청·영어): 시작 페이지, file:// 페이지 자바스크립트, 두 번째 실행 → 새 탭, 로컬 HTTP 내려받기 2 MB 일치·내려받기 전용 탭 닫힘, QML 경고 0
+- 수동(wtype/wlrctl, 헤드리스): 메뉴 · 링크 문맥 메뉴 · 찾기(1/4→2/4) · 새 탭 주소 입력 · 탭 닫기/다시 열기 · Alt+Home/Alt+← · 권한 막대 허용/차단 · JS 알림 창 · 파일 선택 대화 상자 (`docs/screenshots/b1/`)
+- 기존 검사 회귀 없음: 토큰·대비 203, 셸 헤드리스 통합, 설정 11 페이지
+- x86-64 ISO(ubuntu-noble): 477 MB → 533 MB, 설치 자가 점검(40-hagra-build) 통과
+- QEMU 부팅 테스트 PASS (새 단계: 세션 환경으로 브라우저 실행 → file:// 페이지 25 s(TCG) 안에 불러옴·JS 동작, RSS 418 MB; `docs/screenshots/b1/boot-x86-browser.png`)
+- 부팅 테스트가 찾은 문제 2건 수정: ① `20-users.sh` 가 `~/.local` 을 root 소유로 만들어 `~/.local/share` 를 쓸 수 없던 기존 결함 (브라우저는 이제 저장소를 못 쓰면 메모리 전용 프로필로 동작)
+  ② KVM 없는 QEMU `-cpu max` 의 AVX2 에뮬레이션 결함으로 Qt 그림 경로 segfault → `run.sh` TCG 기본 CPU 를 Nehalem-v2 로 (KNOWN_ISSUES #18)
+- 미검증: ARM64 번들(CI 가 다음 푸시에서 빌드·부팅 테스트), 실기기 GPU 가속, trixie 프로필
+
 ## M2 — 하그라 셸 완성  ☐
 
 - 창 목록/전환: `wlr-foreign-toplevel-management-unstable-v1` (labwc 지원) — Alt+Tab 오버레이 포함

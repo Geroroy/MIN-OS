@@ -30,7 +30,7 @@ Window {
     WebEngineProfile {
         id: webProfile
         storageName: "hagra"
-        offTheRecord: false
+        offTheRecord: !Browser.storageWritable   // 홈을 쓸 수 없으면 메모리 전용으로라도 동작한다
         persistentStoragePath: Browser.storagePath
         cachePath: Browser.cachePath
         httpCacheType: WebEngineProfile.DiskHttpCache
@@ -168,7 +168,10 @@ Window {
             if (v && v.isFullScreen) v.fullScreenCancelled()
         }
     }
-    function askPermission(v, origin, feature) { permission = { view: v, origin: origin, feature: feature } }
+    function askPermission(v, origin, feature) {
+        if (permission) answerPermission(false)   // 답하지 않은 이전 요청은 거부로 끝낸다 (페이지가 기다리지 않게)
+        permission = { view: v, origin: origin, feature: feature }
+    }
     function answerPermission(granted) {
         if (!permission) return
         permission.view.grantFeaturePermission(permission.origin, permission.feature, granted)

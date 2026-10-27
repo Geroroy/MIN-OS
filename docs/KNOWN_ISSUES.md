@@ -19,3 +19,4 @@
 | 15 | 종료 로그 | 셸 종료 시 `[destroyed object] surface was destroyed before its role object` 가 드물게 기록된다 (기능 영향 없음; 종료 순서 수정 적용). | 낮음 | 헤드리스 테스트에서 재발 여부 감시 |
 | 16 | 브라우저 | 하그라 브라우저는 Qt 6.4 의 WebEngine(Chromium 102 기반)을 쓴다. 배포판 보안 갱신을 따르지만 최신 Chrome/Firefox 보다 엔진이 오래되어 일부 최신 사이트 기능이 없을 수 있다. 확장 기능·동기화·방문 기록 화면·세션 복원은 아직 없다. 이미지가 약 200 MB 커진다. | 중간 | 배포판의 qt6-webengine 갱신을 따라간다. 방문 기록·세션 복원은 후속 |
 | 17 | 브라우저 | 소프트웨어 렌더링 세션(GPU 없는 QEMU, Android/Termux)에서는 `--disable-gpu` 로 동작해 동영상·WebGL 이 느리다. 모바일 프로필은 렌더러 프로세스를 2개로 제한한다. | 중간 | 실기기(GPU)에서는 하드웨어 가속 |
+| 18 | QEMU(TCG) | KVM 없이 x86-64 ISO 를 `-cpu max` 로 돌리면 QEMU 8.2 TCG 가 AVX2 마스크 load 를 잘못 에뮬레이트해 하그라 브라우저(Qt 그림 경로)가 segfault 한다. 실제 CPU·KVM 에서는 정상. | 낮음 | `image/qemu/run.sh` 는 TCG 에서 `Nehalem-v2`(AVX 없음)를 기본으로 쓴다. 다른 가상 머신에서도 TCG 면 AVX2 없는 CPU 모델을 고른다 |

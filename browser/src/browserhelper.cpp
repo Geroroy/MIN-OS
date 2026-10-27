@@ -232,6 +232,20 @@ QString BrowserHelper::cachePath() const
     return QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QStringLiteral("/hagra/browser");
 }
 
+bool BrowserHelper::storageWritable() const
+{
+    static const bool ok = [this] {
+        for (const QString &d : { storagePath(), cachePath() }) {
+            if (!QDir().mkpath(d) || !QFileInfo(d).isWritable()) {
+                qCWarning(lcBrowser) << "storage not writable:" << d << "— using an in-memory profile (cookies and history are not kept)";
+                return false;
+            }
+        }
+        return true;
+    }();
+    return ok;
+}
+
 QString BrowserHelper::downloadDir() const
 {
     QString d = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
