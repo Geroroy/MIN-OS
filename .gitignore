@@ -3,6 +3,7 @@ build-*/
 out/
 image/work/
 *.iso
+!image/config/packages.iso
 *.qcow2
 *.img
 __pycache__/

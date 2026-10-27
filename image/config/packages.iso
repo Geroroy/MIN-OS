@@ -1,0 +1,3 @@
+# live ISO(--format iso)에서만 설치: squashfs 루트를 initramfs에서 마운트
+live-boot
+live-boot-initramfs-tools
