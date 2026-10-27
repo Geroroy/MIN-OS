@@ -25,6 +25,10 @@ PKGS="$PKGS qt6-base-dev qt6-base-dev-tools qt6-declarative-dev qt6-declarative-
       qml6-module-qtquick-templates qml6-module-qtquick-shapes qml6-module-qtcore
       libwayland-dev wayland-protocols libxkbcommon-dev libgl1-mesa-dri libegl-mesa0"
 
+# 하그라 브라우저 (Qt WebEngine)
+PKGS="$PKGS qt6-webengine-dev qml6-module-qtwebengine qml6-module-qtwebengine-controlsdelegates
+      qml6-module-qtquick-dialogs qml6-module-qt-labs-folderlistmodel"
+
 # Wayland 세션 컴포넌트 (헤드리스 테스트용)
 PKGS="$PKGS labwc foot swaybg grim wlr-randr wl-clipboard fonts-dejavu fonts-inter
       dbus dbus-user-session"

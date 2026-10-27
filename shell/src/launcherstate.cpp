@@ -55,7 +55,7 @@ void LauncherState::seedDefaults(const QStringList &availableIds)
     if (m_hasConfig)
         return;
     QStringList seed;
-    for (const QString &cand : { QStringLiteral("org.hagra.settings"), QStringLiteral("org.codeberg.dnkl.foot"),
+    for (const QString &cand : { QStringLiteral("org.hagra.browser"), QStringLiteral("org.hagra.settings"), QStringLiteral("org.codeberg.dnkl.foot"),
                                  QStringLiteral("hagra-terminal"), QStringLiteral("org.hagra.files") })
         if (availableIds.contains(cand))
             seed << cand;

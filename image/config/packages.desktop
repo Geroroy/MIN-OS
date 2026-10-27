@@ -23,6 +23,11 @@ qml6-module-qtquick-templates
 qml6-module-qtquick-shapes
 qml6-module-qtqml
 qml6-module-qtqml-workerscript
+# 하그라 브라우저 (Qt WebEngine: Chromium 엔진 · 기본 대화 상자(알림·파일 선택) 부품)
+qml6-module-qtwebengine
+qml6-module-qtwebengine-controlsdelegates
+qml6-module-qtquick-dialogs
+qml6-module-qt-labs-folderlistmodel
 # 한글 입력기 (fcitx5 + 한글 엔진 + Qt6/GTK 프런트엔드)
 fcitx5
 fcitx5-hangul

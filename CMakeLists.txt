@@ -74,4 +74,5 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/design/assets/icons DESTINATION ${CMAKE_IN
 if(HAGRA_BUILD_SHELL)
   add_subdirectory(shell)
   add_subdirectory(settings)
+  add_subdirectory(browser)
 endif()

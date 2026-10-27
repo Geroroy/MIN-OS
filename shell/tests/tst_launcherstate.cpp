@@ -19,8 +19,8 @@ private slots:
     {
         LauncherState s;
         QVERIFY(s.favorites().isEmpty());
-        s.seedDefaults({ "org.codeberg.dnkl.foot", "vim", "org.hagra.settings" });
-        QCOMPARE(s.favorites(), (QStringList{ "org.hagra.settings", "org.codeberg.dnkl.foot" }));
+        s.seedDefaults({ "org.codeberg.dnkl.foot", "vim", "org.hagra.settings", "org.hagra.browser" });
+        QCOMPARE(s.favorites(), (QStringList{ "org.hagra.browser", "org.hagra.settings", "org.codeberg.dnkl.foot" }));
         QVERIFY(!QFileInfo::exists(LauncherState::configPath()));   // 기본값은 저장하지 않는다
     }
     void favoritesPersistAndReorder()

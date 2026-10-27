@@ -1,5 +1,5 @@
 // 하그라 셸 — 실행 메뉴 상태: 즐겨찾기(설정)와 최근 실행(상태). 두 파일 모두 사용자 디렉터리에 있고 다른 셸 인스턴스/설정 앱이 바꾸면 따라간다.
-//   즐겨찾기: ~/.config/hagra/launcher.conf   [launcher] favorites=id1,id2   (기본: 터미널·설정·파일 관리자 중 설치된 것)
+//   즐겨찾기: ~/.config/hagra/launcher.conf   [launcher] favorites=id1,id2   (기본: 브라우저·설정·터미널·파일 관리자 중 설치된 것)
 //   최근 실행: ~/.local/state/hagra/launcher-recent.conf [recent] ids=...   (최대 8개, 최신 우선)
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once

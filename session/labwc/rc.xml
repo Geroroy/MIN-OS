@@ -53,6 +53,13 @@
     <keybind key="W-Return"><action name="Execute" command="foot" /></keybind>
     <keybind key="W-space"><action name="Execute" command="hagra-shell --toggle-launcher" /></keybind>
     <keybind key="W-e"><action name="Execute" command="hagra-shell --show-launcher" /></keybind>
+    <keybind key="W-b"><action name="Execute" command="hagra-browser" /></keybind>
+    <!-- labwc 기본값의 Alt+방향키(창을 가장자리로 이동)를 없앤다: 앱이 쓰는 키다 (브라우저 뒤로/앞으로 Alt+←/→, 파일 관리자 Alt+↑).
+         창 붙이기는 Super+방향키. -->
+    <keybind key="A-Left"><action name="None" /></keybind>
+    <keybind key="A-Right"><action name="None" /></keybind>
+    <keybind key="A-Up"><action name="None" /></keybind>
+    <keybind key="A-Down"><action name="None" /></keybind>
     <keybind key="W-Escape"><action name="Execute" command="hagra-shell --power" /></keybind>
     <keybind key="A-F4"><action name="Close" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <!-- 하그라 브라우저 앱 아이콘: 청자 바탕의 지구본 + 분백 경위선 + 산호 연화 점 (설정 아이콘과 같은 단청 색) -->
+  <circle cx="48" cy="48" r="40" fill="#EDC486" stroke="#3E746D" stroke-width="2"/>
+  <circle cx="48" cy="48" r="33" fill="#91B9A5" stroke="#3E746D" stroke-width="2"/>
+  <g fill="none" stroke="#FAF6EA" stroke-width="3" stroke-linecap="round">
+    <ellipse cx="48" cy="48" rx="13" ry="33"/>
+    <path d="M15 48h66"/>
+    <path d="M20 31.5h56"/>
+    <path d="M20 64.5h56"/>
+    <path d="M48 15v66"/>
+  </g>
+  <circle cx="48" cy="48" r="33" fill="none" stroke="#3E746D" stroke-width="2"/>
+  <g transform="translate(74 74)">
+    <circle r="14" fill="#FAF6EA" stroke="#3E746D" stroke-width="2"/>
+    <path d="M0-9c4 3 4 8 0 11c-4-3-4-8 0-11z" fill="#E89B89"/>
+    <path d="M-9 1c4-1 8 1 9 4c-4 2-8 0-9-4z" fill="#E89B89"/>
+    <path d="M9 1c-4-1-8 1-9 4c4 2 8 0 9-4z" fill="#E89B89"/>
+    <circle cy="6" r="2" fill="#A54042"/>
+  </g>
+</svg>

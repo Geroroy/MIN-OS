@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/qml">
+    <file>Main.qml</file>
+    <file>BrowserTab.qml</file>
+    <file>TabItem.qml</file>
+    <file>InfoBar.qml</file>
+    <file>StartPage.qml</file>
+  </qresource>
+</RCC>

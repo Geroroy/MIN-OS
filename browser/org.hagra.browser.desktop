@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=Web Browser
+Name[ko]=웹 브라우저
+GenericName=Web Browser
+GenericName[ko]=웹 브라우저
+Comment=Browse the web with tabs, search and frequently visited sites
+Comment[ko]=탭·검색·자주 가는 곳으로 웹을 탐색합니다
+Keywords=web;internet;browser;www;http;
+Keywords[ko]=웹;인터넷;브라우저;누리집;검색;
+Exec=hagra-browser %U
+Icon=org.hagra.browser
+Terminal=false
+Categories=Network;WebBrowser;
+MimeType=text/html;application/xhtml+xml;image/svg+xml;application/pdf;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=false
+StartupWMClass=org.hagra.browser

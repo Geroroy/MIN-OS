@@ -19,11 +19,13 @@ need() { command -v "$1" >/dev/null 2>&1; }
 
 run build      "빌드 (cmake + ninja, 테마 팩, 번역)"           make -s shell
 run tokens     "토큰 드리프트·테마 팩·대비 검사"                  make -s tokens-check
-run unit       "단위 테스트 (ctest: hagraui.qml, theme.manager, shell.appindex, shell.launcherstate, settings.backends)" bash -c 'cd build && ctest --output-on-failure'
+run unit       "단위 테스트 (ctest: hagraui.qml, theme.manager, shell.appindex, shell.launcherstate, settings.backends, browser.helper)" bash -c 'cd build && ctest --output-on-failure'
 if need labwc && need grim && need foot; then
   run shell    "헤드리스 셸 통합 (패널·실행 메뉴·전원·exclusive zone·테마 왕복 3종·영어 UI·FHD·알림 서버·2출력)" tests/shell/run.sh build
   run settings "설정 앱 11 페이지 렌더링 (QML 경고 0)"             tests/design/capture-settings.sh
   run settings_en "설정 앱 영어 UI"                              env HAGRA_CAPTURE_LANG=en_US.UTF-8 HAGRA_CAPTURE_LANGUAGE=en PAGES="appearance input" tests/design/capture-settings.sh out/design/settings-en
+  run browser  "하그라 브라우저 (시작 페이지·file:// 페이지 JS·단일 인스턴스, QML 경고 0)" tests/design/capture-browser.sh
+  run browser_night "하그라 브라우저 밤 단청"                       env HAGRA_THEME=hagra-dancheong-night tests/design/capture-browser.sh
   run popups   "셸 팝업 (달력·알림·알림 센터·위쪽 패널)"           tests/design/capture-shell.sh
   run idle     "유휴 CPU·메모리 측정 (30 s)"                      tests/shell/measure_idle.sh build 30
   run gallery  "HagraUI 갤러리 캡처 (3배율)"                      tests/design/capture-gallery.sh

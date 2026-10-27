@@ -12,6 +12,7 @@ on:
       - "session/**"
       - "shell/**"
       - "settings/**"
+      - "browser/**"
       - "libs/**"
       - "CMakeLists.txt"
       - "tests/image/**"

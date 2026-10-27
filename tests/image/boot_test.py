@@ -15,6 +15,7 @@
 결과: 스크린샷, serial.log, metrics.json (부팅 시간·메모리·CPU)
 """
 import argparse
+import base64
 import json
 import os
 import re
@@ -232,6 +233,34 @@ def main():
         png = q.screendump("03-terminal")
         check_screenshot.check_foot(Image.open(png).convert("RGB"))
         q.sh("pkill foot")
+
+        step("웹 브라우저 실행 (세션 환경으로 로컬 페이지 열기)")
+        page = base64.b64encode('<!doctype html><meta charset="utf-8"><title>HAGRA boot page</title>'
+                                '<h1>하그라 브라우저</h1><script>document.title += " js-ok"</script>'.encode()).decode()
+        q.sh(f"echo {page} | base64 -d > /tmp/hagra-browser-test.html; chmod 644 /tmp/hagra-browser-test.html")
+        # hagra-shell 의 환경(WAYLAND_DISPLAY·QT_QUICK_BACKEND·LANG …)을 그대로 써서 실행 메뉴로 연 것과 같은 조건으로 띄운다
+        sess_env = ("$(tr '\\0' '\\n' < /proc/$(pgrep -o -u hagra hagra-shell)/environ"
+                    " | grep -E '^(QT_[A-Z_]*|WLR_[A-Z_]*|XDG_[A-Z_]*|WAYLAND_DISPLAY|LANG|LANGUAGE|HOME|PATH|DBUS_SESSION_BUS_ADDRESS|BROWSER)=' | tr '\\n' ' ')")
+        t_browser = time.time()
+        rc, out = q.sh(f"sudo -u hagra env {sess_env} QT_LOGGING_RULES=hagra.browser=true "
+                       "setsid -f hagra-browser /tmp/hagra-browser-test.html > /tmp/hagra-browser.log 2>&1")
+        check(rc == 0, "hagra-browser started")
+        deadline = time.time() + max(240, args.timeout // 4)
+        while time.time() < deadline:
+            rc, out = q.sh("cat /tmp/hagra-browser.log")
+            if "loaded file:///tmp/hagra-browser-test.html" in out or "load failed" in out or q.sh("pgrep -c hagra-browser")[0] != 0:
+                break
+            time.sleep(5)
+        metrics["browser_page_s"] = round(time.time() - t_browser, 1)
+        print("   browser log:\n      " + out.replace("\n", "\n      "))
+        check("loaded file:///tmp/hagra-browser-test.html" in out, f"browser loaded local page ({metrics['browser_page_s']}s)")
+        check("HAGRA boot page js-ok" in out, "page JavaScript ran (title changed)")
+        time.sleep(5)
+        rc, out = q.sh("ps -o rss= -C hagra-browser,QtWebEngineProcess | awk '{s+=$1} END {print int(s/1024)}'")
+        metrics["browser_rss_mb"] = int(out) if out.strip().isdigit() else None
+        print(f"   browser rss: {out} MB")
+        q.screendump("03b-browser")
+        q.sh("pkill -f hagra-browser; sleep 2; pkill -9 -f QtWebEngineProcess; true")
 
         step("테마 전환: 깊은 단청 선택 (사용자 설정 저장, 셸·labwc·배경 즉시 반영)")
         asmin_home = "sudo -u hagra env HOME=/home/hagra XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-0 "

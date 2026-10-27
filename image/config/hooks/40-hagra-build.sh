@@ -25,4 +25,8 @@ test -x /usr/bin/hagra-theme
 test -f /usr/share/hagra/themes/hagra-dancheong-night/theme.json
 test -f /usr/share/hagra/translations/hagra-shell_en.qm
 test -f /usr/share/applications/org.hagra.settings.desktop
+test -x /usr/bin/hagra-browser
+test -f /usr/share/applications/org.hagra.browser.desktop
+test -f /usr/share/hagra/translations/hagra-browser_en.qm
+test -x "$(find /usr/lib -path '*/qt6/libexec/QtWebEngineProcess' | head -1)"   # 런타임이 빌드 의존성 제거 뒤에도 남았는지
 test -f "$(find /usr/lib -path '*/qt6/qml/HagraUI/qmldir' | head -1)"

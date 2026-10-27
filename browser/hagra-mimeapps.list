@@ -1,0 +1,6 @@
+# 하그라 세션(XDG_CURRENT_DESKTOP=HAGRA)의 기본 앱. 사용자는 ~/.config/mimeapps.list 로 바꾼다.
+[Default Applications]
+text/html=org.hagra.browser.desktop
+application/xhtml+xml=org.hagra.browser.desktop
+x-scheme-handler/http=org.hagra.browser.desktop
+x-scheme-handler/https=org.hagra.browser.desktop
